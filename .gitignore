@@ -36,6 +36,9 @@ yarn-error.log*
 # MCP configuration (contains sensitive tokens)
 .mcp.json
 
+# Claude Code project settings
+.claude/
+
 # vercel
 .vercel
 
