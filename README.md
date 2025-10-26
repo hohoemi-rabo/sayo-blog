@@ -20,6 +20,26 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## MCP Configuration (Claude Code)
+
+This project supports MCP (Model Context Protocol) integration for Claude Code. To set up:
+
+1. Copy the example configuration:
+   ```bash
+   cp .mcp.json.example .mcp.json
+   ```
+
+2. Set your Supabase access token as an environment variable:
+   ```bash
+   export SUPABASE_ACCESS_TOKEN="your-token-here"
+   ```
+
+   Or add it to your shell configuration file (`~/.bashrc`, `~/.zshrc`, etc.)
+
+3. Restart Claude Code to load the MCP configuration
+
+**Important:** Never commit `.mcp.json` with actual tokens to version control. The file is already in `.gitignore`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
