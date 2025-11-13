@@ -68,20 +68,20 @@ const nextConfig: NextConfig = {
 
 ## Todo
 
-- [ ] Install dependencies (`npm install`)
-- [ ] Create `.env.local` from Supabase project settings
-- [ ] Create `.env.example` template
-- [ ] Configure Next.js for Supabase images
-- [ ] Set up MCP configuration (`.mcp.json`)
-- [ ] Verify MCP connection with `claude mcp list`
-- [ ] Test development server (`npm run dev`)
+- [×] Install dependencies (`npm install`)
+- [×] Create `.env.local` from Supabase project settings
+- [×] Create `.env.example` template
+- [×] Configure Next.js for Supabase images
+- [×] Set up MCP configuration (`.mcp.json`)
+- [×] Verify MCP connection with `claude mcp list`
+- [×] Test development server (`npm run dev`)
 - [ ] Configure ESLint rules
 - [ ] Set up Git hooks (optional: Husky)
-- [ ] Create initial project structure:
-  - [ ] `src/lib/supabase.ts` - Supabase client
-  - [ ] `src/lib/types.ts` - TypeScript types
-  - [ ] `src/components/` - Component directory
-  - [ ] `src/app/api/` - API routes
+- [×] Create initial project structure:
+  - [×] `src/lib/supabase.ts` - Supabase client
+  - [×] `src/lib/types.ts` - TypeScript types
+  - [×] `src/components/` - Component directory
+  - [×] `src/app/api/` - API routes
 
 ## References
 
