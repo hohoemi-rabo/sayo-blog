@@ -43,62 +43,62 @@ Footer
 
 ### Header Component
 
-- [ ] Create Header component (`src/components/Header.tsx`)
-- [ ] Add site logo/title
-- [ ] Implement navigation menu
-  - [ ] Home link
-  - [ ] About link (if needed)
-  - [ ] Categories dropdown (optional)
-- [ ] Add search bar (placeholder for now, implement later)
-- [ ] Make header sticky on scroll
-- [ ] Add mobile hamburger menu
-- [ ] Implement smooth scroll behavior
+- [×] Create Header component (`src/components/Header.tsx`)
+- [×] Add site logo/title
+- [×] Implement navigation menu
+  - [×] Home link
+  - [×] About link (if needed)
+  - [×] Categories dropdown (optional)
+- [×] Add search bar (placeholder for now, implement later)
+- [×] Make header sticky on scroll
+- [×] Add mobile hamburger menu
+- [×] Implement smooth scroll behavior
 
 ### Hero Section
 
-- [ ] Create HeroSection component (`src/components/HeroSection.tsx`)
-- [ ] Add main visual/background image
-- [ ] Add site title/catchphrase
+- [×] Create HeroSection component (`src/components/HeroSection.tsx`)
+- [×] Add main visual/background image
+- [×] Add site title/catchphrase
   - Title: "Sayo's Journal"
   - Subtitle: "言葉で"場所・人・記憶"をつなぐ"
-- [ ] Add decorative elements (Beardsley-inspired SVG patterns)
-- [ ] Make responsive (full height on mobile, partial on desktop)
-- [ ] Add scroll indicator (chevron down icon)
+- [×] Add decorative elements (Beardsley-inspired SVG patterns)
+- [×] Make responsive (full height on mobile, partial on desktop)
+- [×] Add scroll indicator (chevron down icon)
 
 ### Footer Component
 
-- [ ] Create Footer component (`src/components/Footer.tsx`)
-- [ ] Add site map links
-  - [ ] Home
-  - [ ] Categories
-  - [ ] About
-  - [ ] Privacy Policy (placeholder)
-- [ ] Add SNS links (if available)
-  - [ ] Twitter/X
-  - [ ] Instagram
-  - [ ] Facebook
-- [ ] Add copyright notice
-- [ ] Add decorative border/pattern (top edge)
-- [ ] Make responsive (stack on mobile)
+- [×] Create Footer component (`src/components/Footer.tsx`)
+- [×] Add site map links
+  - [×] Home
+  - [×] Categories
+  - [×] About
+  - [×] Privacy Policy (placeholder)
+- [×] Add SNS links (if available)
+  - [×] Twitter/X
+  - [×] Instagram
+  - [×] Facebook
+- [×] Add copyright notice
+- [×] Add decorative border/pattern (top edge)
+- [×] Make responsive (stack on mobile)
 
 ### Layout Integration
 
-- [ ] Update `src/app/layout.tsx` with font variables
-- [ ] Add global Header to layout
-- [ ] Add global Footer to layout
-- [ ] Configure metadata (title, description, OG tags)
-- [ ] Set up viewport configuration
-- [ ] Add theme color meta tags
+- [×] Update `src/app/layout.tsx` with font variables
+- [×] Add global Header to layout
+- [×] Add global Footer to layout
+- [×] Configure metadata (title, description, OG tags)
+- [×] Set up viewport configuration
+- [×] Add theme color meta tags
 
 ### Styling & Animations
 
-- [ ] Apply color palette from design system
-- [ ] Add Framer Motion animations
-  - [ ] Header fade-in on load
-  - [ ] Hero section content slide-up
-  - [ ] Footer fade-in on scroll into view
-- [ ] Add hover effects to navigation items
-- [ ] Implement smooth page transitions
+- [×] Apply color palette from design system
+- [×] Add Framer Motion animations
+  - [×] Header fade-in on load
+  - [×] Hero section content slide-up
+  - [×] Footer fade-in on scroll into view
+- [×] Add hover effects to navigation items
+- [×] Implement smooth page transitions
 
 ## Component Example
 
@@ -155,10 +155,10 @@ export default function Header() {
 
 ## Validation
 
-- [ ] Header stays sticky on scroll
-- [ ] Mobile menu opens/closes smoothly
-- [ ] All links navigate correctly
-- [ ] Responsive on all breakpoints (375px - 1920px)
-- [ ] Animations run smoothly (60fps)
-- [ ] Accessibility: keyboard navigation works
-- [ ] Lighthouse score: Performance 90+
+- [×] Header stays sticky on scroll
+- [×] Mobile menu opens/closes smoothly
+- [×] All links navigate correctly
+- [×] Responsive on all breakpoints (375px - 1920px)
+- [×] Animations run smoothly (60fps)
+- [×] Accessibility: keyboard navigation works
+- [ ] Lighthouse score: Performance 90+ (to be tested with real content)

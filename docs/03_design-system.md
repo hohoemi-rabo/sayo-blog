@@ -85,63 +85,63 @@ const notoSansJP = Noto_Sans_JP({
 
 ### Tailwind Configuration
 
-- [ ] Add color palette to `tailwind.config.ts`
-- [ ] Configure category gradient utilities
-- [ ] Add custom font family variables
-- [ ] Set up spacing scale (if custom needed)
-- [ ] Add custom border radius values
-- [ ] Configure animation keyframes for hover effects
+- [×] Add color palette to `tailwind.config.ts`
+- [×] Configure category gradient utilities
+- [×] Add custom font family variables
+- [×] Set up spacing scale (if custom needed)
+- [×] Add custom border radius values
+- [×] Configure animation keyframes for hover effects
 
 ### Typography Setup
 
-- [ ] Import Google Fonts (Playfair Display, Noto Serif JP, Noto Sans JP)
-- [ ] Configure font variables in layout.tsx
-- [ ] Add font-family utilities to Tailwind config
-- [ ] Test font loading and fallbacks
-- [ ] Add font-display: swap for performance
+- [×] Import Google Fonts (Playfair Display, Noto Serif JP, Noto Sans JP)
+- [×] Configure font variables in layout.tsx
+- [×] Add font-family utilities to Tailwind config
+- [×] Test font loading and fallbacks
+- [×] Add font-display: swap for performance
 
 ### Global Styles
 
-- [ ] Set up CSS custom properties in globals.css
-- [ ] Define base typography styles
-- [ ] Add smooth scrolling behavior
-- [ ] Configure default link styles
-- [ ] Add focus-visible styles for accessibility
+- [×] Set up CSS custom properties in globals.css
+- [×] Define base typography styles
+- [×] Add smooth scrolling behavior
+- [×] Configure default link styles
+- [×] Add focus-visible styles for accessibility
 
 ### Base Components
 
-- [ ] Create `Button` component with variants
-  - [ ] Primary variant (gradient background)
-  - [ ] Secondary variant (outline)
-  - [ ] Ghost variant
-  - [ ] Icon button variant
-- [ ] Create `Card` component
-  - [ ] Default card with shadow
-  - [ ] Hover animation (scale 1.03)
-  - [ ] Category color accent
-- [ ] Create `Badge` component for categories/tags
-  - [ ] Category gradient backgrounds
-  - [ ] Rounded pill shape
-- [ ] Create `Input` component
+- [×] Create `Button` component with variants
+  - [×] Primary variant (gradient background)
+  - [×] Secondary variant (outline)
+  - [×] Ghost variant
+  - [×] Icon button variant
+- [×] Create `Card` component
+  - [×] Default card with shadow
+  - [×] Hover animation (scale 1.03)
+  - [×] Category color accent
+- [×] Create `Badge` component for categories/tags
+  - [×] Category gradient backgrounds
+  - [×] Rounded pill shape
+- [ ] Create `Input` component (will be created when needed)
   - [ ] Text input
   - [ ] Search input with icon
-- [ ] Create `Select` component (for filters)
+- [ ] Create `Select` component (will be created when needed)
 
 ### Motion System
 
-- [ ] Install Framer Motion (`npm install framer-motion`)
-- [ ] Create motion variants for common animations:
-  - [ ] Card hover (scale + shadow)
-  - [ ] Fade in on scroll
-  - [ ] Stagger children
-- [ ] Document animation duration standards (0.2s, 0.3s, 0.5s)
+- [×] Install Framer Motion (`npm install framer-motion`)
+- [×] Create motion variants for common animations:
+  - [×] Card hover (scale + shadow)
+  - [×] Fade in on scroll
+  - [×] Stagger children
+- [×] Document animation duration standards (0.2s, 0.3s, 0.5s)
 
 ### Documentation
 
-- [ ] Create Storybook or component showcase page
-- [ ] Document color usage guidelines
-- [ ] Document typography hierarchy
-- [ ] Create examples for each component variant
+- [ ] Create Storybook or component showcase page (Phase 2)
+- [ ] Document color usage guidelines (Phase 2)
+- [ ] Document typography hierarchy (Phase 2)
+- [ ] Create examples for each component variant (Phase 2)
 
 ## Design Tokens
 
