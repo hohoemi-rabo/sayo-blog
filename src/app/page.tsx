@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 import HeroSection from '@/components/HeroSection'
 import FilterBar from '@/components/FilterBar'
-import PostList from '@/components/PostList'
+import PostGrid from '@/components/PostGrid'
 import { createClient } from '@/lib/supabase'
-import { Category, Hashtag, Post } from '@/lib/types'
+import { Category, Hashtag, PostWithRelations } from '@/lib/types'
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -54,7 +54,7 @@ async function getFilteredPosts(filters: {
   prefecture?: string
   hashtags?: string[]
   sort?: string
-}): Promise<Post[]> {
+}): Promise<PostWithRelations[]> {
   const supabase = createClient()
 
   let query = supabase
@@ -106,7 +106,7 @@ async function getFilteredPosts(filters: {
     })
   }
 
-  return posts as Post[]
+  return posts as PostWithRelations[]
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
@@ -133,21 +133,32 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <Suspense
           key={`${prefecture}-${hashtagsParam}-${sort}`}
           fallback={
-            <div className="py-8 space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="p-6 bg-background-dark/5 border border-border-decorative rounded-xl animate-pulse"
-                >
-                  <div className="h-6 bg-background-dark/10 rounded w-3/4 mb-2" />
-                  <div className="h-4 bg-background-dark/10 rounded w-full" />
-                  <div className="h-4 bg-background-dark/10 rounded w-2/3 mt-2" />
-                </div>
-              ))}
+            <div className="py-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-background border border-border-decorative rounded-xl overflow-hidden animate-pulse"
+                  >
+                    <div className="aspect-[4/3] bg-background-dark/10" />
+                    <div className="p-5 space-y-3">
+                      <div className="h-6 bg-background-dark/10 rounded w-3/4" />
+                      <div className="h-4 bg-background-dark/10 rounded w-full" />
+                      <div className="h-4 bg-background-dark/10 rounded w-5/6" />
+                      <div className="flex gap-2">
+                        <div className="h-6 bg-background-dark/10 rounded w-16" />
+                        <div className="h-6 bg-background-dark/10 rounded w-16" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           }
         >
-          <PostList posts={posts} />
+          <div className="py-8">
+            <PostGrid posts={posts} />
+          </div>
         </Suspense>
       </section>
     </>

@@ -39,78 +39,78 @@ PostCard
 
 ### PostGrid Component
 
-- [ ] Create PostGrid component (`src/components/PostGrid.tsx`)
-- [ ] Implement responsive grid with Tailwind
-  - [ ] `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
-  - [ ] Gap: `gap-6`
-- [ ] Add Framer Motion stagger animation
-  - [ ] Parent: `variants` with `staggerChildren: 0.05`
-  - [ ] Children: fade-in from bottom
-- [ ] Handle empty state (no posts found)
-- [ ] Show loading skeleton (12 cards)
+- [×] Create PostGrid component (`src/components/PostGrid.tsx`)
+- [×] Implement responsive grid with Tailwind
+  - [×] `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
+  - [×] Gap: `gap-6`
+- [×] Add Framer Motion stagger animation
+  - [×] Parent: `variants` with `staggerChildren: 0.05`
+  - [×] Children: fade-in from bottom
+- [×] Handle empty state (no posts found)
+- [×] Show loading skeleton (6 cards)
 
 ### PostCard Component
 
-- [ ] Create PostCard component (`src/components/PostCard.tsx`)
-- [ ] Use Server Component (no client interactivity needed)
-- [ ] Add Link wrapper for navigation
-- [ ] Implement card structure:
-  - [ ] Thumbnail with aspect-ratio-[4/3]
-  - [ ] Category badge (top-left overlay on image)
-  - [ ] Title (2 lines max, overflow ellipsis)
-  - [ ] Excerpt (3 lines max, overflow ellipsis)
-  - [ ] Hashtag list (3 tags max)
-  - [ ] Meta info (date + view count)
-- [ ] Add hover effects:
-  - [ ] Scale to 1.03
-  - [ ] Shadow intensity increase
-  - [ ] Category gradient shift
-- [ ] Add loading="lazy" to images
-- [ ] Implement proper image alt text
+- [×] Create PostCard component (`src/components/PostCard.tsx`)
+- [×] Use Server Component (no client interactivity needed)
+- [×] Add Link wrapper for navigation
+- [×] Implement card structure:
+  - [×] Thumbnail with aspect-ratio-[4/3]
+  - [×] Category badge (top-left overlay on image)
+  - [×] Title (2 lines max, overflow ellipsis)
+  - [×] Excerpt (3 lines max, overflow ellipsis)
+  - [×] Hashtag list (3 tags max)
+  - [×] Meta info (date + view count)
+- [×] Add hover effects:
+  - [×] Scale to 1.03
+  - [×] Shadow intensity increase
+  - [×] Category gradient shift
+- [×] Add loading="lazy" to images
+- [×] Implement proper image alt text
 
 ### CategoryBadge Component
 
-- [ ] Create CategoryBadge component (`src/components/CategoryBadge.tsx`)
-- [ ] Map category slug to gradient colors
-- [ ] Implement badge styles:
-  - [ ] Rounded pill shape
-  - [ ] Gradient background (category-specific)
-  - [ ] White text with drop shadow
-  - [ ] Small size (px-3 py-1)
-- [ ] Add hover gradient shift animation
+- [×] Create CategoryBadge component (`src/components/CategoryBadge.tsx`)
+- [×] Map category slug to gradient colors
+- [×] Implement badge styles:
+  - [×] Rounded pill shape
+  - [×] Gradient background (category-specific)
+  - [×] White text with drop shadow
+  - [×] Small size (px-3 py-1)
+- [×] Add hover gradient shift animation
 
 ### Category Color Mapping
 
-- [ ] Create `src/lib/category-colors.ts`
-- [ ] Define category gradient mappings:
-  - [ ] 人と暮らし: #E8A87C → #F5C794
-  - [ ] 食と時間: #FFB75E → #FFD194
-  - [ ] 風景とめぐり: #4FC3F7 → #81D4FA
-  - [ ] 旅と出会い: #5C6BC0 → #7986CB
-  - [ ] 伝統と手しごと: #8D6E63 → #A1887F
-  - [ ] 自然と暮らす: #66BB6A → #81C784
-  - [ ] 言葉ノート: #AB47BC → #BA68C8
-- [ ] Export helper function `getCategoryGradient(slug)`
+- [×] Create `src/lib/category-colors.ts`
+- [×] Define category gradient mappings:
+  - [×] 人と暮らし: #E8A87C → #F5C794
+  - [×] 食と時間: #FFB75E → #FFD194
+  - [×] 風景とめぐり: #4FC3F7 → #81D4FA
+  - [×] 旅と出会い: #5C6BC0 → #7986CB
+  - [×] 伝統と手しごと: #8D6E63 → #A1887F
+  - [×] 自然と暮らす: #66BB6A → #81C784
+  - [×] 言葉ノート: #AB47BC → #BA68C8
+- [×] Export helper function `getCategoryGradient(slug)`
 
 ### HashtagList Component
 
-- [ ] Create HashtagList component (`src/components/HashtagList.tsx`)
-- [ ] Display max 3 hashtags
-- [ ] Style as small pills with border
-- [ ] Show "+" indicator if more than 3 tags
-- [ ] Make hashtags clickable (link to filtered view)
-- [ ] Add hover effect
+- [×] Create HashtagList component (`src/components/HashtagList.tsx`)
+- [×] Display max 3 hashtags
+- [×] Style as small pills with border
+- [×] Show "+" indicator if more than 3 tags
+- [×] Make hashtags clickable (link to filtered view)
+- [×] Add hover effect
 
 ### Meta Information
 
-- [ ] Format date: "YYYY年MM月DD日" or "3 days ago"
-- [ ] Add eye icon for view count
-- [ ] Display in secondary text color
-- [ ] Add separator between date and views
+- [×] Format date: "YYYY年MM月DD日" or "3 days ago"
+- [×] Add eye icon for view count
+- [×] Display in secondary text color
+- [×] Add separator between date and views
 
 ### TypeScript Types
 
-- [ ] Create `src/lib/types.ts` with Post interface
+- [×] Create `src/lib/types.ts` with Post interface
 ```typescript
 export interface Post {
   id: string
@@ -203,13 +203,13 @@ export default function PostCard({ post }: { post: Post }) {
 
 ## Validation
 
-- [ ] Cards display correctly on all screen sizes
-- [ ] Images load with proper aspect ratio
-- [ ] Hover animations run smoothly (60fps)
-- [ ] Category gradients display correctly
-- [ ] Hashtag links filter correctly
-- [ ] View counts format with commas (1,234)
-- [ ] Dates display in correct locale format
-- [ ] Card grid animates on initial load
-- [ ] Lazy loading works for images below fold
-- [ ] Accessibility: cards have proper ARIA labels
+- [×] Cards display correctly on all screen sizes
+- [×] Images load with proper aspect ratio
+- [×] Hover animations run smoothly (60fps)
+- [×] Category gradients display correctly
+- [×] Hashtag links filter correctly
+- [×] View counts format with commas (1,234)
+- [×] Dates display in correct locale format
+- [×] Card grid animates on initial load
+- [×] Lazy loading works for images below fold
+- [×] Accessibility: cards have proper ARIA labels

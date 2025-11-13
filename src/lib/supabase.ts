@@ -12,6 +12,10 @@ export function createClient() {
     {
       auth: {
         persistSession: false,
+        autoRefreshToken: false,
+      },
+      db: {
+        schema: 'public',
       },
     }
   )
