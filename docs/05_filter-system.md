@@ -33,68 +33,68 @@ Use Next.js `useSearchParams` and `useRouter` for client-side filtering, then fe
 
 ### FilterBar Component
 
-- [ ] Create FilterBar component (`src/components/FilterBar.tsx`)
-- [ ] Use `'use client'` directive (needs client-side interactivity)
-- [ ] Implement layout (horizontal on desktop, stack on mobile)
-- [ ] Add "Clear Filters" button
-- [ ] Show active filter count badge
-- [ ] Add smooth transitions when filters change
+- [×] Create FilterBar component (`src/components/FilterBar.tsx`)
+- [×] Use `'use client'` directive (needs client-side interactivity)
+- [×] Implement layout (horizontal on desktop, stack on mobile)
+- [×] Add "Clear Filters" button
+- [×] Show active filter count badge
+- [×] Add smooth transitions when filters change
 
 ### Prefecture Select
 
-- [ ] Create PrefectureSelect component
-- [ ] Fetch prefecture categories from Supabase
-- [ ] Display as dropdown (use `<select>` or custom component)
-- [ ] Show "All Regions" option (clear filter)
-- [ ] Update URL on selection
+- [×] Create PrefectureSelect component
+- [×] Fetch prefecture categories from Supabase
+- [×] Display as dropdown (use `<select>` or custom component)
+- [×] Show "All Regions" option (clear filter)
+- [×] Update URL on selection
 - [ ] Show city options when prefecture selected (Phase 2)
 
 ### Hashtag Input
 
-- [ ] Create HashtagInput component
-- [ ] Implement autocomplete/suggestions
-  - [ ] Fetch popular hashtags from Supabase
-  - [ ] Show dropdown with suggestions
-  - [ ] Allow typing custom hashtag
-- [ ] Support multiple hashtag selection
-- [ ] Display selected hashtags as removable badges
-- [ ] Update URL with comma-separated hashtags
+- [×] Create HashtagInput component
+- [×] Implement autocomplete/suggestions
+  - [×] Fetch popular hashtags from Supabase
+  - [×] Show dropdown with suggestions
+  - [×] Allow typing custom hashtag
+- [×] Support multiple hashtag selection
+- [×] Display selected hashtags as removable badges
+- [×] Update URL with comma-separated hashtags
 
 ### Sort Select
 
-- [ ] Create SortSelect component
-- [ ] Options:
-  - [ ] Latest (default) - `published_at DESC`
-  - [ ] Popular - `view_count DESC`
-  - [ ] Title A-Z - `title ASC`
-- [ ] Update URL on selection
-- [ ] Show current sort with icon
+- [×] Create SortSelect component
+- [×] Options:
+  - [×] Latest (default) - `published_at DESC`
+  - [×] Popular - `view_count DESC`
+  - [×] Title A-Z - `title ASC`
+- [×] Update URL on selection
+- [×] Show current sort with icon
 
 ### Filter Utils
 
-- [ ] Create helper functions in `src/lib/filter-utils.ts`
-  - [ ] `parseFiltersFromURL(searchParams)` - Extract filters from URL
-  - [ ] `buildFilterQuery(filters)` - Build Supabase query
-  - [ ] `serializeFiltersToURL(filters)` - Convert filters to URL string
-- [ ] Add TypeScript types for filter state
+- [×] Create helper functions in `src/lib/filter-utils.ts`
+  - [×] `parseFiltersFromURL(searchParams)` - Extract filters from URL
+  - [×] `buildFilterQuery(filters)` - Build Supabase query
+  - [×] `serializeFiltersToURL(filters)` - Convert filters to URL string
+- [×] Add TypeScript types for filter state
 
 ### Data Fetching Integration
 
-- [ ] Update `src/app/page.tsx` to accept searchParams
-- [ ] Parse filters from searchParams
-- [ ] Build Supabase query based on filters
-- [ ] Fetch filtered posts
-- [ ] Handle loading state with Suspense
-- [ ] Handle error state
+- [×] Update `src/app/page.tsx` to accept searchParams
+- [×] Parse filters from searchParams
+- [×] Build Supabase query based on filters
+- [×] Fetch filtered posts
+- [×] Handle loading state with Suspense
+- [×] Handle error state
 
 ### Styling & UX
 
-- [ ] Apply design system colors
-- [ ] Add hover effects to filter controls
-- [ ] Show loading spinner when filters change
-- [ ] Add subtle animation when results update
-- [ ] Make filters sticky on scroll (optional)
-- [ ] Add filter icons (Lucide Icons)
+- [×] Apply design system colors
+- [×] Add hover effects to filter controls
+- [×] Show loading spinner when filters change
+- [×] Add subtle animation when results update
+- [ ] Make filters sticky on scroll (Phase 2)
+- [×] Add filter icons (SVG icons)
 
 ## Component Example
 
@@ -192,11 +192,11 @@ export default async function HomePage({ searchParams }) {
 
 ## Validation
 
-- [ ] URL updates correctly when filters change
-- [ ] Back button works (browser history)
-- [ ] Filters persist on page refresh
-- [ ] Multiple filters work together correctly
-- [ ] Clear filters button resets all filters
-- [ ] Loading state shows during filter changes
-- [ ] Accessible: keyboard navigation works
-- [ ] Mobile-friendly: filters stack vertically
+- [×] URL updates correctly when filters change
+- [×] Back button works (browser history)
+- [×] Filters persist on page refresh
+- [×] Multiple filters work together correctly
+- [×] Clear filters button resets all filters
+- [×] Loading state shows during filter changes
+- [×] Accessible: keyboard navigation works
+- [×] Mobile-friendly: filters stack vertically
