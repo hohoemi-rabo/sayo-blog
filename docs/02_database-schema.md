@@ -32,39 +32,39 @@ Create Supabase database schema with hierarchical categories, posts, hashtags, a
 
 ### Create Tables
 
-- [ ] Create `posts` table with all fields
-- [ ] Add indexes to posts (slug, published_at, is_published, view_count)
-- [ ] Create `categories` table with self-reference
-- [ ] Add indexes to categories (slug, parent_id, order_num)
-- [ ] Create `post_categories` junction table
-- [ ] Create `hashtags` table
-- [ ] Add indexes to hashtags (name, slug, count)
-- [ ] Create `post_hashtags` junction table
+- [×] Create `posts` table with all fields
+- [×] Add indexes to posts (slug, published_at, is_published, view_count)
+- [×] Create `categories` table with self-reference
+- [×] Add indexes to categories (slug, parent_id, order_num)
+- [×] Create `post_categories` junction table
+- [×] Create `hashtags` table
+- [×] Add indexes to hashtags (name, slug, count)
+- [×] Create `post_hashtags` junction table
 
 ### RLS Policies
 
-- [ ] Enable RLS on all tables
-- [ ] Policy: Public can SELECT published posts
-- [ ] Policy: Authenticated users can perform all operations
-- [ ] Policy: Public can SELECT active categories
-- [ ] Policy: Public can SELECT all hashtags
+- [×] Enable RLS on all tables
+- [×] Policy: Public can SELECT published posts
+- [×] Policy: Authenticated users can perform all operations
+- [×] Policy: Public can SELECT active categories
+- [×] Policy: Public can SELECT all hashtags
 
 ### Triggers & Functions
 
-- [ ] Create `update_updated_at_column()` function
-- [ ] Add trigger to posts table for updated_at
-- [ ] Add trigger to categories table for updated_at
-- [ ] Create `update_hashtag_count()` function
-- [ ] Add trigger to post_hashtags for hashtag count
+- [×] Create `update_updated_at_column()` function
+- [×] Add trigger to posts table for updated_at
+- [×] Add trigger to categories table for updated_at
+- [×] Create `update_hashtag_count()` function
+- [×] Add trigger to post_hashtags for hashtag count
 
 ### Test Data
 
-- [ ] Insert test categories (長野県 → 飯田市 → 上郷)
-- [ ] Insert test hashtags (飯田りんご, りんご狩り, etc.)
-- [ ] Insert 3-5 test posts with relationships
-- [ ] Verify RLS policies work correctly
-- [ ] Test category hierarchy queries
-- [ ] Test hashtag count auto-update
+- [×] Insert test categories (長野県 → 飯田市 → 上郷)
+- [×] Insert test hashtags (飯田りんご, りんご狩り, etc.)
+- [×] Insert 3-5 test posts with relationships
+- [×] Verify RLS policies work correctly
+- [×] Test category hierarchy queries
+- [×] Test hashtag count auto-update
 
 ### Generate Types
 
