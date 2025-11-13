@@ -660,8 +660,174 @@ Each ticket should include:
 - `.mcp.json` - Supabase MCP setup (gitignored, use .example)
 - `docs/*.md` - Feature-specific implementation tickets
 
+## Implementation Status
+
+### Completed Tickets (Phase 1)
+
+- ✅ **Ticket 01**: Project Setup - Next.js 15, Supabase, Tailwind CSS, TypeScript
+- ✅ **Ticket 02**: Database Schema - Categories, Posts, Hashtags, RLS policies
+- ✅ **Ticket 03**: Design System - Color palette, typography, motion variants
+- ✅ **Ticket 04**: Top Page Layout - Hero section, responsive layout
+- ✅ **Ticket 05**: Filter System - Prefecture/category/hashtag filtering with URL state
+- ✅ **Ticket 06**: Card Grid & Post Cards - Responsive grid, hover effects, animations
+
+### Key Components Implemented
+
+**Layout & Navigation**
+- `src/app/layout.tsx` - Root layout with font configuration
+- `src/components/HeroSection.tsx` - Hero with site title and tagline
+
+**Filtering & Search**
+- `src/components/FilterBar.tsx` - Main filter UI (prefecture, sort, hashtags)
+- `src/components/PrefectureSelect.tsx` - Prefecture dropdown
+- `src/components/SortSelect.tsx` - Sort options (latest, popular, title)
+- `src/components/HashtagInput.tsx` - Hashtag autocomplete input
+- `src/lib/filter-utils.ts` - Filter state management utilities
+
+**Post Display**
+- `src/components/PostGrid.tsx` - Responsive grid with Framer Motion animations
+- `src/components/PostCard.tsx` - Article card with thumbnail, title, excerpt
+- `src/components/CategoryBadge.tsx` - Category badge with gradient
+- `src/components/HashtagList.tsx` - Hashtag display (max 3 visible)
+
+**Utilities**
+- `src/lib/types.ts` - TypeScript interfaces (Post, Category, Hashtag, PostWithRelations)
+- `src/lib/supabase.ts` - Supabase client factory functions
+- `src/lib/category-colors.ts` - Category-to-gradient color mappings
+- `src/lib/motion-variants.ts` - Framer Motion animation variants
+
+## Known Issues & Solutions
+
+### Supabase Connection
+
+**Issue**: Initial "Retrying 1/3..." messages during development server startup
+
+**Root Cause**:
+- Messages appear during Next.js compilation phase, not during actual data fetching
+- Related to initial module loading and compilation, not Supabase connectivity
+- Does not affect production builds or actual page functionality
+
+**Solution**:
+- Keep Supabase client configuration minimal (avoid custom fetch wrappers)
+- Messages are cosmetic and disappear after initial compilation
+- Actual query performance is good (Prefectures: ~580ms, Posts: ~100ms)
+
+**Anti-patterns to avoid**:
+- ❌ Custom `Keep-Alive` headers (causes `InvalidArgumentError`)
+- ❌ Complex `unstable_cache` wrappers with dynamic keys
+- ❌ Custom timeout signals in fetch wrappers
+
+### TypeScript Type Safety
+
+**Issue**: `Post` type doesn't include relational data (`post_categories`, `post_hashtags`)
+
+**Solution**: Use `PostWithRelations` type for components that need nested data:
+
+```typescript
+// ❌ Wrong - missing relations
+interface PostCardProps {
+  post: Post
+}
+
+// ✅ Correct - includes relations
+interface PostCardProps {
+  post: PostWithRelations
+}
+```
+
+### React Hydration Errors
+
+**Issue**: Nested `<a>` tags cause hydration mismatch
+
+**Solution**: Avoid wrapping entire cards in `<Link>`. Instead, link specific elements:
+
+```typescript
+// ❌ Wrong - nested links
+<Link href={postUrl}>
+  <div>
+    <h3>{title}</h3>
+    <HashtagList /> {/* Contains its own Links */}
+  </div>
+</Link>
+
+// ✅ Correct - separate links
+<article>
+  <Link href={postUrl}><h3>{title}</h3></Link>
+  <HashtagList /> {/* Links work independently */}
+</article>
+```
+
+### Filter State Management
+
+**Issue**: Page scrolls to top when filters change
+
+**Solution**: Add `scroll: false` to router.push:
+
+```typescript
+router.push(`/?${queryString}`, { scroll: false })
+```
+
+**Issue**: Entire page reloads instead of just post section
+
+**Solution**: Wrap PostGrid in Suspense with unique key:
+
+```typescript
+<Suspense
+  key={`${prefecture}-${hashtags}-${sort}`}
+  fallback={<SkeletonCards />}
+>
+  <PostGrid posts={posts} />
+</Suspense>
+```
+
+## Performance Considerations
+
+### Data Fetching Strategy
+
+- Use `Promise.all()` for parallel queries (prefectures, hashtags, posts)
+- Supabase queries are fast in development (~100-600ms)
+- Consider adding ISR with `revalidate` for production
+
+### Image Optimization
+
+- All images use Next.js `<Image>` component
+- Lazy loading enabled with `loading="lazy"`
+- Responsive sizes: `sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"`
+
+### Animation Performance
+
+- Framer Motion stagger animations on post grid
+- Hardware-accelerated transforms (scale, opacity)
+- Smooth transitions (200-300ms duration)
+
+## Development Workflow
+
+### Making Changes
+
+1. Edit component/page files
+2. Hot reload updates instantly
+3. Check browser console for errors
+4. Test responsive behavior (375px - 1920px)
+
+### Adding New Filters
+
+1. Update `FilterState` interface in `filter-utils.ts`
+2. Add UI component in `FilterBar.tsx`
+3. Update `getFilteredPosts()` query in `page.tsx`
+4. Add to URL serialization logic
+
+### Debugging Supabase Queries
+
+Add temporary logging to page.tsx:
+
+```typescript
+console.time('[Fetch] Posts')
+const posts = await getFilteredPosts(filters)
+console.timeEnd('[Fetch] Posts')
+```
+
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2025-11-13 (Added task management & Next.js 15 best practices)
-**Project Status**: Early development (Phase 1)
+**Updated**: 2025-11-13 (Added implementation status, known issues, and solutions)
+**Project Status**: Phase 1 in progress (6/12 tickets completed)
