@@ -34,57 +34,57 @@ Implement pagination component with page navigation, URL-based state, and respon
 
 ### Pagination Component
 
-- [ ] Create Pagination component (`src/components/Pagination.tsx`)
-- [ ] Use `'use client'` directive (needs client navigation)
-- [ ] Accept props: `currentPage`, `totalPages`, `baseUrl`
-- [ ] Implement page button generation logic
-- [ ] Add Previous/Next buttons
-- [ ] Add First/Last page buttons
-- [ ] Handle ellipsis (...) for large page ranges
-- [ ] Apply active state styling to current page
-- [ ] Disable buttons when at edges (first/last page)
-- [ ] Preserve existing query parameters when navigating
+- [×] Create Pagination component (`src/components/Pagination.tsx`)
+- [×] Use `'use client'` directive (needs client navigation)
+- [×] Accept props: `currentPage`, `totalPages`, `totalItems`
+- [×] Implement page button generation logic
+- [×] Add Previous/Next buttons
+- [×] Add First/Last page buttons
+- [×] Handle ellipsis (...) for large page ranges
+- [×] Apply active state styling to current page
+- [×] Disable buttons when at edges (first/last page)
+- [×] Preserve existing query parameters when navigating
 
 ### Pagination Logic
 
-- [ ] Create `src/lib/pagination-utils.ts`
-- [ ] Implement `getPaginationRange(currentPage, totalPages, siblingCount)`
-  - [ ] Return array of page numbers with ellipsis
-  - [ ] Example: [1, '...', 5, 6, 7, '...', 20]
-- [ ] Implement `getPaginationInfo(totalItems, currentPage, itemsPerPage)`
-  - [ ] Calculate: totalPages, offset, limit, hasNextPage, hasPreviousPage
-- [ ] Implement `buildPaginationUrl(baseUrl, page, searchParams)`
-  - [ ] Preserve all existing query params
-  - [ ] Update only the page param
+- [×] Create `src/lib/pagination-utils.ts`
+- [×] Implement `getPaginationRange(currentPage, totalPages, siblingCount)`
+  - [×] Return array of page numbers with ellipsis
+  - [×] Example: [1, '...', 5, 6, 7, '...', 20]
+- [×] Implement `getPaginationInfo(totalItems, currentPage, itemsPerPage)`
+  - [×] Calculate: totalPages, offset, limit, hasNextPage, hasPreviousPage
+- [×] Implement `buildPaginationUrl(baseUrl, page, searchParams)`
+  - [×] Preserve all existing query params
+  - [×] Update only the page param
 
 ### Data Fetching Integration
 
-- [ ] Update `src/app/page.tsx` to handle pagination
-- [ ] Parse `page` from searchParams
-- [ ] Calculate offset: `(page - 1) * 12`
-- [ ] Use Supabase `.range(offset, offset + 11)` for pagination
-- [ ] Get total count with `.count()` option
-- [ ] Pass pagination data to Pagination component
-- [ ] Handle invalid page numbers (redirect to page 1)
-- [ ] Handle pages beyond total (redirect to last page)
+- [×] Update `src/app/page.tsx` to handle pagination
+- [×] Parse `page` from searchParams
+- [×] Calculate offset: `(page - 1) * 12`
+- [×] Use Supabase `.range(offset, offset + 11)` for pagination
+- [×] Get total count with `{ count: 'exact' }` option
+- [×] Pass pagination data to Pagination component
+- [×] Handle invalid page numbers (validate with isNaN and < 1 checks)
+- [×] Handle pages beyond total (clamp to totalPages)
 
 ### Styling & UX
 
-- [ ] Apply design system colors to buttons
-- [ ] Add hover effects to page buttons
-- [ ] Show current page with distinct styling
-- [ ] Add loading state during page transitions
-- [ ] Implement smooth scroll to top on page change
+- [×] Apply design system colors to buttons
+- [×] Add hover effects to page buttons
+- [×] Show current page with distinct styling
+- [×] Add loading state during page transitions (Suspense fallback)
+- [×] Implement smooth scroll to FilterBar on page change
 - [ ] Add keyboard navigation support (arrow keys)
-- [ ] Show page info: "Page 2 of 10" or "Showing 13-24 of 120 posts"
+- [×] Show page info: "XX件中 YY〜ZZ件を表示" と "ページ X / Y"
 
 ### Accessibility
 
-- [ ] Add `aria-label` to pagination nav
-- [ ] Add `aria-current="page"` to current page button
-- [ ] Add `aria-disabled` to disabled buttons
-- [ ] Ensure keyboard navigation works
-- [ ] Add screen reader text for ellipsis
+- [×] Add `aria-label` to pagination nav
+- [×] Add `aria-current="page"` to current page button
+- [×] Add `aria-disabled` to disabled buttons
+- [×] Ensure keyboard navigation works (Tab + Enter)
+- [×] Add screen reader text for ellipsis (aria-hidden="true")
 
 ## Component Example
 
@@ -306,13 +306,13 @@ export default async function HomePage({ searchParams }) {
 
 ## Validation
 
-- [ ] Pagination displays correctly on all screen sizes
-- [ ] Page numbers update URL correctly
-- [ ] Browser back/forward buttons work
-- [ ] Current page is visually distinct
-- [ ] Disabled buttons cannot be clicked
-- [ ] Ellipsis appears correctly for large page counts
-- [ ] Filters are preserved when changing pages
-- [ ] Keyboard navigation works (Tab + Enter)
-- [ ] Screen readers announce page changes
-- [ ] Page info displays correctly (e.g., "Page 2 of 10")
+- [×] Pagination displays correctly on all screen sizes
+- [×] Page numbers update URL correctly
+- [×] Browser back/forward buttons work
+- [×] Current page is visually distinct
+- [×] Disabled buttons cannot be clicked
+- [×] Ellipsis appears correctly for large page counts
+- [×] Filters are preserved when changing pages
+- [×] Keyboard navigation works (Tab + Enter)
+- [×] Screen readers announce page changes
+- [×] Page info displays correctly ("XX件中 YY〜ZZ件を表示")

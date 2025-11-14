@@ -58,6 +58,7 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
 
   return (
     <motion.div
+      data-filter-bar
       variants={fadeIn}
       initial="hidden"
       animate="visible"
