@@ -18,11 +18,6 @@ export default function Pagination({ currentPage, totalPages, totalItems }: Pagi
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Don't show pagination if only 1 page or no items
-  if (totalPages <= 1) {
-    return null
-  }
-
   // Scroll to FilterBar when pagination button was clicked
   useEffect(() => {
     const shouldScroll = sessionStorage.getItem(SCROLL_FLAG_KEY)
@@ -40,6 +35,11 @@ export default function Pagination({ currentPage, totalPages, totalItems }: Pagi
       }, 100)
     }
   }, [currentPage])
+
+  // Don't show pagination if only 1 page or no items
+  if (totalPages <= 1) {
+    return null
+  }
 
   const handlePageChange = (page: number) => {
     // Set flag in sessionStorage to trigger scroll after navigation

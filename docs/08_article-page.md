@@ -39,54 +39,54 @@ export const revalidate = 3600 // 1 hour ISR
 
 ### Dynamic Route Setup
 
-- [ ] Create `src/app/[prefecture]/[slug]/page.tsx`
-- [ ] Implement `generateStaticParams` for pre-rendering
-  - [ ] Fetch top 20-30 most viewed posts
-  - [ ] Return array of `{ prefecture, slug }` params
-- [ ] Implement `generateMetadata` for dynamic SEO
-  - [ ] Set title, description, OG image from post data
-  - [ ] Add article schema JSON-LD
-- [ ] Configure ISR revalidation: `export const revalidate = 3600`
-- [ ] Handle 404 for non-existent posts
+- [×] Create `src/app/[prefecture]/[slug]/page.tsx`
+- [×] Implement `generateStaticParams` for pre-rendering
+  - [×] Fetch top 20-30 most viewed posts
+  - [×] Return array of `{ prefecture, slug }` params
+- [×] Implement `generateMetadata` for dynamic SEO
+  - [×] Set title, description, OG image from post data
+  - [ ] Add article schema JSON-LD (Phase 2)
+- [×] Configure ISR revalidation: `export const revalidate = 3600`
+- [×] Handle 404 for non-existent posts
 
 ### ArticleHero Component
 
-- [ ] Create ArticleHero component (`src/components/ArticleHero.tsx`)
-- [ ] Display hero image (thumbnail_url) with aspect-ratio-[16/9]
-- [ ] Show article title (large, font-playfair)
-- [ ] Display category badges (prefecture + city)
-- [ ] Show published date and updated date
-- [ ] Add view count with eye icon
-- [ ] Implement gradient overlay on image
-- [ ] Make responsive (full-width on mobile)
+- [×] Create ArticleHero component (`src/components/ArticleHero.tsx`)
+- [×] Display hero image (thumbnail_url) with aspect-ratio-[16/9]
+- [×] Show article title (large, font-playfair)
+- [×] Display category badges (prefecture + city)
+- [×] Show published date and updated date
+- [×] Add view count with eye icon
+- [×] Implement gradient overlay on image
+- [×] Make responsive (full-width on mobile)
 
 ### ArticleBody Component
 
-- [ ] Create ArticleBody component (`src/components/ArticleBody.tsx`)
-- [ ] Render HTML content from `content` field
-- [ ] Apply typography styles:
-  - [ ] Headings: font-playfair with appropriate sizes
-  - [ ] Body: font-noto-serif-jp, line-height 1.8
-  - [ ] Links: underline, primary color
-  - [ ] Blockquotes: border-left, italic
-  - [ ] Code blocks: monospace, background color
-- [ ] Add `prose` class (Tailwind Typography)
-- [ ] Style images: rounded corners, shadow, max-width
-- [ ] Handle responsive images (use next/image where possible)
+- [×] Create ArticleBody component (`src/components/ArticleBody.tsx`)
+- [×] Render HTML content from `content` field
+- [×] Apply typography styles:
+  - [×] Headings: font-playfair with appropriate sizes
+  - [×] Body: font-noto-serif-jp, line-height 1.8
+  - [×] Links: underline, primary color
+  - [×] Blockquotes: border-left, italic
+  - [×] Code blocks: monospace, background color
+- [×] Add `prose` class (Tailwind Typography)
+- [×] Style images: rounded corners, shadow, max-width
+- [×] Handle responsive images (use next/image where possible)
 
 ### ArticleMeta Component
 
-- [ ] Create ArticleMeta component (`src/components/ArticleMeta.tsx`)
-- [ ] Display published date (formatted: "YYYY年MM月DD日")
-- [ ] Show updated date if different from published
-- [ ] Display view count with icon
-- [ ] Show all categories (prefecture > city > district)
-- [ ] Display all hashtags as clickable badges
-- [ ] Add social share buttons (Twitter, Facebook) [Optional]
+- [×] Create ArticleMeta component (`src/components/ArticleMeta.tsx`)
+- [×] Display published date (formatted: "YYYY年MM月DD日")
+- [×] Show updated date if different from published
+- [×] Display view count with icon
+- [×] Show all categories (prefecture > city > district)
+- [×] Display all hashtags as clickable badges
+- [ ] Add social share buttons (Twitter, Facebook) [Optional - Phase 2]
 
 ### Markdown Processing
 
-- [ ] Create `src/lib/markdown-utils.ts`
+- [ ] Create `src/lib/markdown-utils.ts` (Phase 2 - currently using dangerouslySetInnerHTML)
 - [ ] Function to sanitize HTML (prevent XSS)
 - [ ] Function to process image URLs (ensure absolute URLs)
 - [ ] Function to add target="_blank" to external links
@@ -94,48 +94,48 @@ export const revalidate = 3600 // 1 hour ISR
 
 ### View Counter
 
-- [ ] Create `src/lib/view-counter.ts`
-- [ ] Client-side function to increment view count
-- [ ] Use API route: `POST /api/posts/[slug]/view`
-- [ ] Throttle increments (once per session using localStorage)
-- [ ] Handle errors gracefully (don't block page load)
+- [×] Create `src/lib/view-counter.ts`
+- [×] Client-side function to increment view count
+- [×] Use API route: `POST /api/posts/[slug]/view`
+- [×] Throttle increments (once per session using localStorage)
+- [×] Handle errors gracefully (don't block page load)
 
 ### API Route for View Count
 
-- [ ] Create `src/app/api/posts/[slug]/view/route.ts`
-- [ ] Implement POST handler
-- [ ] Increment `view_count` in Supabase
-- [ ] Use `UPDATE posts SET view_count = view_count + 1 WHERE slug = ?`
-- [ ] Return updated count
-- [ ] Add rate limiting (optional)
+- [×] Create `src/app/api/posts/[slug]/view/route.ts`
+- [×] Implement POST handler
+- [×] Increment `view_count` in Supabase
+- [×] Use RPC function `increment_post_view_count`
+- [×] Return updated count
+- [ ] Add rate limiting (optional - Phase 2)
 
 ### Breadcrumbs
 
-- [ ] Create Breadcrumbs component (`src/components/Breadcrumbs.tsx`)
-- [ ] Show navigation path: Home > 長野県 > 飯田市 > 記事タイトル
-- [ ] Make each item clickable (link to category page)
-- [ ] Add schema.org BreadcrumbList structured data
-- [ ] Style with separators (›)
+- [×] Create Breadcrumbs component (`src/components/Breadcrumbs.tsx`)
+- [×] Show navigation path: Home > 長野県 > 飯田市 > 記事タイトル
+- [×] Make each item clickable (link to category page)
+- [×] Add schema.org BreadcrumbList structured data
+- [×] Style with separators (›)
 
 ### SEO & Metadata
 
-- [ ] Implement `generateMetadata` function
-- [ ] Set dynamic title: `${post.title} | Sayo's Journal`
-- [ ] Set description from excerpt
-- [ ] Add OG image (thumbnail_url)
-- [ ] Add article:published_time and article:modified_time
-- [ ] Add article:author meta tag
-- [ ] Generate JSON-LD for Article schema
-- [ ] Add canonical URL
+- [×] Implement `generateMetadata` function
+- [×] Set dynamic title: `${post.title} | Sayo's Journal`
+- [×] Set description from excerpt
+- [×] Add OG image (thumbnail_url)
+- [×] Add article:published_time and article:modified_time
+- [ ] Add article:author meta tag (Phase 2)
+- [ ] Generate JSON-LD for Article schema (Phase 2)
+- [ ] Add canonical URL (Phase 2)
 
 ### Styling & Typography
 
-- [ ] Install @tailwindcss/typography: `npm install @tailwindcss/typography`
-- [ ] Add plugin to tailwind.config.ts
-- [ ] Apply `prose` class to article body
-- [ ] Customize prose styles for Japanese typography
-- [ ] Set appropriate line-height and letter-spacing
-- [ ] Add smooth reading experience (max-width: 70ch)
+- [×] Install @tailwindcss/typography: `npm install @tailwindcss/typography`
+- [×] Add plugin to tailwind.config.ts
+- [×] Apply `prose` class to article body
+- [×] Customize prose styles for Japanese typography
+- [×] Set appropriate line-height and letter-spacing
+- [×] Add smooth reading experience (max-width: none for full-width)
 
 ## Component Example
 
@@ -288,15 +288,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
 ## Validation
 
-- [ ] Article pages render correctly with all content
-- [ ] Images load with proper aspect ratio
-- [ ] Typography is readable and well-spaced
-- [ ] Metadata (title, description, OG image) is correct
-- [ ] View count increments correctly
-- [ ] Breadcrumbs display correct hierarchy
-- [ ] Categories and hashtags are clickable
-- [ ] Links in article body work correctly
-- [ ] Responsive on all screen sizes (375px - 1920px)
-- [ ] ISR revalidation works (content updates after 1 hour)
-- [ ] 404 page shows for non-existent articles
-- [ ] Lighthouse score: Performance 90+, Accessibility 100
+- [×] Article pages render correctly with all content
+- [×] Images load with proper aspect ratio
+- [×] Typography is readable and well-spaced
+- [×] Metadata (title, description, OG image) is correct
+- [×] View count increments correctly
+- [×] Breadcrumbs display correct hierarchy
+- [×] Categories and hashtags are clickable
+- [×] Links in article body work correctly
+- [×] Responsive on all screen sizes (375px - 1920px)
+- [×] ISR revalidation works (content updates after 1 hour)
+- [×] 404 page shows for non-existent articles (notFound() implemented)
+- [ ] Lighthouse score: Performance 90+, Accessibility 100 (to be tested)

@@ -151,7 +151,7 @@ async function getFilteredPosts(filters: {
         allPostsQuery.order('published_at', { ascending: false })
     }
 
-    const { data: allPosts, count: allCount } = await allPostsQuery
+    const { data: allPosts } = await allPostsQuery
 
     const filteredPosts =
       allPosts?.filter((post) => {

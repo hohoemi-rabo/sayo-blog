@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
-import { PostWithRelations } from '@/lib/types'
+import { Category, Hashtag } from '@/lib/types'
 import ArticleHero from '@/components/ArticleHero'
 import ArticleBody from '@/components/ArticleBody'
 import ArticleMeta from '@/components/ArticleMeta'
@@ -36,11 +36,23 @@ export async function generateStaticParams() {
 
   if (!posts) return []
 
-  return posts.map((post) => {
+  type PostCategory = {
+    categories: {
+      slug: string
+      parent_id: string | null
+    }
+  }
+
+  type PostData = {
+    slug: string
+    post_categories: PostCategory[]
+  }
+
+  return (posts as unknown as PostData[]).map((post) => {
     // Find prefecture (category with no parent)
-    const prefectureCategory = (
-      post.post_categories as Array<{ categories: { slug: string; parent_id: string | null } }>
-    ).find((pc) => pc.categories.parent_id === null)
+    const prefectureCategory = post.post_categories.find(
+      (pc) => pc.categories.parent_id === null
+    )
 
     return {
       prefecture: prefectureCategory?.categories.slug || '',
@@ -139,12 +151,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <article className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Breadcrumbs categories={categories} title={post.title} />
+        <Breadcrumbs categories={categories as Category[]} title={post.title} />
 
         <ArticleHero
           title={post.title}
           thumbnail={post.thumbnail_url}
-          categories={categories}
+          categories={categories as Category[]}
           publishedAt={post.published_at}
           updatedAt={post.updated_at}
           viewCount={post.view_count}
@@ -153,8 +165,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <ArticleBody content={post.content} slug={post.slug} />
 
         <ArticleMeta
-          categories={categories}
-          hashtags={hashtags}
+          categories={categories as Category[]}
+          hashtags={hashtags as Hashtag[]}
           publishedAt={post.published_at}
           updatedAt={post.updated_at}
           viewCount={post.view_count}
