@@ -36,13 +36,31 @@ npm run lint        # Run ESLint
 ```
 sayo-blog/
 ├── src/
-│   └── app/              # Next.js App Router
-│       ├── layout.tsx    # Root layout with font configuration
-│       ├── page.tsx      # Home page
-│       └── globals.css   # Global styles
-├── REQUIREMENTS.md       # Comprehensive project requirements (Phase 1 & 2)
-├── .mcp.json            # MCP configuration for Supabase (gitignored)
-└── .mcp.json.example    # Template for MCP setup
+│   ├── app/              # Next.js App Router
+│   │   ├── layout.tsx    # Root layout with font configuration
+│   │   ├── page.tsx      # Home page with filtering & pagination
+│   │   └── globals.css   # Global styles
+│   ├── components/       # React components
+│   │   ├── ui/          # Base UI components (Button, Card, Badge)
+│   │   ├── FilterBar.tsx
+│   │   ├── PostGrid.tsx
+│   │   ├── PostCard.tsx
+│   │   ├── Pagination.tsx
+│   │   └── ...
+│   └── lib/             # Utilities and helpers
+│       ├── types.ts
+│       ├── supabase.ts
+│       ├── filter-utils.ts
+│       ├── pagination-utils.ts
+│       ├── category-colors.ts
+│       └── motion-variants.ts
+├── docs/                # Feature implementation tickets
+│   ├── 01_project-setup.md
+│   ├── 02_database-schema.md
+│   └── ...
+├── REQUIREMENTS.md      # Comprehensive project requirements (Phase 1 & 2)
+├── .mcp.json           # MCP configuration for Supabase (gitignored)
+└── .mcp.json.example   # Template for MCP setup
 ```
 
 ### URL Structure & Routing
@@ -670,6 +688,7 @@ Each ticket should include:
 - ✅ **Ticket 04**: Top Page Layout - Hero section, responsive layout
 - ✅ **Ticket 05**: Filter System - Prefecture/category/hashtag filtering with URL state
 - ✅ **Ticket 06**: Card Grid & Post Cards - Responsive grid, hover effects, animations
+- ✅ **Ticket 07**: Pagination - URL-based pagination with 12 posts per page, scroll to FilterBar
 
 ### Key Components Implemented
 
@@ -690,11 +709,16 @@ Each ticket should include:
 - `src/components/CategoryBadge.tsx` - Category badge with gradient
 - `src/components/HashtagList.tsx` - Hashtag display (max 3 visible)
 
+**Pagination**
+- `src/components/Pagination.tsx` - Pagination controls with Previous/Next buttons
+- `src/lib/pagination-utils.ts` - Pagination logic (range calculation, page validation)
+
 **Utilities**
 - `src/lib/types.ts` - TypeScript interfaces (Post, Category, Hashtag, PostWithRelations)
 - `src/lib/supabase.ts` - Supabase client factory functions
 - `src/lib/category-colors.ts` - Category-to-gradient color mappings
 - `src/lib/motion-variants.ts` - Framer Motion animation variants
+- `src/lib/filter-utils.ts` - Filter state management utilities
 
 ## Known Issues & Solutions
 
@@ -780,6 +804,49 @@ router.push(`/?${queryString}`, { scroll: false })
 </Suspense>
 ```
 
+### Pagination Scroll Behavior
+
+**Issue**: Scroll state not persisting across pagination navigation
+
+**Root Cause**: useRef doesn't persist across component remounts during client-side navigation
+
+**Solution**: Use sessionStorage to persist scroll flag across remounts:
+
+```typescript
+// src/components/Pagination.tsx
+const SCROLL_FLAG_KEY = 'pagination-should-scroll'
+
+// Set flag before navigation
+const handlePageChange = (page: number) => {
+  sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
+  router.push(`${pathname}?${params.toString()}`, { scroll: false })
+}
+
+// Check flag after navigation
+useEffect(() => {
+  const shouldScroll = sessionStorage.getItem(SCROLL_FLAG_KEY)
+  if (shouldScroll === 'true') {
+    sessionStorage.removeItem(SCROLL_FLAG_KEY)
+    setTimeout(() => {
+      const filterBar = document.querySelector('[data-filter-bar]')
+      if (filterBar) {
+        filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  }
+}, [currentPage])
+```
+
+**Issue**: Pages not switching with `force-static`
+
+**Solution**: Use `export const dynamic = 'force-dynamic'` in page.tsx for dynamic searchParams:
+
+```typescript
+// src/app/page.tsx
+export const revalidate = 600 // ISR with 10-minute revalidation
+export const dynamic = 'force-dynamic' // Required for searchParams to work
+```
+
 ## Performance Considerations
 
 ### Data Fetching Strategy
@@ -829,5 +896,5 @@ console.timeEnd('[Fetch] Posts')
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2025-11-13 (Added implementation status, known issues, and solutions)
-**Project Status**: Phase 1 in progress (6/12 tickets completed)
+**Updated**: 2025-11-14 (Added Ticket 07 pagination implementation, sessionStorage scroll solution)
+**Project Status**: Phase 1 in progress (7/12 tickets completed)
