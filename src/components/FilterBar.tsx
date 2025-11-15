@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
-import { motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import PrefectureSelect from './PrefectureSelect'
 import HashtagInput from './HashtagInput'
 import SortSelect from './SortSelect'
@@ -14,7 +14,6 @@ import {
   countActiveFilters,
   SortOption,
 } from '@/lib/filter-utils'
-import { fadeIn } from '@/lib/motion-variants'
 
 interface FilterBarProps {
   prefectures: Category[]
@@ -57,13 +56,9 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
   }
 
   return (
-    <motion.div
+    <div
       data-filter-bar
-      variants={fadeIn}
-      initial="hidden"
-      animate="visible"
-      transition={{ delay: 0.2 }}
-      className="bg-background-dark/5 backdrop-blur-sm rounded-xl p-4 md:p-6 mb-8 border border-border-decorative"
+      className="bg-background-dark/5 backdrop-blur-sm rounded-xl p-4 md:p-6 mb-8 border border-border-decorative animate-fade-in"
     >
       <div className="flex flex-col lg:flex-row gap-4 lg:items-end">
         {/* Prefecture & Sort (side by side on mobile) */}
@@ -97,34 +92,17 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
 
         {/* Clear button */}
         {activeFilterCount > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="flex items-end"
-          >
+          <div className="flex items-end animate-fade-in">
             <Button
               variant="outline"
               onClick={handleClearFilters}
               disabled={isPending}
               className="w-full sm:w-auto whitespace-nowrap"
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-4 h-4 mr-2" />
               フィルターをクリア ({activeFilterCount})
             </Button>
-          </motion.div>
+          </div>
         )}
       </div>
 
@@ -152,6 +130,6 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }

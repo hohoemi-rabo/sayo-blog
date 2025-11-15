@@ -1,19 +1,8 @@
-'use client'
-
-import { useEffect } from 'react'
-import { incrementViewCount } from '@/lib/view-counter'
-
 interface ArticleBodyProps {
   content: string
-  slug: string
 }
 
-export default function ArticleBody({ content, slug }: ArticleBodyProps) {
-  // Increment view count on mount (once per session)
-  useEffect(() => {
-    incrementViewCount(slug)
-  }, [slug])
-
+export default function ArticleBody({ content }: ArticleBodyProps) {
   return (
     <div
       className="prose prose-lg max-w-none font-noto-serif-jp

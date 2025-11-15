@@ -113,14 +113,26 @@ async function getFilteredPosts(filters: {
     return { posts: [], count: 0 }
   }
 
-  // Client-side hashtag filtering (Supabase doesn't support filtering on nested arrays easily)
+  // Optimize hashtag filtering: fetch matching post IDs first instead of all posts
   let posts = data || []
   let totalCount = count || 0
 
   if (filters.hashtags && filters.hashtags.length > 0) {
-    // For hashtag filtering, we need to fetch all posts first, then filter
-    // This is not ideal for large datasets, but works for now
-    const allPostsQuery = supabase
+    // Step 1: Get post IDs that have any of the specified hashtags
+    const { data: postHashtagData } = await supabase
+      .from('post_hashtags')
+      .select('post_id, hashtags!inner(slug)')
+      .in('hashtags.slug', filters.hashtags)
+
+    if (!postHashtagData || postHashtagData.length === 0) {
+      return { posts: [], count: 0 }
+    }
+
+    // Extract unique post IDs
+    const matchingPostIds = [...new Set(postHashtagData.map((ph) => ph.post_id))]
+
+    // Step 2: Fetch posts with those IDs, applying other filters
+    const hashtagPostsQuery = supabase
       .from('posts')
       .select(
         `
@@ -134,35 +146,30 @@ async function getFilteredPosts(filters: {
       `,
         { count: 'exact' }
       )
+      .in('id', matchingPostIds)
       .eq('is_published', true)
 
     if (filters.prefecture) {
-      allPostsQuery.eq('post_categories.categories.slug', filters.prefecture)
+      hashtagPostsQuery.eq('post_categories.categories.slug', filters.prefecture)
     }
 
     switch (filters.sort) {
       case 'popular':
-        allPostsQuery.order('view_count', { ascending: false })
+        hashtagPostsQuery.order('view_count', { ascending: false })
         break
       case 'title':
-        allPostsQuery.order('title', { ascending: true })
+        hashtagPostsQuery.order('title', { ascending: true })
         break
       default:
-        allPostsQuery.order('published_at', { ascending: false })
+        hashtagPostsQuery.order('published_at', { ascending: false })
     }
 
-    const { data: allPosts } = await allPostsQuery
+    hashtagPostsQuery.range(offset, offset + limit - 1)
 
-    const filteredPosts =
-      allPosts?.filter((post) => {
-        const postHashtagSlugs =
-          post.post_hashtags?.map((ph: { hashtags: { slug: string } | null }) => ph.hashtags?.slug).filter(Boolean) ||
-          []
-        return filters.hashtags!.some((tag) => postHashtagSlugs.includes(tag))
-      }) || []
+    const { data: hashtagPosts, count: hashtagCount } = await hashtagPostsQuery
 
-    totalCount = filteredPosts.length
-    posts = filteredPosts.slice(offset, offset + limit)
+    posts = hashtagPosts || []
+    totalCount = hashtagCount || 0
   }
 
   return {

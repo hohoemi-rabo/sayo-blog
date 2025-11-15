@@ -13,6 +13,7 @@ interface SearchSuggestion {
     title: string
     slug: string
     thumbnail_url?: string | null
+    prefecture: string
   }>
   hashtags: Array<{
     id: string
@@ -136,7 +137,7 @@ export default function SearchBar() {
               {suggestions.posts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/search?q=${encodeURIComponent(post.title)}`}
+                  href={`/${post.prefecture}/${post.slug}`}
                   className="flex items-center gap-3 px-3 py-2 hover:bg-background-dark/5 rounded-lg transition-colors"
                   onClick={() => {
                     setIsOpen(false)

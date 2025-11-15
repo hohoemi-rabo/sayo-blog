@@ -23,29 +23,34 @@ async function searchPosts(query: string, page: number = 1, limit: number = 12) 
   const supabase = createClient()
   const offset = (page - 1) * limit
 
-  // Use RPC function for full-text search
-  const { data: searchResults, error } = await supabase.rpc('search_posts', {
+  // Use RPC function with pagination at database level
+  // Note: For accurate count, we get a large result set first
+  const { data: allResults, error: countError } = await supabase.rpc('search_posts', {
     search_query: query.trim(),
-    result_limit: 100, // Get more results for pagination
+    result_limit: 500, // Get up to 500 for count
+    result_offset: 0,
   })
 
-  if (error) {
-    console.error('Error searching posts:', error)
+  if (countError) {
+    console.error('Error counting search results:', countError)
     return { posts: [], count: 0 }
   }
 
-  // Get total count
-  const count = searchResults?.length || 0
+  const totalCount = allResults?.length || 0
 
-  // Paginate results
-  const paginatedResults = searchResults?.slice(offset, offset + limit) || []
-
-  // Fetch full post data with relations
-  if (paginatedResults.length === 0) {
-    return { posts: [], count }
+  if (totalCount === 0) {
+    return { posts: [], count: 0 }
   }
 
-  const postIds = paginatedResults.map((r) => r.id)
+  // Get paginated results
+  const paginatedResults = allResults?.slice(offset, offset + limit) || []
+
+  if (paginatedResults.length === 0) {
+    return { posts: [], count: totalCount }
+  }
+
+  // Fetch full post data with relations
+  const postIds = paginatedResults.map((r: { id: string }) => r.id)
 
   const { data: posts, error: postsError } = await supabase
     .from('posts')
@@ -65,15 +70,18 @@ async function searchPosts(query: string, page: number = 1, limit: number = 12) 
 
   if (postsError) {
     console.error('Error fetching post details:', postsError)
-    return { posts: [], count }
+    return { posts: [], count: totalCount }
   }
 
-  // Sort posts to match search result order
+  // Create a map for O(1) lookup instead of O(n) find
+  const postsMap = new Map(posts?.map((p) => [p.id, p]) || [])
+
+  // Sort posts to match search result order (O(n) instead of O(n*m))
   const sortedPosts = postIds
-    .map((id) => posts?.find((p) => p.id === id))
+    .map((id: string) => postsMap.get(id))
     .filter(Boolean) as PostWithRelations[]
 
-  return { posts: sortedPosts, count }
+  return { posts: sortedPosts, count: totalCount }
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {

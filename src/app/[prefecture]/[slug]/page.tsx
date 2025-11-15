@@ -6,6 +6,7 @@ import ArticleHero from '@/components/ArticleHero'
 import ArticleBody from '@/components/ArticleBody'
 import ArticleMeta from '@/components/ArticleMeta'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import ViewCounter from '@/components/ViewCounter'
 
 export const revalidate = 3600 // 1 hour ISR
 
@@ -150,6 +151,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <article className="min-h-screen bg-background">
+      {/* ViewCounter increments view count on mount (Client Component) */}
+      <ViewCounter slug={post.slug} />
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs categories={categories as Category[]} title={post.title} />
 
@@ -162,7 +166,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           viewCount={post.view_count}
         />
 
-        <ArticleBody content={post.content} slug={post.slug} />
+        <ArticleBody content={post.content} />
 
         <ArticleMeta
           categories={categories as Category[]}
