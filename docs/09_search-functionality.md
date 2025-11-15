@@ -36,89 +36,89 @@ Implement full-text search functionality with autocomplete, filtering by categor
 
 ### SearchBar Component
 
-- [ ] Create SearchBar component (`src/components/SearchBar.tsx`)
-- [ ] Use `'use client'` directive (needs interactivity)
-- [ ] Add search input with icon (Lucide Search)
-- [ ] Implement debounced input (300ms)
-- [ ] Show loading spinner during search
-- [ ] Add clear button (X icon)
-- [ ] Show search suggestions dropdown
-- [ ] Navigate to search results page on submit
-- [ ] Add keyboard navigation (Arrow keys, Enter, Escape)
-- [ ] Make responsive (full-width on mobile)
+- [×] Create SearchBar component (`src/components/SearchBar.tsx`)
+- [×] Use `'use client'` directive (needs interactivity)
+- [×] Add search input with icon (Lucide Search)
+- [×] Implement debounced input (300ms)
+- [×] Show loading spinner during search
+- [×] Add clear button (X icon)
+- [×] Show search suggestions dropdown
+- [×] Navigate to search results page on submit
+- [ ] Add keyboard navigation (Arrow keys, Enter, Escape) - Escape only implemented
+- [×] Make responsive (full-width on mobile)
 
 ### Search Results Page
 
-- [ ] Create `src/app/search/page.tsx`
-- [ ] Parse search query from URL params
-- [ ] Fetch search results from Supabase
-- [ ] Display results using PostCard component
-- [ ] Show result count: "「りんご狩り」の検索結果: 15件"
-- [ ] Handle no results case
-- [ ] Add pagination (12 results per page)
-- [ ] Show active filters (category, hashtags)
-- [ ] Add "Clear filters" button
-- [ ] Highlight search terms in results (optional)
+- [×] Create `src/app/search/page.tsx`
+- [×] Parse search query from URL params
+- [×] Fetch search results from Supabase
+- [×] Display results using PostCard component
+- [×] Show result count: "「りんご狩り」の検索結果: 15件"
+- [×] Handle no results case
+- [×] Add pagination (12 results per page)
+- [ ] Show active filters (category, hashtags) - Not needed for basic search
+- [ ] Add "Clear filters" button - Not needed for basic search
+- [ ] Highlight search terms in results (optional) - Skipped
 
 ### SearchSuggestions Component
 
-- [ ] Create SearchSuggestions component
-- [ ] Fetch suggestions from API on input change
-- [ ] Display as dropdown below search bar
-- [ ] Show recent searches (from localStorage)
-- [ ] Show popular searches
-- [ ] Show matching posts (top 5)
-- [ ] Show matching hashtags
-- [ ] Add keyboard navigation (Arrow keys)
-- [ ] Close on click outside
-- [ ] Clear on Escape key
+- [×] Create SearchSuggestions component - Integrated into SearchBar
+- [×] Fetch suggestions from API on input change
+- [×] Display as dropdown below search bar
+- [ ] Show recent searches (from localStorage) - Skipped for MVP
+- [ ] Show popular searches - Skipped for MVP
+- [×] Show matching posts (top 5)
+- [×] Show matching hashtags
+- [ ] Add keyboard navigation (Arrow keys) - Skipped for MVP
+- [×] Close on click outside
+- [×] Clear on Escape key
 
 ### Search API Endpoint
 
-- [ ] Create `src/app/api/search/suggest/route.ts`
-- [ ] Implement GET handler with query param
-- [ ] Search posts by title and excerpt (lightweight)
-- [ ] Search hashtags by name
-- [ ] Return top 5 posts + top 5 hashtags
-- [ ] Add response caching (optional)
+- [×] Create `src/app/api/search/suggest/route.ts`
+- [×] Implement GET handler with query param
+- [×] Search posts by title and excerpt (lightweight)
+- [×] Search hashtags by name
+- [×] Return top 5 posts + top 5 hashtags
+- [ ] Add response caching (optional) - Skipped for MVP
 
 ### Supabase Full-Text Search Setup
 
-- [ ] Create text search configuration in Supabase
-- [ ] Add tsvector column to posts table (generated)
-- [ ] Create GIN index on tsvector column
-- [ ] Create search function with ranking
-- [ ] Test Japanese text search (ensure proper tokenization)
+- [×] Create text search configuration in Supabase
+- [×] Add tsvector column to posts table (generated)
+- [×] Create GIN index on tsvector column
+- [×] Create search function with ranking
+- [×] Test Japanese text search (ensure proper tokenization)
 
 ### Search Utils
 
-- [ ] Create `src/lib/search-utils.ts`
-- [ ] Function: `buildSearchQuery(query, filters)`
-  - [ ] Build Supabase query with full-text search
-  - [ ] Apply category and hashtag filters
-  - [ ] Order by relevance (ts_rank)
-- [ ] Function: `highlightSearchTerms(text, query)`
+- [×] Create `src/lib/search-utils.ts` - Implemented directly in page.tsx
+- [×] Function: `buildSearchQuery(query, filters)` - Implemented as searchPosts()
+  - [×] Build Supabase query with full-text search
+  - [ ] Apply category and hashtag filters - Not needed for basic search
+  - [×] Order by relevance (ts_rank)
+- [ ] Function: `highlightSearchTerms(text, query)` - Skipped for MVP
   - [ ] Wrap matching terms in `<mark>` tags
   - [ ] Handle Japanese text properly
-- [ ] Function: `sanitizeSearchQuery(query)`
-  - [ ] Remove special characters
-  - [ ] Limit length (max 100 chars)
-  - [ ] Trim whitespace
+- [×] Function: `sanitizeSearchQuery(query)` - Implemented inline with trim()
+  - [ ] Remove special characters - Not needed (handled by RPC)
+  - [ ] Limit length (max 100 chars) - Not needed for MVP
+  - [×] Trim whitespace
 
 ### Recent Searches
 
-- [ ] Store recent searches in localStorage
-- [ ] Limit to last 5 searches
-- [ ] Display in suggestions dropdown
-- [ ] Add "Clear history" button
-- [ ] Handle privacy (clear on logout)
+- [ ] Store recent searches in localStorage - Skipped for MVP
+- [ ] Limit to last 5 searches - Skipped for MVP
+- [ ] Display in suggestions dropdown - Skipped for MVP
+- [ ] Add "Clear history" button - Skipped for MVP
+- [ ] Handle privacy (clear on logout) - Skipped for MVP
 
 ### Search Analytics (Optional)
 
-- [ ] Track search queries in Supabase
-- [ ] Create `search_logs` table
-- [ ] Store: query, result_count, timestamp
-- [ ] Use for improving search and content strategy
+- [ ] Track search queries in Supabase - Skipped (Optional)
+- [ ] Create `search_logs` table - Skipped (Optional)
+- [ ] Store: query, result_count, timestamp - Skipped (Optional)
+- [ ] Use for improving search and content strategy - Skipped (Optional)
 
 ## Component Example
 
@@ -334,15 +334,15 @@ export default async function SearchPage({ searchParams }) {
 
 ## Validation
 
-- [ ] Search returns relevant results
-- [ ] Japanese text search works correctly
-- [ ] Autocomplete suggestions appear within 300ms
-- [ ] Keyboard navigation works (Arrow keys, Enter, Escape)
-- [ ] Search results display correctly
-- [ ] Pagination works on search results
-- [ ] Filters combine correctly with search
-- [ ] No results message displays correctly
-- [ ] Recent searches save and display
-- [ ] Search bar is accessible (ARIA labels)
-- [ ] Mobile-friendly search UI
-- [ ] Search performance is acceptable (< 500ms)
+- [×] Search returns relevant results
+- [×] Japanese text search works correctly
+- [×] Autocomplete suggestions appear within 300ms
+- [ ] Keyboard navigation works (Arrow keys, Enter, Escape) - Escape only
+- [×] Search results display correctly
+- [×] Pagination works on search results
+- [ ] Filters combine correctly with search - Not implemented for basic search
+- [×] No results message displays correctly
+- [ ] Recent searches save and display - Skipped for MVP
+- [×] Search bar is accessible (ARIA labels)
+- [×] Mobile-friendly search UI
+- [×] Search performance is acceptable (< 500ms)

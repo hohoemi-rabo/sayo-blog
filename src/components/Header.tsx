@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import SearchBar from './SearchBar'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -58,29 +59,9 @@ export default function Header() {
             ))}
           </ul>
 
-          {/* Search Bar Placeholder (Desktop) */}
-          <div className="hidden md:flex items-center">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="記事を検索..."
-                className="w-64 px-4 py-2 pr-10 rounded-full border border-border-decorative bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
-                disabled
-              />
-              <svg
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
+          {/* Search Bar (Desktop) */}
+          <div className="hidden md:flex items-center max-w-md">
+            <SearchBar />
           </div>
 
           {/* Mobile Menu Button */}
@@ -144,26 +125,8 @@ export default function Header() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: navLinks.length * 0.1 }}
                 >
-                  <div className="relative pt-2">
-                    <input
-                      type="text"
-                      placeholder="記事を検索..."
-                      className="w-full px-4 py-2 pr-10 rounded-full border border-border-decorative bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
-                      disabled
-                    />
-                    <svg
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
+                  <div className="pt-2">
+                    <SearchBar />
                   </div>
                 </motion.li>
               </ul>
