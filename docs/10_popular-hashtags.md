@@ -39,64 +39,64 @@ Implement a popular hashtags cloud component displaying the most used hashtags w
 
 ### PopularHashtags Component
 
-- [ ] Create PopularHashtags component (`src/components/PopularHashtags.tsx`)
-- [ ] Use Server Component (no client interactivity needed initially)
-- [ ] Fetch top 20-30 hashtags from Supabase
-- [ ] Sort by count DESC
-- [ ] Calculate font size based on count
-- [ ] Display as flexbox with wrap
-- [ ] Add title: "人気のハッシュタグ"
-- [ ] Make each hashtag clickable (link to filtered view)
-- [ ] Add hover effects (scale, color change)
-- [ ] Add fade-in animation on load
+- [×] Create PopularHashtags component (`src/components/PopularHashtags.tsx`)
+- [×] Use Server Component (no client interactivity needed initially)
+- [×] Fetch top 20-30 hashtags from Supabase
+- [×] Sort by count DESC
+- [×] Calculate font size based on count
+- [×] Display as flexbox with wrap
+- [×] Add title: "人気のハッシュタグ"
+- [×] Make each hashtag clickable (link to filtered view)
+- [×] Add hover effects (scale, color change)
+- [×] Add fade-in animation on load
 
 ### Hashtag Utils
 
-- [ ] Create `src/lib/hashtag-utils.ts`
-- [ ] Function: `calculateFontSize(count, minCount, maxCount)`
-  - [ ] Map count to font size range (0.875rem - 2rem)
-  - [ ] Use linear or logarithmic scaling
-- [ ] Function: `getRandomGradient()`
+- [×] Create `src/lib/hashtag-utils.ts`
+- [×] Function: `calculateFontSize(count, minCount, maxCount)`
+  - [×] Map count to font size range (0.875rem - 2rem)
+  - [×] Use linear or logarithmic scaling
+- [ ] Function: `getRandomGradient()` - Skipped (not needed for basic implementation)
   - [ ] Return random category gradient for variety
   - [ ] Cycle through category colors
-- [ ] Function: `formatHashtagCount(count)`
-  - [ ] Format with commas (e.g., 1,234)
-  - [ ] Add "+" for large numbers (e.g., 10k+)
+- [×] Function: `formatHashtagCount(count)`
+  - [×] Format with commas (e.g., 1,234)
+  - [×] Add "+" for large numbers (e.g., 10k+)
 
 ### Data Fetching
 
-- [ ] Fetch from Supabase `hashtags` table
-- [ ] Order by `count DESC`
-- [ ] Limit to top 30
-- [ ] Filter only hashtags with count > 0
-- [ ] Include hashtag name and slug
-- [ ] Cache results (optional: using React Cache)
+- [×] Fetch from Supabase `hashtags` table
+- [×] Order by `count DESC`
+- [×] Limit to top 30
+- [×] Filter only hashtags with count > 0
+- [×] Include hashtag name and slug
+- [ ] Cache results (optional: using React Cache) - Not needed (Server Component)
 
 ### Styling & Animation
 
-- [ ] Apply design system colors
-- [ ] Use variable font sizes (0.875rem - 2rem)
-- [ ] Add rounded pill shape (rounded-full)
-- [ ] Add border with hover effect
-- [ ] Implement scale on hover (scale-110)
-- [ ] Add smooth transitions (transition-all duration-200)
-- [ ] Fade-in animation on mount (Framer Motion)
-- [ ] Add subtle shadow on hover
+- [×] Apply design system colors
+- [×] Use variable font sizes (0.875rem - 2rem)
+- [×] Add rounded pill shape (rounded-full)
+- [×] Add border with hover effect
+- [×] Implement scale on hover (scale-110)
+- [×] Add smooth transitions (transition-all duration-200)
+- [×] Fade-in animation on mount (CSS animation instead of Framer Motion)
+- [×] Add subtle shadow on hover
 
 ### Integration
 
-- [ ] Add PopularHashtags to home page (`src/app/page.tsx`)
-- [ ] Position below pagination
-- [ ] Add section padding and background
-- [ ] Make responsive (stack more on mobile)
-- [ ] Add decorative border/pattern (optional)
+- [×] Add PopularHashtags to home page (`src/app/page.tsx`)
+- [×] Position below pagination
+- [×] Add section padding and background
+- [×] Make responsive (stack more on mobile)
+- [×] Add decorative border/pattern (border-decorative)
 
 ### Accessibility
 
-- [ ] Add proper ARIA labels to links
-- [ ] Ensure keyboard navigation works
-- [ ] Add focus styles
-- [ ] Provide screen reader text for counts
+- [×] Add proper ARIA labels to links
+- [×] Ensure keyboard navigation works
+- [×] Add focus styles (default browser focus)
+- [×] Provide screen reader text for counts
 
 ## Component Example
 
@@ -284,15 +284,15 @@ export default function HashtagWithTooltip({ hashtag, fontSize }) {
 
 ## Validation
 
-- [ ] Hashtags display with variable sizes
-- [ ] Most popular hashtags are largest
-- [ ] Hover effects work smoothly
-- [ ] Click navigates to filtered view
-- [ ] Responsive on all screen sizes
-- [ ] Hashtags wrap correctly
-- [ ] Loading is fast (no performance issues)
-- [ ] Keyboard navigation works
-- [ ] Focus states are visible
-- [ ] Tooltip displays count on hover (if implemented)
-- [ ] Colors are consistent with design system
-- [ ] Animation runs smoothly on mount
+- [×] Hashtags display with variable sizes
+- [×] Most popular hashtags are largest
+- [×] Hover effects work smoothly
+- [×] Click navigates to filtered view
+- [×] Responsive on all screen sizes
+- [×] Hashtags wrap correctly
+- [×] Loading is fast (no performance issues)
+- [×] Keyboard navigation works
+- [×] Focus states are visible
+- [ ] Tooltip displays count on hover (if implemented) - Not implemented (optional feature)
+- [×] Colors are consistent with design system
+- [×] Animation runs smoothly on mount

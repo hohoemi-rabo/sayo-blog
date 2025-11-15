@@ -3,6 +3,7 @@ import HeroSection from '@/components/HeroSection'
 import FilterBar from '@/components/FilterBar'
 import PostGrid from '@/components/PostGrid'
 import Pagination from '@/components/Pagination'
+import PopularHashtags from '@/components/PopularHashtags'
 import { createClient } from '@/lib/supabase'
 import { Category, Hashtag, PostWithRelations } from '@/lib/types'
 
@@ -240,6 +241,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={count} />
           </div>
         </Suspense>
+
+        {/* Popular Hashtags Cloud */}
+        <div className="mt-12">
+          <PopularHashtags />
+        </div>
       </section>
     </>
   )
