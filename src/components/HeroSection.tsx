@@ -69,7 +69,7 @@ export default function HeroSection() {
             animate="visible"
             transition={{ delay: 0.4 }}
           >
-            言葉で&quot;場所・人・記憶&quot;をつなぐ
+            &quot;空気と心&quot;を言葉に変える
           </motion.p>
 
           {/* Decorative Divider */}
@@ -87,13 +87,15 @@ export default function HeroSection() {
 
           {/* Description */}
           <motion.p
-            className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl font-noto-sans-jp text-text-secondary leading-relaxed"
+            className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl font-noto-serif-jp text-text-secondary leading-relaxed"
             variants={slideInUp}
             initial="hidden"
             animate="visible"
             transition={{ delay: 0.6 }}
           >
-            ライター・インタビュアーのもとおかさよが、出会った場所や人々、そこで生まれた言葉を綴る物語のアーカイブ
+            人も、場所も、香りも、味も
+            <br />
+            私は、時間を超えた記憶を分かち合いたい
           </motion.p>
         </motion.div>
       </div>
