@@ -47,87 +47,87 @@ Migrate 80+ existing articles from Excel/CSV backup to Supabase database. Includ
 
 - [ ] Export existing articles to CSV format
 - [ ] Backup all images locally
-- [ ] Create Supabase project if not exists
-- [ ] Set up environment variables
-- [ ] Install dependencies: `npm install @supabase/supabase-js papaparse`
+- [×] Create Supabase project if not exists
+- [×] Set up environment variables
+- [×] Install dependencies: `npm install @supabase/supabase-js papaparse`
 
 ### Category Hierarchy Migration
 
-- [ ] Create `scripts/migrate-categories.ts`
-- [ ] Extract unique categories from Excel data
-- [ ] Build 3-level hierarchy (Prefecture > City > District)
-- [ ] Insert categories with `parent_id` relationships
-- [ ] Set appropriate `order_num` values
-- [ ] Verify category tree structure
-- [ ] Example categories:
-  - [ ] 長野県 (parent_id: NULL)
-  - [ ] 飯田市 (parent_id: 長野県ID)
-  - [ ] 上郷 (parent_id: 飯田市ID)
+- [×] Create `scripts/migrate-categories.ts`
+- [×] Extract unique categories from Excel data
+- [×] Build 3-level hierarchy (Prefecture > City > District)
+- [×] Insert categories with `parent_id` relationships
+- [×] Set appropriate `order_num` values
+- [×] Verify category tree structure
+- [×] Example categories:
+  - [×] 長野県 (parent_id: NULL)
+  - [×] 飯田市 (parent_id: 長野県ID)
+  - [×] 上郷 (parent_id: 飯田市ID)
 
 ### Hashtag Master Creation
 
-- [ ] Create `scripts/migrate-hashtags.ts`
-- [ ] Extract all unique hashtags from Excel
-- [ ] Generate slugs (remove spaces, lowercase)
-- [ ] Insert hashtags with count: 0 (will be updated by trigger)
-- [ ] Common hashtags to include:
-  - [ ] 飯田りんご, 信州そば, 古民家カフェ
-  - [ ] 温泉旅行, 秋の信州, りんご狩り
+- [×] Create `scripts/migrate-hashtags.ts`
+- [×] Extract all unique hashtags from Excel
+- [×] Generate slugs (remove spaces, lowercase)
+- [×] Insert hashtags with count: 0 (will be updated by trigger)
+- [×] Common hashtags to include:
+  - [×] 飯田りんご, 信州そば, 古民家カフェ
+  - [×] 温泉旅行, 秋の信州, りんご狩り
 
 ### Image Upload to Supabase Storage
 
-- [ ] Create `scripts/migrate-images.ts`
-- [ ] Create Supabase Storage bucket: `thumbnails`
-- [ ] Set bucket to public access
-- [ ] Upload images with year/month structure
-- [ ] Generate public URLs for each image
-- [ ] Store URL mapping (filename → public URL)
-- [ ] Handle duplicate filenames
-- [ ] Add error handling and retry logic
-- [ ] Log successful/failed uploads
+- [×] Create `scripts/migrate-images.ts`
+- [×] Create Supabase Storage bucket: `thumbnails`
+- [×] Set bucket to public access
+- [×] Upload images with year/month structure
+- [×] Generate public URLs for each image
+- [×] Store URL mapping (filename → public URL)
+- [×] Handle duplicate filenames
+- [×] Add error handling and retry logic
+- [×] Log successful/failed uploads
 
 ### Post Data Migration
 
-- [ ] Create `scripts/migrate-posts.ts`
-- [ ] Read CSV file using papaparse
-- [ ] For each row:
-  - [ ] Insert post data
-  - [ ] Link to categories (post_categories)
-  - [ ] Link to hashtags (post_hashtags)
-  - [ ] Use uploaded image URLs
-- [ ] Handle errors gracefully
-- [ ] Log progress (e.g., "Imported 10/80")
-- [ ] Batch insert for performance (optional)
-- [ ] Set `is_published: true` for all migrated posts
+- [×] Create `scripts/migrate-posts.ts`
+- [×] Read CSV file using papaparse
+- [×] For each row:
+  - [×] Insert post data
+  - [×] Link to categories (post_categories)
+  - [×] Link to hashtags (post_hashtags)
+  - [×] Use uploaded image URLs
+- [×] Handle errors gracefully
+- [×] Log progress (e.g., "Imported 10/80")
+- [×] Batch insert for performance (optional)
+- [×] Set `is_published: true` for all migrated posts
 
 ### Data Validation Script
 
-- [ ] Create `scripts/validate-data.ts`
-- [ ] Check post count matches Excel count
-- [ ] Verify all images are accessible
-- [ ] Check category hierarchy is correct
-- [ ] Verify hashtag counts are accurate
-- [ ] Check for orphaned posts (no categories)
-- [ ] Validate all slugs are unique
-- [ ] Check for broken image links
-- [ ] Generate validation report
+- [×] Create `scripts/validate-data.ts`
+- [×] Check post count matches Excel count
+- [×] Verify all images are accessible
+- [×] Check category hierarchy is correct
+- [×] Verify hashtag counts are accurate
+- [×] Check for orphaned posts (no categories)
+- [×] Validate all slugs are unique
+- [×] Check for broken image links
+- [×] Generate validation report
 
 ### Error Handling
 
-- [ ] Add try-catch blocks to all migration scripts
-- [ ] Log errors to file: `migration-errors.log`
-- [ ] Continue on non-critical errors
-- [ ] Rollback on critical failures
-- [ ] Provide clear error messages
-- [ ] Add option to resume from last checkpoint
+- [×] Add try-catch blocks to all migration scripts
+- [×] Log errors to file: `migration-errors.log`
+- [×] Continue on non-critical errors
+- [×] Rollback on critical failures
+- [×] Provide clear error messages
+- [×] Add option to resume from last checkpoint
 
 ### Documentation
 
-- [ ] Create `MIGRATION.md` with step-by-step instructions
-- [ ] Document required environment variables
-- [ ] Add troubleshooting section
-- [ ] Include rollback procedures
-- [ ] Document data format requirements
+- [×] Create `MIGRATION.md` with step-by-step instructions
+- [×] Document required environment variables
+- [×] Add troubleshooting section
+- [×] Include rollback procedures
+- [×] Document data format requirements
 
 ## Script Examples
 

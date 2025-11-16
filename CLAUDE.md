@@ -692,6 +692,7 @@ Each ticket should include:
 - ✅ **Ticket 08**: Article Page - Article detail page with hero, body, metadata
 - ✅ **Ticket 09**: Search Functionality - Full-text search with autocomplete, search results page
 - ✅ **Ticket 10**: Popular Hashtags Cloud - Variable-size hashtag cloud below pagination
+- ✅ **Ticket 11**: Data Migration - Migration scripts for categories, hashtags, images, posts with validation
 
 ### Performance Optimizations
 
@@ -753,6 +754,14 @@ Each ticket should include:
 - `src/lib/hashtag-utils.ts` - Hashtag utilities (font size calculation)
 - `src/lib/filter-utils.ts` - Filter state management utilities
 - `src/hooks/useDebounce.ts` - Debounce hook for search input
+
+**Migration Scripts**
+- `scripts/migrate-categories.ts` - Category hierarchy migration (prefecture → city → district)
+- `scripts/migrate-hashtags.ts` - Hashtag master list creation
+- `scripts/migrate-images.ts` - Image upload to Supabase Storage with URL mapping
+- `scripts/migrate-posts.ts` - Post data migration from CSV with relationships
+- `scripts/validate-data.ts` - Data integrity validation script
+- `MIGRATION.md` - Comprehensive migration guide with troubleshooting
 
 ## Known Issues & Solutions
 
@@ -930,5 +939,5 @@ console.timeEnd('[Fetch] Posts')
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2025-11-15 (Added Tickets 08-10: Article Page, Search Functionality, Popular Hashtags Cloud; Performance optimizations: N+1 fix, Server Component conversions, Framer Motion removal, search query optimization)
-**Project Status**: Phase 1 in progress (10/12 tickets completed)
+**Updated**: 2025-11-16 (Added Ticket 11: Data Migration - Migration scripts for categories, hashtags, images, posts with comprehensive validation and documentation)
+**Project Status**: Phase 1 in progress (11/12 tickets completed)
