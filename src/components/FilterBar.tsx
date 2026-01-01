@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
 import { X } from 'lucide-react'
-import PrefectureSelect from './PrefectureSelect'
+import CategorySelect from './CategorySelect'
 import HashtagInput from './HashtagInput'
 import SortSelect from './SortSelect'
 import { Button } from './ui/Button'
@@ -16,11 +16,11 @@ import {
 } from '@/lib/filter-utils'
 
 interface FilterBarProps {
-  prefectures: Category[]
+  categories: Category[]
   popularHashtags: Hashtag[]
 }
 
-export default function FilterBar({ prefectures, popularHashtags }: FilterBarProps) {
+export default function FilterBar({ categories, popularHashtags }: FilterBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
@@ -37,8 +37,8 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
     })
   }
 
-  const handlePrefectureChange = (prefecture: string) => {
-    updateFilters({ prefecture: prefecture || undefined })
+  const handleCategoryChange = (category: string) => {
+    updateFilters({ category: category || undefined })
   }
 
   const handleHashtagsChange = (hashtags: string[]) => {
@@ -61,13 +61,13 @@ export default function FilterBar({ prefectures, popularHashtags }: FilterBarPro
       className="bg-background-dark/5 backdrop-blur-sm rounded-xl p-4 md:p-6 mb-8 border border-border-decorative animate-fade-in"
     >
       <div className="flex flex-col lg:flex-row gap-4 lg:items-end">
-        {/* Prefecture & Sort (side by side on mobile) */}
+        {/* Category & Sort (side by side on mobile) */}
         <div className="flex flex-col sm:flex-row gap-4 lg:flex-1">
           <div className="flex-1">
-            <PrefectureSelect
-              value={currentFilters.prefecture || ''}
-              onChange={handlePrefectureChange}
-              prefectures={prefectures}
+            <CategorySelect
+              value={currentFilters.category || ''}
+              onChange={handleCategoryChange}
+              categories={categories}
               disabled={isPending}
             />
           </div>

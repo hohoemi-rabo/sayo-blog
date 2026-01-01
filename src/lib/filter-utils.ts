@@ -3,7 +3,6 @@
  */
 
 export interface FilterState {
-  prefecture?: string
   category?: string
   hashtags?: string[]
   sort?: 'latest' | 'popular' | 'title'
@@ -23,9 +22,6 @@ export const SORT_OPTIONS: Record<SortOption, { label: string; icon: string }> =
  */
 export function parseFiltersFromURL(searchParams: URLSearchParams): FilterState {
   const filters: FilterState = {}
-
-  const prefecture = searchParams.get('prefecture')
-  if (prefecture) filters.prefecture = prefecture
 
   const category = searchParams.get('category')
   if (category) filters.category = category
@@ -59,7 +55,6 @@ export function parseFiltersFromURL(searchParams: URLSearchParams): FilterState 
 export function serializeFiltersToURL(filters: FilterState): string {
   const params = new URLSearchParams()
 
-  if (filters.prefecture) params.set('prefecture', filters.prefecture)
   if (filters.category) params.set('category', filters.category)
   if (filters.hashtags && filters.hashtags.length > 0) {
     params.set('hashtags', filters.hashtags.join(','))
@@ -79,7 +74,6 @@ export function serializeFiltersToURL(filters: FilterState): string {
  */
 export function countActiveFilters(filters: FilterState): number {
   let count = 0
-  if (filters.prefecture) count++
   if (filters.category) count++
   if (filters.hashtags && filters.hashtags.length > 0) count += filters.hashtags.length
   return count

@@ -26,10 +26,8 @@ function formatDate(dateString: string): string {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  // Get prefecture (top-level category with no parent)
-  const prefecture = post.post_categories?.find(
-    (pc) => pc.categories && !pc.categories.parent_id
-  )?.categories
+  // Get the first category (flat structure now)
+  const category = post.post_categories?.[0]?.categories
 
   // Get hashtags
   const hashtags =
@@ -37,8 +35,8 @@ export default function PostCard({ post }: PostCardProps) {
       ?.map((ph) => ph.hashtags)
       .filter((h): h is NonNullable<typeof h> => h !== null) || []
 
-  // Generate post URL (prefecture/slug)
-  const postUrl = prefecture ? `/${prefecture.slug}/${post.slug}` : `/${post.slug}`
+  // Generate post URL (category/slug)
+  const postUrl = category ? `/${category.slug}/${post.slug}` : `/${post.slug}`
 
   return (
     <article className="group bg-background rounded-xl overflow-hidden shadow-decorative hover:shadow-decorative-lg transition-all duration-300">
@@ -71,9 +69,9 @@ export default function PostCard({ post }: PostCardProps) {
           </div>
         )}
         {/* Category Badge Overlay */}
-        {prefecture && (
+        {category && (
           <div className="absolute top-3 left-3">
-            <CategoryBadge category={prefecture} />
+            <CategoryBadge category={category} />
           </div>
         )}
       </Link>

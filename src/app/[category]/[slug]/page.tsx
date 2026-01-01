@@ -12,7 +12,7 @@ export const revalidate = 3600 // 1 hour ISR
 
 interface ArticlePageProps {
   params: Promise<{
-    prefecture: string
+    category: string
     slug: string
   }>
 }
@@ -27,7 +27,7 @@ export async function generateStaticParams() {
       `
       slug,
       post_categories!inner(
-        categories!inner(slug, parent_id)
+        categories!inner(slug)
       )
     `
     )
@@ -40,7 +40,6 @@ export async function generateStaticParams() {
   type PostCategory = {
     categories: {
       slug: string
-      parent_id: string | null
     }
   }
 
@@ -50,13 +49,11 @@ export async function generateStaticParams() {
   }
 
   return (posts as unknown as PostData[]).map((post) => {
-    // Find prefecture (category with no parent)
-    const prefectureCategory = post.post_categories.find(
-      (pc) => pc.categories.parent_id === null
-    )
+    // Get the first category (flat structure now)
+    const firstCategory = post.post_categories[0]
 
     return {
-      prefecture: prefectureCategory?.categories.slug || '',
+      category: firstCategory?.categories.slug || '',
       slug: post.slug,
     }
   })
@@ -129,18 +126,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound()
   }
 
-  // Extract categories and sort by hierarchy (prefecture > city > district)
+  // Extract categories (flat structure now)
   const categories = (
     post.post_categories as Array<{
       categories: { id: string; name: string; slug: string; parent_id: string | null }
     }>
-  )
-    .map((pc) => pc.categories)
-    .sort((a, b) => {
-      if (!a.parent_id) return -1
-      if (!b.parent_id) return 1
-      return 0
-    })
+  ).map((pc) => pc.categories)
 
   // Extract hashtags
   const hashtags = (

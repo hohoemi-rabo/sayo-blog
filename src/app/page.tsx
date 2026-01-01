@@ -9,7 +9,6 @@ import { Category, Hashtag, PostWithRelations } from '@/lib/types'
 
 interface HomePageProps {
   searchParams: Promise<{
-    prefecture?: string
     category?: string
     hashtags?: string
     sort?: string
@@ -24,17 +23,16 @@ export const revalidate = 600 // 10 minutes
 // Allow dynamic rendering (important for searchParams to work)
 export const dynamic = 'force-dynamic'
 
-// Fetch prefectures (top-level categories)
-async function getPrefectures(): Promise<Category[]> {
+// Fetch categories (flat structure now)
+async function getCategories(): Promise<Category[]> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .is('parent_id', null)
     .order('order_num', { ascending: true })
 
   if (error) {
-    console.error('Error fetching prefectures:', error)
+    console.error('Error fetching categories:', error)
     return []
   }
 
@@ -60,7 +58,7 @@ async function getPopularHashtags(): Promise<Hashtag[]> {
 
 // Fetch filtered posts with pagination
 async function getFilteredPosts(filters: {
-  prefecture?: string
+  category?: string
   hashtags?: string[]
   sort?: string
   page?: number
@@ -87,9 +85,9 @@ async function getFilteredPosts(filters: {
     )
     .eq('is_published', true)
 
-  // Apply prefecture filter
-  if (filters.prefecture) {
-    query = query.eq('post_categories.categories.slug', filters.prefecture)
+  // Apply category filter
+  if (filters.category) {
+    query = query.eq('post_categories.categories.slug', filters.category)
   }
 
   // Apply sort
@@ -150,8 +148,8 @@ async function getFilteredPosts(filters: {
       .in('id', matchingPostIds)
       .eq('is_published', true)
 
-    if (filters.prefecture) {
-      hashtagPostsQuery.eq('post_categories.categories.slug', filters.prefecture)
+    if (filters.category) {
+      hashtagPostsQuery.eq('post_categories.categories.slug', filters.category)
     }
 
     switch (filters.sort) {
@@ -181,7 +179,7 @@ async function getFilteredPosts(filters: {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams
-  const prefecture = params.prefecture
+  const category = params.category
   const hashtagsParam = params.hashtags
   const hashtags = hashtagsParam ? hashtagsParam.split(',').filter(Boolean) : undefined
   const sort = params.sort || 'latest'
@@ -192,10 +190,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const page = isNaN(requestedPage) || requestedPage < 1 ? 1 : requestedPage
 
   // Fetch data in parallel with the requested page
-  const [prefectures, popularHashtags, { posts, count }] = await Promise.all([
-    getPrefectures(),
+  const [categories, popularHashtags, { posts, count }] = await Promise.all([
+    getCategories(),
     getPopularHashtags(),
-    getFilteredPosts({ prefecture, hashtags, sort, page }),
+    getFilteredPosts({ category, hashtags, sort, page }),
   ])
 
   // Calculate total pages and validate current page
@@ -207,11 +205,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <HeroSection />
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <FilterBar prefectures={prefectures} popularHashtags={popularHashtags} />
+        <FilterBar categories={categories} popularHashtags={popularHashtags} />
 
         {/* Post results with Suspense */}
         <Suspense
-          key={`posts-${prefecture || 'all'}-${hashtagsParam || 'none'}-${sort}-page${currentPage}`}
+          key={`posts-${category || 'all'}-${hashtagsParam || 'none'}-${sort}-page${currentPage}`}
           fallback={
             <div className="py-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -8,6 +8,11 @@
  * Usage: npm run migrate:images
  */
 
+import { config } from 'dotenv'
+
+// Load environment variables from .env.local
+config({ path: '.env.local' })
+
 import { createClient } from '@supabase/supabase-js'
 import fs from 'fs'
 import path from 'path'
