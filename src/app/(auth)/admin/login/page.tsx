@@ -2,10 +2,11 @@
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
-import { Lock } from 'lucide-react'
+import { Lock, ArrowLeft } from 'lucide-react'
 
 function LoginForm() {
   const router = useRouter()
@@ -84,6 +85,16 @@ function LoginForm() {
           {isLoading ? 'ログイン中...' : 'ログイン'}
         </Button>
       </form>
+
+      <div className="mt-6 text-center">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          サイトに戻る
+        </Link>
+      </div>
     </div>
   )
 }
