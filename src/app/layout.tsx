@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import "./globals.css";
 
 // Heading font (decorative serif)
@@ -73,11 +71,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${notoSerifJP.variable} ${notoSansJP.variable} font-noto-serif-jp antialiased`}
       >
-        <Header />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

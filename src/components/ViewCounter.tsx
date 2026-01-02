@@ -7,8 +7,15 @@ interface ViewCounterProps {
   slug: string
 }
 
+// Module-level Set to track processed slugs (persists across StrictMode remounts)
+const processedSlugs = new Set<string>()
+
 export default function ViewCounter({ slug }: ViewCounterProps) {
   useEffect(() => {
+    // Prevent double increment in React StrictMode
+    if (processedSlugs.has(slug)) return
+    processedSlugs.add(slug)
+
     incrementViewCount(slug)
   }, [slug])
 

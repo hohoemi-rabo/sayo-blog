@@ -36,67 +36,87 @@ npm run lint        # Run ESLint
 ```
 sayo-blog/
 ├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── layout.tsx    # Root layout with font configuration
-│   │   ├── page.tsx      # Home page with filtering & pagination
-│   │   └── globals.css   # Global styles
-│   ├── components/       # React components
-│   │   ├── ui/          # Base UI components (Button, Card, Badge)
+│   ├── app/
+│   │   ├── layout.tsx           # Root layout (fonts only)
+│   │   ├── globals.css          # Global styles
+│   │   ├── (public)/            # Public pages route group
+│   │   │   ├── layout.tsx       # Header + Footer
+│   │   │   ├── page.tsx         # Home page
+│   │   │   ├── [category]/      # Article pages
+│   │   │   └── search/          # Search page
+│   │   ├── (admin)/             # Admin panel route group
+│   │   │   └── admin/
+│   │   │       ├── layout.tsx   # Admin layout (Sidebar, Header)
+│   │   │       ├── page.tsx     # Dashboard
+│   │   │       ├── posts/       # Post management
+│   │   │       ├── categories/  # Category management
+│   │   │       └── hashtags/    # Hashtag management
+│   │   ├── (auth)/              # Auth route group
+│   │   │   └── admin/login/     # Login page
+│   │   └── api/                 # API routes
+│   ├── components/
+│   │   ├── ui/                  # Base UI components
+│   │   ├── admin/               # Admin-specific components
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── ImageUploader.tsx
+│   │   │   └── editor/          # Tiptap editor
 │   │   ├── FilterBar.tsx
 │   │   ├── PostGrid.tsx
-│   │   ├── PostCard.tsx
-│   │   ├── Pagination.tsx
 │   │   └── ...
-│   └── lib/             # Utilities and helpers
+│   └── lib/
+│       ├── supabase.ts          # Server-side Supabase client
+│       ├── supabase-browser.ts  # Browser-side singleton client
 │       ├── types.ts
-│       ├── supabase.ts
-│       ├── filter-utils.ts
-│       ├── pagination-utils.ts
-│       ├── category-colors.ts
-│       └── motion-variants.ts
-├── docs/                # Feature implementation tickets
-│   ├── 01_project-setup.md
-│   ├── 02_database-schema.md
-│   └── ...
-├── REQUIREMENTS.md      # Comprehensive project requirements (Phase 1 & 2)
-├── .mcp.json           # MCP configuration for Supabase (gitignored)
-└── .mcp.json.example   # Template for MCP setup
+│       └── ...
+├── docs/                        # Feature tickets
+├── REQUIREMENTS.md
+├── .mcp.json                    # MCP config (gitignored)
+└── .mcp.json.example
 ```
 
 ### URL Structure & Routing
 
-The site uses a hierarchical URL structure based on prefectures:
+The site uses a category-based URL structure:
 
 ```
 /                                    → All articles (top page)
-/nagano/                            → Nagano prefecture articles
-/nagano/?category=iida              → Iida city articles
-/nagano/[article-slug]/             → Individual article
-/hashtags/[hashtag-slug]/           → Articles by hashtag
+/gourmet/                           → Gourmet category articles
+/gourmet/[article-slug]/            → Individual article
+/event/[article-slug]/              → Event article
 /?hashtags=tag1,tag2                → Multiple hashtag filter
 /?sort=popular                      → Sort by view count
+/search?q=keyword                   → Search results
+/admin/                             → Admin dashboard
+/admin/posts/                       → Post management
+/admin/categories/                  → Category management
+/admin/hashtags/                    → Hashtag management
 ```
 
-**Key Design Decision**: Only the first level (prefecture) is in the URL path. Lower levels (city, district) are managed as categories in the database for SEO and implementation simplicity.
+**Categories** (flat structure):
+- gourmet (グルメ)
+- event (イベント)
+- spot (スポット)
+- culture (文化)
+- news (ニュース)
 
 ### Database Schema (Supabase)
 
 #### Core Tables
 
 1. **posts** - Main article table
-   - Fields: id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published
+   - Fields: id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, created_at, updated_at
    - Indexes: slug, published_at, is_published, view_count
 
-2. **categories** - Hierarchical location categories (prefecture → city → district)
-   - Self-referential with parent_id
-   - Fields: name, slug, parent_id, order_num, description, image_url, meta_title, meta_description
-   - Example: 長野県 (NULL) → 飯田市 (nagano) → 上郷 (iida)
+2. **categories** - Flat theme-based categories
+   - Fields: id, name, slug, description, order_num
+   - Examples: gourmet, event, spot, culture, news
 
 3. **post_categories** - Many-to-many junction table
-   - Links posts to multiple hierarchical categories
+   - Links posts to categories
 
 4. **hashtags** - Tag system for SNS-style content discovery
-   - Fields: name, slug, count (cached usage count)
+   - Fields: id, name, slug, count (cached usage count)
    - Auto-updated via triggers
 
 5. **post_hashtags** - Many-to-many junction table
@@ -611,6 +631,7 @@ NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=https://www.sayo-kotoba.com
+ADMIN_PASSWORD=your-secure-admin-password
 ```
 
 ## Design Philosophy
@@ -686,13 +707,14 @@ Each ticket should include:
 - ✅ **Ticket 02**: Database Schema - Categories, Posts, Hashtags, RLS policies
 - ✅ **Ticket 03**: Design System - Color palette, typography, motion variants
 - ✅ **Ticket 04**: Top Page Layout - Hero section, responsive layout
-- ✅ **Ticket 05**: Filter System - Prefecture/category/hashtag filtering with URL state
+- ✅ **Ticket 05**: Filter System - Category/hashtag filtering with URL state
 - ✅ **Ticket 06**: Card Grid & Post Cards - Responsive grid, hover effects, animations
 - ✅ **Ticket 07**: Pagination - URL-based pagination with 12 posts per page, scroll to FilterBar
 - ✅ **Ticket 08**: Article Page - Article detail page with hero, body, metadata
 - ✅ **Ticket 09**: Search Functionality - Full-text search with autocomplete, search results page
 - ✅ **Ticket 10**: Popular Hashtags Cloud - Variable-size hashtag cloud below pagination
 - ✅ **Ticket 11**: Data Migration - Migration scripts for categories, hashtags, images, posts with validation
+- ✅ **Ticket 17**: Admin Panel - Complete CMS with Tiptap editor, image upload, CRUD for posts/categories/hashtags
 
 ### Performance Optimizations
 
@@ -707,7 +729,9 @@ Each ticket should include:
 ### Key Components Implemented
 
 **Layout & Navigation**
-- `src/app/layout.tsx` - Root layout with font configuration
+- `src/app/layout.tsx` - Root layout with fonts only
+- `src/app/(public)/layout.tsx` - Public pages layout with Header/Footer
+- `src/app/(admin)/admin/layout.tsx` - Admin layout with Sidebar/Header
 - `src/components/HeroSection.tsx` - Hero with site title and tagline
 
 **Filtering & Search**
@@ -726,15 +750,15 @@ Each ticket should include:
 - `src/components/HashtagList.tsx` - Hashtag display (max 3 visible)
 
 **Article Detail**
-- `src/app/[prefecture]/[slug]/page.tsx` - Article detail page (SSG with ISR)
+- `src/app/(public)/[category]/[slug]/page.tsx` - Article detail page (SSG with ISR)
 - `src/components/ArticleHero.tsx` - Article hero section with thumbnail
 - `src/components/ArticleBody.tsx` - Article content (Server Component)
 - `src/components/ArticleMeta.tsx` - Article metadata display
 - `src/components/Breadcrumbs.tsx` - Breadcrumb navigation
-- `src/components/ViewCounter.tsx` - View count tracker (Client Component)
+- `src/components/ViewCounter.tsx` - View count tracker (Client Component, StrictMode-safe)
 
 **Search**
-- `src/app/search/page.tsx` - Search results page with pagination
+- `src/app/(public)/search/page.tsx` - Search results page with pagination
 - `src/components/SearchBar.tsx` - Search bar with autocomplete
 - `supabase/migrations/*_search.sql` - Full-text search RPC functions
 
@@ -756,12 +780,23 @@ Each ticket should include:
 - `src/hooks/useDebounce.ts` - Debounce hook for search input
 
 **Migration Scripts**
-- `scripts/migrate-categories.ts` - Category hierarchy migration (prefecture → city → district)
+- `scripts/migrate-categories.ts` - Category migration
 - `scripts/migrate-hashtags.ts` - Hashtag master list creation
 - `scripts/migrate-images.ts` - Image upload to Supabase Storage with URL mapping
 - `scripts/migrate-posts.ts` - Post data migration from CSV with relationships
 - `scripts/validate-data.ts` - Data integrity validation script
 - `MIGRATION.md` - Comprehensive migration guide with troubleshooting
+
+**Admin Panel**
+- `src/app/(admin)/admin/page.tsx` - Dashboard with statistics
+- `src/app/(admin)/admin/posts/` - Post CRUD (list, create, edit, delete)
+- `src/app/(admin)/admin/categories/` - Category CRUD
+- `src/app/(admin)/admin/hashtags/` - Hashtag CRUD with bulk delete
+- `src/components/admin/Sidebar.tsx` - Navigation sidebar
+- `src/components/admin/Header.tsx` - Header with logout button
+- `src/components/admin/ImageUploader.tsx` - Supabase Storage image upload
+- `src/components/admin/editor/RichTextEditor.tsx` - Tiptap rich text editor (dynamic import, SSR-safe)
+- `src/lib/supabase-browser.ts` - Browser-side Supabase singleton (prevents multiple instances)
 
 ## Known Issues & Solutions
 
@@ -890,6 +925,58 @@ export const revalidate = 600 // ISR with 10-minute revalidation
 export const dynamic = 'force-dynamic' // Required for searchParams to work
 ```
 
+### Tiptap Editor in React 18 StrictMode
+
+**Issue**: Duplicate extension warning `[tiptap warn]: Duplicate extension names found: ['link']`
+
+**Root Cause**: React 18 StrictMode mounts components twice in development, causing extensions to be registered multiple times.
+
+**Solution**: Use module-level singleton cache for extensions:
+
+```typescript
+// Extensions cache outside component (persists across StrictMode remounts)
+const extensionsCache = new Map<string, Extension[]>()
+
+function getExtensions(placeholder: string) {
+  if (!extensionsCache.has(placeholder)) {
+    extensionsCache.set(placeholder, createBaseExtensions(placeholder))
+  }
+  return extensionsCache.get(placeholder)!
+}
+```
+
+### View Counter Double Counting
+
+**Issue**: View count increments by 2 instead of 1 due to React StrictMode double-mounting
+
+**Solution**: Use module-level Set to track processed slugs:
+
+```typescript
+const processedSlugs = new Set<string>()
+
+export default function ViewCounter({ slug }: ViewCounterProps) {
+  useEffect(() => {
+    if (processedSlugs.has(slug)) return
+    processedSlugs.add(slug)
+    incrementViewCount(slug)
+  }, [slug])
+  return null
+}
+```
+
+### Custom Checkbox Not Clickable
+
+**Issue**: Visual checkbox div not triggering hidden input
+
+**Solution**: Wrap in `<label>` element:
+
+```typescript
+<label htmlFor={id} className="cursor-pointer">
+  <input id={id} type="checkbox" className="sr-only" />
+  <div className="checkbox-visual">...</div>
+</label>
+```
+
 ## Performance Considerations
 
 ### Data Fetching Strategy
@@ -939,5 +1026,5 @@ console.timeEnd('[Fetch] Posts')
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2025-11-16 (Added Ticket 11: Data Migration - Migration scripts for categories, hashtags, images, posts with comprehensive validation and documentation)
-**Project Status**: Phase 1 in progress (11/12 tickets completed)
+**Updated**: 2026-01-02 (Added Ticket 17: Admin Panel - Complete CMS with authentication, Tiptap editor, image upload, CRUD operations)
+**Project Status**: Phase 1 completed + Admin Panel
