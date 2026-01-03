@@ -2,9 +2,10 @@
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
-import { Upload, X, Loader2 } from 'lucide-react'
+import { Upload, X, Loader2, ImageIcon } from 'lucide-react'
 import { getSupabaseBrowser } from '@/lib/supabase-browser'
 import { cn } from '@/lib/utils'
+import { MediaPickerDialog } from './MediaPickerDialog'
 
 interface ImageUploaderProps {
   value: string | null
@@ -22,6 +23,7 @@ export function ImageUploader({
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragActive, setDragActive] = useState(false)
+  const [showMediaPicker, setShowMediaPicker] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const uploadImage = async (file: File) => {
@@ -105,6 +107,9 @@ export function ImageUploader({
   }
 
   const handleRemove = () => {
+    // Just clear the URL - don't delete from Storage
+    // Storage cleanup should be done from Media management page
+    // where usage check is performed
     onChange(null)
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -132,50 +137,74 @@ export function ImageUploader({
           </button>
         </div>
       ) : (
-        <div
-          className={cn(
-            'relative border-2 border-dashed rounded-lg p-8 text-center transition-colors',
-            dragActive
-              ? 'border-primary bg-primary/5'
-              : 'border-border-decorative hover:border-primary/50',
-            isUploading && 'pointer-events-none opacity-50'
-          )}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            disabled={isUploading}
-          />
+        <div className="space-y-3">
+          {/* Upload area */}
+          <div
+            className={cn(
+              'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors',
+              dragActive
+                ? 'border-primary bg-primary/5'
+                : 'border-border-decorative hover:border-primary/50',
+              isUploading && 'pointer-events-none opacity-50'
+            )}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleFileChange}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={isUploading}
+            />
 
-          {isUploading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              <p className="text-sm text-text-secondary">アップロード中...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2">
-              <Upload className="h-8 w-8 text-text-secondary" />
-              <p className="text-sm text-text-secondary">
-                クリックまたはドラッグ&ドロップで画像をアップロード
-              </p>
-              <p className="text-xs text-text-secondary">
-                JPEG, PNG, WebP, GIF (最大5MB)
-              </p>
-            </div>
-          )}
+            {isUploading ? (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                <p className="text-sm text-text-secondary">アップロード中...</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <Upload className="h-8 w-8 text-text-secondary" />
+                <p className="text-sm text-text-secondary">
+                  クリックまたはドラッグ&ドロップ
+                </p>
+                <p className="text-xs text-text-secondary">
+                  JPEG, PNG, WebP, GIF (最大5MB)
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Select from library button */}
+          <button
+            type="button"
+            onClick={() => setShowMediaPicker(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-border-decorative rounded-lg text-sm text-text-secondary hover:bg-gray-50 hover:border-primary/50 transition-colors"
+          >
+            <ImageIcon className="h-4 w-4" />
+            ライブラリから選択
+          </button>
         </div>
       )}
 
       {error && (
         <p className="mt-2 text-sm text-red-500">{error}</p>
       )}
+
+      {/* Media Picker Dialog */}
+      <MediaPickerDialog
+        open={showMediaPicker}
+        onOpenChange={setShowMediaPicker}
+        onSelect={(url) => {
+          setShowMediaPicker(false)
+          // Use setTimeout to ensure dialog closes before updating parent state
+          setTimeout(() => onChange(url), 0)
+        }}
+      />
     </div>
   )
 }

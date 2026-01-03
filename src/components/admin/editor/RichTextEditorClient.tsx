@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
@@ -23,11 +24,11 @@ import {
   Minus,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { EditorImagePicker } from './EditorImagePicker'
 
 interface RichTextEditorClientProps {
   content: string
   onChange: (content: string) => void
-  onImageUpload?: () => void
   placeholder?: string
 }
 
@@ -69,9 +70,10 @@ function getExtensions(placeholder: string) {
 export function RichTextEditorClient({
   content,
   onChange,
-  onImageUpload,
   placeholder = '記事の本文を入力...',
 }: RichTextEditorClientProps) {
+  const [showImagePicker, setShowImagePicker] = useState(false)
+
   const editor = useEditor(
     {
       extensions: getExtensions(placeholder),
@@ -134,11 +136,8 @@ export function RichTextEditorClient({
     }
   }
 
-  const addImage = () => {
-    const url = window.prompt('画像URLを入力してください:')
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run()
-    }
+  const handleImageSelect = (url: string) => {
+    editor.chain().focus().setImage({ src: url }).run()
   }
 
   return (
@@ -238,7 +237,7 @@ export function RichTextEditorClient({
           <LinkIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
-          onClick={onImageUpload || addImage}
+          onClick={() => setShowImagePicker(true)}
           title="画像"
         >
           <ImageIcon className="h-4 w-4" />
@@ -264,6 +263,13 @@ export function RichTextEditorClient({
 
       {/* Editor */}
       <EditorContent editor={editor} />
+
+      {/* Image Picker */}
+      <EditorImagePicker
+        open={showImagePicker}
+        onOpenChange={setShowImagePicker}
+        onSelect={handleImageSelect}
+      />
     </div>
   )
 }

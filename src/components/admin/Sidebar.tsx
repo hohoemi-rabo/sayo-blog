@@ -7,6 +7,7 @@ import {
   FileText,
   FolderOpen,
   Hash,
+  ImageIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +16,7 @@ const navigation = [
   { name: '記事', href: '/admin/posts', icon: FileText },
   { name: 'カテゴリ', href: '/admin/categories', icon: FolderOpen },
   { name: 'ハッシュタグ', href: '/admin/hashtags', icon: Hash },
+  { name: 'メディア', href: '/admin/media', icon: ImageIcon },
 ]
 
 export function Sidebar() {
