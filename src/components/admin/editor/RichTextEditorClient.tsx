@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
-import { BubbleMenu } from '@tiptap/react/menus'
+import { CustomBubbleMenu } from './CustomBubbleMenu'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
@@ -307,10 +307,7 @@ export function RichTextEditorClient({
       <EditorContent editor={editor} />
 
       {/* Bubble Menu - appears when text is selected */}
-      <BubbleMenu
-        editor={editor}
-        className="flex items-center gap-0.5 p-1 bg-white rounded-lg shadow-lg border border-border-decorative"
-      >
+      <CustomBubbleMenu editor={editor}>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
@@ -424,7 +421,7 @@ export function RichTextEditorClient({
         >
           <LinkIcon className="h-3.5 w-3.5" />
         </button>
-      </BubbleMenu>
+      </CustomBubbleMenu>
 
       {/* Image Picker */}
       <EditorImagePicker

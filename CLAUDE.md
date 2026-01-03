@@ -807,8 +807,11 @@ Each ticket should include:
 - `src/components/admin/ImageUploader.tsx` - Supabase Storage image upload (clears URL only, doesn't delete from Storage)
 - `src/components/admin/MediaPickerDialog.tsx` - Media library picker with React Portal
 - `src/components/admin/editor/RichTextEditor.tsx` - Tiptap rich text editor (dynamic import, SSR-safe)
-- `src/components/admin/editor/RichTextEditorClient.tsx` - Editor with toolbar and image picker
+- `src/components/admin/editor/RichTextEditorClient.tsx` - Editor with toolbar and bubble menu
+- `src/components/admin/editor/CustomBubbleMenu.tsx` - Custom bubble menu (React Portal + Floating UI)
 - `src/components/admin/editor/EditorImagePicker.tsx` - Image picker for editor (upload + library selection)
+- `src/components/admin/editor/EditorLinkDialog.tsx` - Link input dialog with URL preview
+- `src/components/admin/editor/extensions/BoxExtension.ts` - Custom Tiptap extension for bordered content blocks
 - `src/lib/supabase-browser.ts` - Browser-side Supabase singleton (prevents multiple instances)
 
 ## Known Issues & Solutions
@@ -957,6 +960,46 @@ function getExtensions(placeholder: string) {
   return extensionsCache.get(placeholder)!
 }
 ```
+
+### Tiptap BubbleMenu Z-Index and Positioning
+
+**Issue**: Tiptap's built-in BubbleMenu appears behind sidebar and gets cut off at screen edges
+
+**Root Cause**:
+- Tiptap 3.x uses Floating UI instead of Tippy.js
+- `tippyOptions` is no longer available in v3
+- The `options` prop with `appendTo`, `shift`, `flip` doesn't work as expected
+- BubbleMenu renders inside editor container, inheriting its stacking context
+
+**Solution**: Create custom bubble menu using React Portal + Floating UI:
+
+```typescript
+// src/components/admin/editor/CustomBubbleMenu.tsx
+import { createPortal } from 'react-dom'
+import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/react-dom'
+
+export function CustomBubbleMenu({ editor, children }) {
+  const { refs, floatingStyles } = useFloating({
+    placement: 'top',
+    middleware: [offset(8), flip({ padding: 8 }), shift({ padding: 8 })],
+    whileElementsMounted: autoUpdate,
+  })
+
+  // Render via Portal to escape stacking context
+  return createPortal(
+    <div ref={refs.setFloating} style={{ ...floatingStyles, zIndex: 9999 }}>
+      {children}
+    </div>,
+    document.body
+  )
+}
+```
+
+**Key points**:
+- React Portal renders to `document.body`, escaping sidebar's stacking context
+- `z-index: 9999` ensures menu appears above sidebar (z-40)
+- Floating UI's `shift` keeps menu within viewport
+- Floating UI's `flip` moves menu below selection if no space above
 
 ### View Counter Double Counting
 
@@ -1127,5 +1170,5 @@ console.timeEnd('[Fetch] Posts')
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-01-03 (Added infinite scroll, media management, editor image picker, safe image deletion workflow)
+**Updated**: 2026-01-04 (Added custom bubble menu with React Portal + Floating UI, link dialog, box extension)
 **Project Status**: Phase 1 completed + Admin Panel + Media Management
