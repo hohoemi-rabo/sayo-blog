@@ -153,6 +153,26 @@
     border-radius: var(--radius-sm);
     font-size: 0.9em;
   }
+
+  /* Editor box - bordered content block */
+  .editor-box,
+  div[data-type="box"] {
+    border: 1px solid var(--color-border-decorative);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    background-color: rgba(250, 248, 245, 0.5);
+  }
+
+  .editor-box > *:first-child,
+  div[data-type="box"] > *:first-child {
+    margin-top: 0;
+  }
+
+  .editor-box > *:last-child,
+  div[data-type="box"] > *:last-child {
+    margin-bottom: 0;
+  }
 }
 
 @layer utilities {

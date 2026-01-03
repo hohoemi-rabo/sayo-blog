@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
+import { BubbleMenu } from '@tiptap/react/menus'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
@@ -22,10 +23,12 @@ import {
   Redo,
   Code,
   Minus,
+  Square,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditorImagePicker } from './EditorImagePicker'
 import { EditorLinkDialog } from './EditorLinkDialog'
+import { BoxExtension } from './extensions/BoxExtension'
 
 interface RichTextEditorClientProps {
   content: string
@@ -57,6 +60,7 @@ function createBaseExtensions(placeholder: string) {
     Placeholder.configure({
       placeholder,
     }),
+    BoxExtension,
   ]
 }
 
@@ -257,6 +261,13 @@ export function RichTextEditorClient({
         >
           <Minus className="h-4 w-4" />
         </ToolbarButton>
+        <ToolbarButton
+          isActive={editor.isActive('box')}
+          onClick={() => editor.chain().focus().toggleBox().run()}
+          title="ボックス"
+        >
+          <Square className="h-4 w-4" />
+        </ToolbarButton>
 
         <div className="w-px h-6 bg-gray-300 mx-1" />
 
@@ -294,6 +305,126 @@ export function RichTextEditorClient({
 
       {/* Editor */}
       <EditorContent editor={editor} />
+
+      {/* Bubble Menu - appears when text is selected */}
+      <BubbleMenu
+        editor={editor}
+        className="flex items-center gap-0.5 p-1 bg-white rounded-lg shadow-lg border border-border-decorative"
+      >
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors text-xs font-semibold',
+            editor.isActive('heading', { level: 2 }) && 'bg-gray-100 text-primary'
+          )}
+          title="見出し2"
+        >
+          H2
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors text-xs font-semibold',
+            editor.isActive('heading', { level: 3 }) && 'bg-gray-100 text-primary'
+          )}
+          title="見出し3"
+        >
+          H3
+        </button>
+        <div className="w-px h-5 bg-gray-200 mx-0.5" />
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('bold') && 'bg-gray-100 text-primary'
+          )}
+          title="太字"
+        >
+          <Bold className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('italic') && 'bg-gray-100 text-primary'
+          )}
+          title="斜体"
+        >
+          <Italic className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('strike') && 'bg-gray-100 text-primary'
+          )}
+          title="取り消し線"
+        >
+          <Strikethrough className="h-3.5 w-3.5" />
+        </button>
+        <div className="w-px h-5 bg-gray-200 mx-0.5" />
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('bulletList') && 'bg-gray-100 text-primary'
+          )}
+          title="箇条書き"
+        >
+          <List className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('orderedList') && 'bg-gray-100 text-primary'
+          )}
+          title="番号付きリスト"
+        >
+          <ListOrdered className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('blockquote') && 'bg-gray-100 text-primary'
+          )}
+          title="引用"
+        >
+          <Quote className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBox().run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('box') && 'bg-gray-100 text-primary'
+          )}
+          title="ボックス"
+        >
+          <Square className="h-3.5 w-3.5" />
+        </button>
+        <div className="w-px h-5 bg-gray-200 mx-0.5" />
+        <button
+          type="button"
+          onClick={openLinkDialog}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors',
+            editor.isActive('link') && 'bg-gray-100 text-primary'
+          )}
+          title="リンク"
+        >
+          <LinkIcon className="h-3.5 w-3.5" />
+        </button>
+      </BubbleMenu>
 
       {/* Image Picker */}
       <EditorImagePicker
