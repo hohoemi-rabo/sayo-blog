@@ -50,7 +50,8 @@ sayo-blog/
 │   │   │       ├── page.tsx     # Dashboard
 │   │   │       ├── posts/       # Post management
 │   │   │       ├── categories/  # Category management
-│   │   │       └── hashtags/    # Hashtag management
+│   │   │       ├── hashtags/    # Hashtag management
+│   │   │       └── media/       # Media management
 │   │   ├── (auth)/              # Auth route group
 │   │   │   └── admin/login/     # Login page
 │   │   └── api/                 # API routes
@@ -91,6 +92,7 @@ The site uses a category-based URL structure:
 /admin/posts/                       → Post management
 /admin/categories/                  → Category management
 /admin/hashtags/                    → Hashtag management
+/admin/media/                       → Media management
 ```
 
 **Categories** (flat structure):
@@ -187,12 +189,13 @@ import { Component } from '@/components/Component';
 
 ## Development Phases
 
-### Phase 1 (Current) - Core Features
-- Top page with card grid
-- Filter bar (prefecture, category, hashtag, sort)
+### Phase 1 (Completed) - Core Features
+- Top page with card grid and infinite scroll
+- Filter bar (category, hashtag, sort)
 - Basic article page
 - Responsive design (375px-1920px)
-- 12 articles per page with pagination
+- Infinite scroll with initial 6 items, auto-load more on scroll
+- Admin panel with complete CMS functionality
 
 ### Phase 2 - Interaction Enhancement
 - Scroll progress bar
@@ -709,12 +712,12 @@ Each ticket should include:
 - ✅ **Ticket 04**: Top Page Layout - Hero section, responsive layout
 - ✅ **Ticket 05**: Filter System - Category/hashtag filtering with URL state
 - ✅ **Ticket 06**: Card Grid & Post Cards - Responsive grid, hover effects, animations
-- ✅ **Ticket 07**: Pagination - URL-based pagination with 12 posts per page, scroll to FilterBar
+- ✅ **Ticket 07**: Post Loading - Infinite scroll with initial 6 items (replaced pagination on top page)
 - ✅ **Ticket 08**: Article Page - Article detail page with hero, body, metadata
 - ✅ **Ticket 09**: Search Functionality - Full-text search with autocomplete, search results page
 - ✅ **Ticket 10**: Popular Hashtags Cloud - Variable-size hashtag cloud below pagination
 - ✅ **Ticket 11**: Data Migration - Migration scripts for categories, hashtags, images, posts with validation
-- ✅ **Ticket 17**: Admin Panel - Complete CMS with Tiptap editor, image upload, CRUD for posts/categories/hashtags
+- ✅ **Ticket 17**: Admin Panel - Complete CMS with Tiptap editor, image upload, CRUD for posts/categories/hashtags/media
 
 ### Performance Optimizations
 
@@ -744,7 +747,8 @@ Each ticket should include:
 - `src/lib/filter-utils.ts` - Filter state management utilities
 
 **Post Display**
-- `src/components/PostGrid.tsx` - Responsive grid with CSS animations (Server Component)
+- `src/components/InfinitePostGrid.tsx` - Infinite scroll grid with Intersection Observer (Client Component)
+- `src/components/PostGrid.tsx` - Static grid with CSS animations (Server Component, for search page)
 - `src/components/PostCard.tsx` - Article card with thumbnail, title, excerpt
 - `src/components/CategoryBadge.tsx` - Category badge with gradient
 - `src/components/HashtagList.tsx` - Hashtag display (max 3 visible)
@@ -767,9 +771,14 @@ Each ticket should include:
 - `src/components/HashtagLink.tsx` - Individual hashtag link with scroll behavior
 - `src/lib/hashtag-utils.ts` - Font size calculation utilities
 
-**Pagination**
+**Pagination** (used for search page only, top page uses infinite scroll)
 - `src/components/Pagination.tsx` - Pagination controls with scroll-to-filter behavior
 - `src/lib/pagination-utils.ts` - Pagination logic (range calculation, page validation)
+
+**API Routes**
+- `src/app/api/posts/route.ts` - Posts API for infinite scroll pagination
+- `src/app/api/search/suggest/route.ts` - Search autocomplete suggestions
+- `src/app/api/admin/media/route.ts` - Media list API for admin panel
 
 **Utilities**
 - `src/lib/types.ts` - TypeScript interfaces (Post, Category, Hashtag, PostWithRelations)
@@ -792,10 +801,14 @@ Each ticket should include:
 - `src/app/(admin)/admin/posts/` - Post CRUD (list, create, edit, delete)
 - `src/app/(admin)/admin/categories/` - Category CRUD
 - `src/app/(admin)/admin/hashtags/` - Hashtag CRUD with bulk delete
+- `src/app/(admin)/admin/media/` - Media management with usage check and safe delete
 - `src/components/admin/Sidebar.tsx` - Navigation sidebar
 - `src/components/admin/Header.tsx` - Header with logout button
-- `src/components/admin/ImageUploader.tsx` - Supabase Storage image upload
+- `src/components/admin/ImageUploader.tsx` - Supabase Storage image upload (clears URL only, doesn't delete from Storage)
+- `src/components/admin/MediaPickerDialog.tsx` - Media library picker with React Portal
 - `src/components/admin/editor/RichTextEditor.tsx` - Tiptap rich text editor (dynamic import, SSR-safe)
+- `src/components/admin/editor/RichTextEditorClient.tsx` - Editor with toolbar and image picker
+- `src/components/admin/editor/EditorImagePicker.tsx` - Image picker for editor (upload + library selection)
 - `src/lib/supabase-browser.ts` - Browser-side Supabase singleton (prevents multiple instances)
 
 ## Known Issues & Solutions
@@ -977,6 +990,93 @@ export default function ViewCounter({ slug }: ViewCounterProps) {
 </label>
 ```
 
+### Dialog Infinite Loop (React Portal Pattern)
+
+**Issue**: MediaPickerDialog rapidly opens and closes in infinite loop
+
+**Root Cause**: Dialog state management causing re-renders that trigger open/close cycles.
+
+**Solution**: Use React Portal with proper state isolation:
+
+```typescript
+import { createPortal } from 'react-dom'
+
+// Use useRef to prevent duplicate fetches
+const hasFetched = useRef(false)
+
+const fetchFiles = useCallback(async () => {
+  if (hasFetched.current) return
+  hasFetched.current = true
+  // ... fetch logic
+}, [])
+
+// Reset ref when dialog closes
+useEffect(() => {
+  if (!open) {
+    hasFetched.current = false
+  }
+}, [open])
+
+// Render with Portal
+if (!mounted || !open) return null
+return createPortal(dialogContent, document.body)
+```
+
+### Safe Image Deletion Workflow
+
+**Issue**: Deleting image from post edit page affects other posts using same image
+
+**Root Cause**: Images are shared resources in Supabase Storage. Deleting from Storage affects all references.
+
+**Solution**: Separate URL clearing from file deletion:
+
+1. **Post edit page (ImageUploader)**: Only clears URL, doesn't delete from Storage
+   ```typescript
+   const handleRemove = () => {
+     onChange(null) // Just clear the URL
+   }
+   ```
+
+2. **Media management page**: Checks usage before deletion
+   ```typescript
+   // Check if image is used by any posts
+   const usage = await checkMediaUsage(url)
+   if (usage.usedByPosts > 0) {
+     // Show warning with affected post titles
+   }
+   // Delete clears post thumbnails, then removes from Storage
+   ```
+
+### Infinite Scroll Implementation
+
+**Pattern**: Use Intersection Observer with proper state management:
+
+```typescript
+const loadMoreRef = useRef<HTMLDivElement>(null)
+
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        loadMore()
+      }
+    },
+    { threshold: 0.1, rootMargin: '100px' }
+  )
+
+  const currentRef = loadMoreRef.current
+  if (currentRef) observer.observe(currentRef)
+  return () => {
+    if (currentRef) observer.unobserve(currentRef)
+  }
+}, [hasMore, isLoading, loadMore])
+
+// Trigger element at bottom
+<div ref={loadMoreRef} className="py-8">
+  {isLoading && <LoadingSpinner />}
+</div>
+```
+
 ## Performance Considerations
 
 ### Data Fetching Strategy
@@ -993,8 +1093,9 @@ export default function ViewCounter({ slug }: ViewCounterProps) {
 
 ### Animation Performance
 
-- Framer Motion stagger animations on post grid
-- Hardware-accelerated transforms (scale, opacity)
+- CSS-only animations (removed Framer Motion for bundle size reduction)
+- Hardware-accelerated transforms (scale, opacity, translateY)
+- Staggered fade-in animations using CSS `animation-delay`
 - Smooth transitions (200-300ms duration)
 
 ## Development Workflow
@@ -1026,5 +1127,5 @@ console.timeEnd('[Fetch] Posts')
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-01-02 (Added Ticket 17: Admin Panel - Complete CMS with authentication, Tiptap editor, image upload, CRUD operations)
-**Project Status**: Phase 1 completed + Admin Panel
+**Updated**: 2026-01-03 (Added infinite scroll, media management, editor image picker, safe image deletion workflow)
+**Project Status**: Phase 1 completed + Admin Panel + Media Management

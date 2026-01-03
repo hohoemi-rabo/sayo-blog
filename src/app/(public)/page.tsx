@@ -1,8 +1,7 @@
 import { Suspense } from 'react'
 import HeroSection from '@/components/HeroSection'
 import FilterBar from '@/components/FilterBar'
-import PostGrid from '@/components/PostGrid'
-import Pagination from '@/components/Pagination'
+import InfinitePostGrid from '@/components/InfinitePostGrid'
 import PopularHashtags from '@/components/PopularHashtags'
 import { createClient } from '@/lib/supabase'
 import { Category, Hashtag, PostWithRelations } from '@/lib/types'
@@ -12,7 +11,6 @@ interface HomePageProps {
     category?: string
     hashtags?: string
     sort?: string
-    page?: string
   }>
 }
 
@@ -56,18 +54,14 @@ async function getPopularHashtags(): Promise<Hashtag[]> {
   return data || []
 }
 
-// Fetch filtered posts with pagination
-async function getFilteredPosts(filters: {
+// Fetch initial posts (6 items for infinite scroll)
+async function getInitialPosts(filters: {
   category?: string
   hashtags?: string[]
   sort?: string
-  page?: number
-  limit?: number
-}): Promise<{ posts: PostWithRelations[]; count: number }> {
+}): Promise<{ posts: PostWithRelations[]; count: number; hasMore: boolean }> {
   const supabase = createClient()
-  const page = filters.page || 1
-  const limit = filters.limit || 12
-  const offset = (page - 1) * limit
+  const limit = 6
 
   let query = supabase
     .from('posts')
@@ -102,35 +96,32 @@ async function getFilteredPosts(filters: {
       query = query.order('published_at', { ascending: false })
   }
 
-  // Apply pagination
-  query = query.range(offset, offset + limit - 1)
+  // Initial load: first 6 items
+  query = query.range(0, limit - 1)
 
   const { data, error, count } = await query
 
   if (error) {
     console.error('Error fetching posts:', error)
-    return { posts: [], count: 0 }
+    return { posts: [], count: 0, hasMore: false }
   }
 
-  // Optimize hashtag filtering: fetch matching post IDs first instead of all posts
   let posts = data || []
   let totalCount = count || 0
 
+  // Handle hashtag filtering
   if (filters.hashtags && filters.hashtags.length > 0) {
-    // Step 1: Get post IDs that have any of the specified hashtags
     const { data: postHashtagData } = await supabase
       .from('post_hashtags')
       .select('post_id, hashtags!inner(slug)')
       .in('hashtags.slug', filters.hashtags)
 
     if (!postHashtagData || postHashtagData.length === 0) {
-      return { posts: [], count: 0 }
+      return { posts: [], count: 0, hasMore: false }
     }
 
-    // Extract unique post IDs
     const matchingPostIds = [...new Set(postHashtagData.map((ph) => ph.post_id))]
 
-    // Step 2: Fetch posts with those IDs, applying other filters
     const hashtagPostsQuery = supabase
       .from('posts')
       .select(
@@ -163,7 +154,7 @@ async function getFilteredPosts(filters: {
         hashtagPostsQuery.order('published_at', { ascending: false })
     }
 
-    hashtagPostsQuery.range(offset, offset + limit - 1)
+    hashtagPostsQuery.range(0, limit - 1)
 
     const { data: hashtagPosts, count: hashtagCount } = await hashtagPostsQuery
 
@@ -174,6 +165,7 @@ async function getFilteredPosts(filters: {
   return {
     posts: posts as PostWithRelations[],
     count: totalCount,
+    hasMore: posts.length < totalCount,
   }
 }
 
@@ -183,22 +175,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const hashtagsParam = params.hashtags
   const hashtags = hashtagsParam ? hashtagsParam.split(',').filter(Boolean) : undefined
   const sort = params.sort || 'latest'
-  const pageParam = params.page
 
-  // Parse page number first (default to 1, will validate after getting count)
-  const requestedPage = pageParam ? parseInt(pageParam, 10) : 1
-  const page = isNaN(requestedPage) || requestedPage < 1 ? 1 : requestedPage
-
-  // Fetch data in parallel with the requested page
-  const [categories, popularHashtags, { posts, count }] = await Promise.all([
+  // Fetch data in parallel
+  const [categories, popularHashtags, { posts, hasMore }] = await Promise.all([
     getCategories(),
     getPopularHashtags(),
-    getFilteredPosts({ category, hashtags, sort, page }),
+    getInitialPosts({ category, hashtags, sort }),
   ])
-
-  // Calculate total pages and validate current page
-  const totalPages = Math.ceil(count / 12)
-  const currentPage = page > totalPages && totalPages > 0 ? totalPages : page
 
   return (
     <>
@@ -209,7 +192,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {/* Post results with Suspense */}
         <Suspense
-          key={`posts-${category || 'all'}-${hashtagsParam || 'none'}-${sort}-page${currentPage}`}
+          key={`posts-${category || 'all'}-${hashtagsParam || 'none'}-${sort}`}
           fallback={
             <div className="py-8">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -235,8 +218,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           }
         >
           <div className="py-8">
-            <PostGrid posts={posts} />
-            <Pagination currentPage={currentPage} totalPages={totalPages} totalItems={count} />
+            <InfinitePostGrid
+              initialPosts={posts}
+              initialHasMore={hasMore}
+              category={category}
+              hashtags={hashtagsParam}
+              sort={sort}
+            />
           </div>
         </Suspense>
 
