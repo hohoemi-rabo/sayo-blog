@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditorImagePicker } from './EditorImagePicker'
+import { EditorLinkDialog } from './EditorLinkDialog'
 
 interface RichTextEditorClientProps {
   content: string
@@ -50,7 +51,7 @@ function createBaseExtensions(placeholder: string) {
     TiptapLink.configure({
       openOnClick: false,
       HTMLAttributes: {
-        class: 'text-primary underline',
+        class: 'text-primary',
       },
     }),
     Placeholder.configure({
@@ -73,6 +74,12 @@ export function RichTextEditorClient({
   placeholder = '記事の本文を入力...',
 }: RichTextEditorClientProps) {
   const [showImagePicker, setShowImagePicker] = useState(false)
+  const [showLinkDialog, setShowLinkDialog] = useState(false)
+  const [linkDialogState, setLinkDialogState] = useState({
+    initialUrl: '',
+    selectedText: '',
+    isEditing: false,
+  })
 
   const editor = useEditor(
     {
@@ -84,7 +91,7 @@ export function RichTextEditorClient({
       editorProps: {
         attributes: {
           class:
-            'prose prose-sm sm:prose max-w-none min-h-[400px] p-4 focus:outline-none',
+            'prose prose-sm sm:prose max-w-none min-h-[400px] p-4 focus:outline-none prose-a:underline prose-a:decoration-1 prose-a:underline-offset-2',
         },
       },
       immediatelyRender: false,
@@ -129,11 +136,35 @@ export function RichTextEditorClient({
     </button>
   )
 
-  const addLink = () => {
-    const url = window.prompt('URLを入力してください:')
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run()
-    }
+  const openLinkDialog = () => {
+    // Get current link if exists
+    const currentLink = editor.getAttributes('link').href || ''
+    // Get selected text
+    const { from, to } = editor.state.selection
+    const selectedText = editor.state.doc.textBetween(from, to, ' ')
+
+    setLinkDialogState({
+      initialUrl: currentLink,
+      selectedText,
+      isEditing: !!currentLink,
+    })
+    setShowLinkDialog(true)
+  }
+
+  const handleLinkSubmit = (url: string, openInNewTab: boolean) => {
+    editor
+      .chain()
+      .focus()
+      .setLink({
+        href: url,
+        target: openInNewTab ? '_blank' : null,
+        rel: openInNewTab ? 'noopener noreferrer' : null,
+      })
+      .run()
+  }
+
+  const handleLinkRemove = () => {
+    editor.chain().focus().unsetLink().run()
   }
 
   const handleImageSelect = (url: string) => {
@@ -231,7 +262,7 @@ export function RichTextEditorClient({
 
         <ToolbarButton
           isActive={editor.isActive('link')}
-          onClick={addLink}
+          onClick={openLinkDialog}
           title="リンク"
         >
           <LinkIcon className="h-4 w-4" />
@@ -269,6 +300,17 @@ export function RichTextEditorClient({
         open={showImagePicker}
         onOpenChange={setShowImagePicker}
         onSelect={handleImageSelect}
+      />
+
+      {/* Link Dialog */}
+      <EditorLinkDialog
+        open={showLinkDialog}
+        onOpenChange={setShowLinkDialog}
+        onSubmit={handleLinkSubmit}
+        onRemove={handleLinkRemove}
+        initialUrl={linkDialogState.initialUrl}
+        selectedText={linkDialogState.selectedText}
+        isEditing={linkDialogState.isEditing}
       />
     </div>
   )

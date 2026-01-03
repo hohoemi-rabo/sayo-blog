@@ -121,6 +121,19 @@
     text-underline-offset: 2px;
   }
 
+  /* Article body - no underline by default, show on hover */
+  .article-body a,
+  .article-body a.underline,
+  .article-body a.text-primary {
+    text-decoration: none !important;
+  }
+
+  .article-body a:hover {
+    text-decoration: underline !important;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
   .prose img {
     border-radius: var(--radius-lg);
     margin: 2rem 0;
