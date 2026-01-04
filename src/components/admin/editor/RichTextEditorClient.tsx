@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { CustomBubbleMenu } from './CustomBubbleMenu'
+import { CustomFloatingMenu } from './CustomFloatingMenu'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
 import TiptapLink from '@tiptap/extension-link'
@@ -305,6 +306,49 @@ export function RichTextEditorClient({
 
       {/* Editor */}
       <EditorContent editor={editor} />
+
+      {/* Floating Menu - appears on empty lines or at start of block */}
+      <CustomFloatingMenu editor={editor}>
+        <button
+          type="button"
+          onClick={() => setShowImagePicker(true)}
+          className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+          title="画像を挿入"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+          title="水平線"
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <div className="w-px h-5 bg-gray-200 mx-0.5" />
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors text-xs font-semibold',
+            editor.isActive('heading', { level: 2 }) && 'bg-gray-100 text-primary'
+          )}
+          title="見出し2"
+        >
+          H2
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={cn(
+            'p-1.5 rounded hover:bg-gray-100 transition-colors text-xs font-semibold',
+            editor.isActive('heading', { level: 3 }) && 'bg-gray-100 text-primary'
+          )}
+          title="見出し3"
+        >
+          H3
+        </button>
+      </CustomFloatingMenu>
 
       {/* Bubble Menu - appears when text is selected */}
       <CustomBubbleMenu editor={editor}>

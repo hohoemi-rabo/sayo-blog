@@ -231,7 +231,7 @@ export function PostForm({
           </Card>
 
           {/* Content */}
-          <Card className="p-6 bg-white">
+          <Card className="p-6 bg-white hover:shadow-decorative hover:scale-100">
             <div className="space-y-2">
               <Label>本文</Label>
               <RichTextEditor
