@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { EditorImagePicker } from './EditorImagePicker'
 import { EditorLinkDialog } from './EditorLinkDialog'
 import { BoxExtension } from './extensions/BoxExtension'
+import { FigureExtension } from './extensions/FigureExtension'
 
 interface RichTextEditorClientProps {
   content: string
@@ -62,6 +63,7 @@ function createBaseExtensions(placeholder: string) {
       placeholder,
     }),
     BoxExtension,
+    FigureExtension,
   ]
 }
 
@@ -173,7 +175,7 @@ export function RichTextEditorClient({
   }
 
   const handleImageSelect = (url: string) => {
-    editor.chain().focus().setImage({ src: url }).run()
+    editor.chain().focus().setFigure({ src: url, caption: '' }).run()
   }
 
   return (

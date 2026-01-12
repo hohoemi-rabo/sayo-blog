@@ -173,6 +173,43 @@
   div[data-type="box"] > *:last-child {
     margin-bottom: 0;
   }
+
+  /* Figure with caption styles */
+  .editor-figure,
+  figure {
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  .editor-figure-image,
+  figure img,
+  .prose figure img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    margin: 0 auto !important;
+  }
+
+  .editor-figure-caption,
+  figcaption {
+    margin-top: 0.125rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Placeholder for empty caption in editor */
+  .editor-figure-caption:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .editor-figure-caption:focus {
+    outline: none;
+  }
 }
 
 @layer utilities {
