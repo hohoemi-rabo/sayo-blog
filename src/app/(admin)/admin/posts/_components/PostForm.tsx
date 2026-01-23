@@ -347,6 +347,25 @@ export function PostForm({
           </Card>
         </div>
       </div>
+
+      {/* Bottom Action Buttons */}
+      <div className="flex items-center justify-end gap-3 pt-6 border-t border-border-decorative">
+        {mode === 'edit' && initialData && categoryId && (
+          <Link
+            href={`/${categories.find((c) => c.id === categoryId)?.slug}/${slug}`}
+            target="_blank"
+          >
+            <Button type="button" variant="outline" className="gap-2">
+              <Eye className="h-4 w-4" />
+              プレビュー
+            </Button>
+          </Link>
+        )}
+        <Button type="submit" disabled={isSubmitting} className="gap-2">
+          <Save className="h-4 w-4" />
+          {isSubmitting ? '保存中...' : '保存'}
+        </Button>
+      </div>
     </form>
   )
 }
