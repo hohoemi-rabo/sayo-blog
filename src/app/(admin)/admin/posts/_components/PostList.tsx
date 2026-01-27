@@ -48,8 +48,6 @@ type Post = {
 interface PostListProps {
   posts: Post[]
   categories: Category[]
-  currentPage: number
-  totalPages: number
   filter: {
     category?: string
     status?: string
@@ -59,14 +57,12 @@ interface PostListProps {
 export function PostList({
   posts,
   categories,
-  currentPage,
-  totalPages,
   filter,
 }: PostListProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [postToDelete, setPostToDelete] = useState<Post | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -79,14 +75,6 @@ export function PostList({
       params.delete(key)
     }
     params.delete('page') // Reset page when filter changes
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`)
-    })
-  }
-
-  const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('page', page.toString())
     startTransition(() => {
       router.push(`${pathname}?${params.toString()}`)
     })
@@ -266,31 +254,6 @@ export function PostList({
           </TableBody>
         </Table>
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage <= 1 || isPending}
-            onClick={() => goToPage(currentPage - 1)}
-          >
-            前へ
-          </Button>
-          <span className="text-sm text-text-secondary px-4">
-            {currentPage} / {totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={currentPage >= totalPages || isPending}
-            onClick={() => goToPage(currentPage + 1)}
-          >
-            次へ
-          </Button>
-        </div>
-      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

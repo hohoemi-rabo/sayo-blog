@@ -6,7 +6,6 @@ import { Plus } from 'lucide-react'
 
 interface PageProps {
   searchParams: Promise<{
-    page?: string
     category?: string
     status?: string
   }>
@@ -14,18 +13,15 @@ interface PageProps {
 
 export default async function PostsPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const page = parseInt(params.page || '1', 10)
   const filter = {
     category: params.category,
     status: params.status,
   }
 
   const [{ posts, count }, categories] = await Promise.all([
-    getPosts(page, 20, filter),
+    getPosts(filter),
     getCategories(),
   ])
-
-  const totalPages = Math.ceil(count / 20)
 
   return (
     <div className="space-y-6">
@@ -47,8 +43,6 @@ export default async function PostsPage({ searchParams }: PageProps) {
       <PostList
         posts={posts}
         categories={categories}
-        currentPage={page}
-        totalPages={totalPages}
         filter={filter}
       />
     </div>

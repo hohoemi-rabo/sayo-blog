@@ -172,9 +172,8 @@ export async function getPost(id: string) {
   return post
 }
 
-export async function getPosts(page = 1, limit = 20, filter?: { category?: string; status?: string }) {
+export async function getPosts(filter?: { category?: string; status?: string }) {
   const supabase = createAdminClient()
-  const offset = (page - 1) * limit
 
   let query = supabase
     .from('posts')
@@ -193,7 +192,6 @@ export async function getPosts(page = 1, limit = 20, filter?: { category?: strin
       )
     `, { count: 'exact' })
     .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1)
 
   if (filter?.status === 'published') {
     query = query.eq('is_published', true)
