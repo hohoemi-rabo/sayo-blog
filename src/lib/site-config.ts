@@ -3,7 +3,7 @@
  * Centralized to avoid scattering values across layout.tsx and page files
  */
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.sayo-kotoba.com'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sayo-blog.vercel.app'
 
 export const SITE_CONFIG = {
   name: "Sayo's Journal",
