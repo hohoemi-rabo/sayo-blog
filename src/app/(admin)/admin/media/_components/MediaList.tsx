@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog'
 import { useToast } from '@/components/ui/Toast'
-import { MediaFile, deleteMediaFile, deleteMultipleMediaFiles, checkMediaUsage } from '../actions'
+import { MediaFile, MediaUsageResult, deleteMediaFile, deleteMultipleMediaFiles, checkMediaUsage } from '../actions'
 import { cn } from '@/lib/utils'
 
 interface MediaListProps {
@@ -38,9 +38,9 @@ export function MediaList({ initialFiles }: MediaListProps) {
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<MediaFile | null>(null)
-  const [deleteTargetUsage, setDeleteTargetUsage] = useState<{ usedByPosts: number; postTitles: string[] } | null>(null)
+  const [deleteTargetUsage, setDeleteTargetUsage] = useState<MediaUsageResult | null>(null)
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false)
-  const [bulkDeleteUsage, setBulkDeleteUsage] = useState<number>(0)
+  const [bulkDeleteUsage, setBulkDeleteUsage] = useState<MediaUsageResult | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isCheckingUsage, setIsCheckingUsage] = useState(false)
   const { addToast } = useToast()
@@ -96,22 +96,44 @@ export function MediaList({ initialFiles }: MediaListProps) {
     setShowBulkDeleteDialog(true)
     setIsCheckingUsage(true)
 
-    // Check usage for all selected files
-    let totalUsage = 0
+    // Check usage for all selected files and merge details
+    const mergedMap = new Map<string, { postId: string; title: string; usageTypes: Set<'thumbnail' | 'content'> }>()
     for (const path of selectedFiles) {
       const file = files.find(f => f.path === path)
       if (file) {
         const usage = await checkMediaUsage(file.url)
-        totalUsage += usage.usedByPosts
+        for (const detail of usage.details) {
+          const existing = mergedMap.get(detail.postId)
+          if (existing) {
+            for (const t of detail.usageTypes) existing.usageTypes.add(t)
+          } else {
+            mergedMap.set(detail.postId, {
+              postId: detail.postId,
+              title: detail.title,
+              usageTypes: new Set(detail.usageTypes),
+            })
+          }
+        }
       }
     }
-    setBulkDeleteUsage(totalUsage)
+
+    const details = Array.from(mergedMap.values()).map(d => ({
+      postId: d.postId,
+      title: d.title,
+      usageTypes: Array.from(d.usageTypes) as ('thumbnail' | 'content')[],
+    }))
+
+    setBulkDeleteUsage({
+      usedByPosts: details.length,
+      postTitles: details.map(d => d.title),
+      details,
+    })
     setIsCheckingUsage(false)
   }
 
   const closeBulkDeleteDialog = () => {
     setShowBulkDeleteDialog(false)
-    setBulkDeleteUsage(0)
+    setBulkDeleteUsage(null)
   }
 
   const handleBulkDelete = async () => {
@@ -286,17 +308,28 @@ export function MediaList({ initialFiles }: MediaListProps) {
               {deleteTargetUsage && deleteTargetUsage.usedByPosts > 0 && (
                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
                   <p className="text-amber-800 text-sm font-medium">
-                    ⚠️ この画像は{deleteTargetUsage.usedByPosts}件の記事で使用されています
+                    この画像は {deleteTargetUsage.usedByPosts}件の記事で使用されています
                   </p>
                   <p className="text-amber-700 text-xs mt-1">
-                    削除すると、以下の記事のサムネイルがクリアされます：
+                    削除すると、該当箇所の画像が表示されなくなります：
                   </p>
-                  <ul className="text-amber-700 text-xs mt-1 list-disc list-inside">
-                    {deleteTargetUsage.postTitles.slice(0, 3).map((title, i) => (
-                      <li key={i}>{title}</li>
+                  <ul className="text-amber-700 text-xs mt-2 space-y-1">
+                    {deleteTargetUsage.details.slice(0, 5).map((detail) => (
+                      <li key={detail.postId} className="flex items-start gap-1">
+                        <span className="shrink-0">•</span>
+                        <span>
+                          <span className="font-medium">{detail.title}</span>
+                          <span className="text-amber-600 ml-1">
+                            ({detail.usageTypes.map(t => t === 'thumbnail' ? 'サムネイル' : '記事本文').join('・')})
+                          </span>
+                        </span>
+                      </li>
                     ))}
-                    {deleteTargetUsage.postTitles.length > 3 && (
-                      <li>他 {deleteTargetUsage.postTitles.length - 3} 件...</li>
+                    {deleteTargetUsage.details.length > 5 && (
+                      <li className="flex items-start gap-1">
+                        <span className="shrink-0">•</span>
+                        <span>他 {deleteTargetUsage.details.length - 5} 件...</span>
+                      </li>
                     )}
                   </ul>
                 </div>
@@ -352,14 +385,33 @@ export function MediaList({ initialFiles }: MediaListProps) {
               <p className="text-text-secondary">
                 選択した{selectedFiles.size}件の画像を削除しますか？この操作は取り消せません。
               </p>
-              {bulkDeleteUsage > 0 && (
+              {bulkDeleteUsage && bulkDeleteUsage.usedByPosts > 0 && (
                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
                   <p className="text-amber-800 text-sm font-medium">
-                    ⚠️ 選択した画像は合計{bulkDeleteUsage}件の記事で使用されています
+                    選択した画像は合計 {bulkDeleteUsage.usedByPosts}件の記事で使用されています
                   </p>
                   <p className="text-amber-700 text-xs mt-1">
-                    削除すると、該当する記事のサムネイルがクリアされます。
+                    削除すると、該当箇所の画像が表示されなくなります：
                   </p>
+                  <ul className="text-amber-700 text-xs mt-2 space-y-1">
+                    {bulkDeleteUsage.details.slice(0, 5).map((detail) => (
+                      <li key={detail.postId} className="flex items-start gap-1">
+                        <span className="shrink-0">•</span>
+                        <span>
+                          <span className="font-medium">{detail.title}</span>
+                          <span className="text-amber-600 ml-1">
+                            ({detail.usageTypes.map(t => t === 'thumbnail' ? 'サムネイル' : '記事本文').join('・')})
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                    {bulkDeleteUsage.details.length > 5 && (
+                      <li className="flex items-start gap-1">
+                        <span className="shrink-0">•</span>
+                        <span>他 {bulkDeleteUsage.details.length - 5} 件...</span>
+                      </li>
+                    )}
+                  </ul>
                 </div>
               )}
             </>

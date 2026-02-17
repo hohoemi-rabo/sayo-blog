@@ -99,17 +99,65 @@ async function listMediaFilesViaStorageAPI(supabase: ReturnType<typeof createAdm
   return { files: allFiles }
 }
 
-export async function checkMediaUsage(url: string): Promise<{ usedByPosts: number; postTitles: string[] }> {
+export interface MediaUsageItem {
+  postId: string
+  title: string
+  usageTypes: ('thumbnail' | 'content')[]
+}
+
+export interface MediaUsageResult {
+  usedByPosts: number
+  postTitles: string[]
+  details: MediaUsageItem[]
+}
+
+export async function checkMediaUsage(url: string): Promise<MediaUsageResult> {
   const supabase = createAdminClient()
 
-  const { data: posts } = await supabase
+  // Check thumbnail_url usage
+  const { data: thumbnailPosts } = await supabase
     .from('posts')
     .select('id, title')
     .eq('thumbnail_url', url)
 
+  // Check content usage (image embedded in article body)
+  const { data: contentPosts } = await supabase
+    .from('posts')
+    .select('id, title')
+    .like('content', `%${url}%`)
+
+  // Merge results, deduplicating by post ID
+  const usageMap = new Map<string, MediaUsageItem>()
+
+  for (const post of thumbnailPosts || []) {
+    usageMap.set(post.id, {
+      postId: post.id,
+      title: post.title,
+      usageTypes: ['thumbnail'],
+    })
+  }
+
+  for (const post of contentPosts || []) {
+    const existing = usageMap.get(post.id)
+    if (existing) {
+      if (!existing.usageTypes.includes('content')) {
+        existing.usageTypes.push('content')
+      }
+    } else {
+      usageMap.set(post.id, {
+        postId: post.id,
+        title: post.title,
+        usageTypes: ['content'],
+      })
+    }
+  }
+
+  const details = Array.from(usageMap.values())
+
   return {
-    usedByPosts: posts?.length || 0,
-    postTitles: posts?.map(p => p.title) || []
+    usedByPosts: details.length,
+    postTitles: details.map(d => d.title),
+    details,
   }
 }
 
