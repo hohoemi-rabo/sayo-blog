@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
 import { Category, Hashtag } from '@/lib/types'
+import { SITE_CONFIG } from '@/lib/site-config'
+import { truncateDescription, generateCanonicalUrl, extractKeywords } from '@/lib/seo-utils'
+import { generateArticleSchema, generateBreadcrumbSchema, JsonLd } from '@/lib/structured-data'
 import ArticleHero from '@/components/ArticleHero'
 import ArticleBody from '@/components/ArticleBody'
 import ArticleMeta from '@/components/ArticleMeta'
@@ -61,47 +64,74 @@ export async function generateStaticParams() {
 
 // Dynamic metadata
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { category, slug } = await params
   const supabase = createClient()
 
   const { data: post } = await supabase
     .from('posts')
-    .select('title, excerpt, thumbnail_url, published_at, updated_at')
+    .select(
+      `
+      title,
+      excerpt,
+      thumbnail_url,
+      published_at,
+      updated_at,
+      post_hashtags(hashtags(name))
+    `
+    )
     .eq('slug', slug)
     .eq('is_published', true)
     .single()
 
   if (!post) {
     return {
-      title: 'Article Not Found | Sayo\'s Journal',
+      title: '記事が見つかりません',
     }
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.sayo-kotoba.com'
-  const imageUrl = post.thumbnail_url || `${siteUrl}/og-image.jpg`
+  const description = truncateDescription(post.excerpt || post.title)
+  const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}/og-image.png`
+  const canonicalUrl = `/${category}/${slug}/`
+  const hashtags = (
+    post.post_hashtags as unknown as Array<{ hashtags: { name: string } }>
+  ).map((ph) => ph.hashtags)
 
   return {
-    title: `${post.title} | Sayo's Journal`,
-    description: post.excerpt || post.title,
+    title: post.title,
+    description,
+    keywords: extractKeywords(hashtags),
+    authors: [{ name: SITE_CONFIG.author.name }],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: post.title,
-      description: post.excerpt || post.title,
-      images: [imageUrl],
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
       type: 'article',
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at,
+      authors: [SITE_CONFIG.author.name],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
-      description: post.excerpt || post.title,
+      description,
       images: [imageUrl],
     },
   }
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { slug } = await params
+  const resolvedParams = await params
+  const { slug } = resolvedParams
   const supabase = createClient()
 
   // Fetch post with all relations
@@ -140,8 +170,26 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     }>
   ).map((ph) => ph.hashtags)
 
+  // Build JSON-LD structured data
+  const firstCategory = categories[0] as Category | undefined
+  const articleSchema = generateArticleSchema(
+    post,
+    firstCategory?.slug || resolvedParams.category
+  )
+  const breadcrumbItems = [
+    { name: 'ホーム', url: SITE_CONFIG.url },
+    ...(firstCategory
+      ? [{ name: firstCategory.name, url: generateCanonicalUrl(`/${firstCategory.slug}/`) }]
+      : []),
+    { name: post.title, url: generateCanonicalUrl(`/${resolvedParams.category}/${post.slug}/`) },
+  ]
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems)
+
   return (
     <article className="min-h-screen bg-background">
+      <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumbSchema} />
+
       {/* ViewCounter increments view count on mount (Client Component) */}
       <ViewCounter slug={post.slug} />
 

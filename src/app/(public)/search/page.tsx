@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
 import { PostWithRelations } from '@/lib/types'
 import PostGrid from '@/components/PostGrid'
@@ -14,6 +15,23 @@ interface SearchPageProps {
 }
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const params = await searchParams
+  const query = params.q
+
+  const title = query ? `「${query}」の検索結果` : '検索'
+
+  return {
+    title,
+    robots: {
+      index: false,
+      follow: true,
+    },
+  }
+}
 
 async function searchPosts(query: string, page: number = 1, limit: number = 12) {
   if (!query || query.trim().length === 0) {

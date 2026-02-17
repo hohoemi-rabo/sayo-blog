@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
+import { SITE_CONFIG } from "@/lib/site-config";
+import { generateWebSiteSchema, generateOrganizationSchema, JsonLd } from "@/lib/structured-data";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 // Heading font (decorative serif)
@@ -27,30 +30,61 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
   title: {
-    default: "Sayo's Journal | 言葉で場所・人・記憶をつなぐ",
-    template: "%s | Sayo's Journal",
+    default: SITE_CONFIG.title,
+    template: `%s | ${SITE_CONFIG.name}`,
   },
-  description: "ライター・インタビュアー本岡紗代のブログメディア。文章と写真で綴る、人と場所の物語。",
-  keywords: ['ブログ', 'インタビュー', 'ライター', '地域', '旅', '長野', '飯田', '紗代'],
-  authors: [{ name: 'Sayo Motooka' }],
-  creator: 'Sayo Motooka',
+  description: SITE_CONFIG.description,
+  keywords: [...SITE_CONFIG.keywords],
+  authors: [{ name: SITE_CONFIG.author.nameEn, url: SITE_CONFIG.author.url }],
+  creator: SITE_CONFIG.author.nameEn,
+  publisher: SITE_CONFIG.name,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
-    locale: 'ja_JP',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-    siteName: "Sayo's Journal",
-    title: "Sayo's Journal | 言葉で場所・人・記憶をつなぐ",
-    description: "ライター・インタビュアー本岡紗代のブログメディア。文章と写真で綴る、人と場所の物語。",
+    locale: SITE_CONFIG.locale,
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    title: SITE_CONFIG.title,
+    description: SITE_CONFIG.description,
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: SITE_CONFIG.name,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Sayo's Journal",
-    description: "言葉で場所・人・記憶をつなぐ",
+    title: SITE_CONFIG.name,
+    description: SITE_CONFIG.description,
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -58,7 +92,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#FF6B9D',
+  themeColor: SITE_CONFIG.themeColor,
 };
 
 export default function RootLayout({
@@ -71,6 +105,9 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${notoSerifJP.variable} ${notoSansJP.variable} font-noto-serif-jp antialiased`}
       >
+        <GoogleAnalytics />
+        <JsonLd data={generateWebSiteSchema()} />
+        <JsonLd data={generateOrganizationSchema()} />
         {children}
       </body>
     </html>
