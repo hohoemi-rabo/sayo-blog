@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import { NodeSelection } from '@tiptap/pm/state'
 
 export interface FigureOptions {
   HTMLAttributes: Record<string, unknown>
@@ -108,7 +109,7 @@ export const FigureExtension = Node.create<FigureOptions>({
   },
 
   addNodeView() {
-    return ({ node }) => {
+    return ({ node, getPos, editor }) => {
       const dom = document.createElement('figure')
       dom.classList.add('editor-figure')
 
@@ -116,6 +117,17 @@ export const FigureExtension = Node.create<FigureOptions>({
       img.src = node.attrs.src
       img.alt = node.attrs.alt || ''
       img.classList.add('editor-figure-image')
+
+      // 画像クリックでノードを選択状態にする（Delete/Backspaceで削除可能に）
+      img.addEventListener('click', (e) => {
+        e.preventDefault()
+        const pos = getPos()
+        if (pos === undefined) return
+        editor.chain().focus().command(({ tr }) => {
+          tr.setSelection(NodeSelection.create(tr.doc, pos))
+          return true
+        }).run()
+      })
 
       const figcaption = document.createElement('figcaption')
       figcaption.classList.add('editor-figure-caption')
@@ -127,6 +139,12 @@ export const FigureExtension = Node.create<FigureOptions>({
       return {
         dom,
         contentDOM: figcaption,
+        selectNode() {
+          dom.classList.add('ProseMirror-selectednode')
+        },
+        deselectNode() {
+          dom.classList.remove('ProseMirror-selectednode')
+        },
         update: (updatedNode) => {
           if (updatedNode.type.name !== this.name) return false
           img.src = updatedNode.attrs.src

@@ -210,6 +210,13 @@
   .editor-figure-caption:focus {
     outline: none;
   }
+
+  /* 選択されたfigureノードのハイライト */
+  .editor-figure.ProseMirror-selectednode {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 4px;
+    border-radius: var(--radius-lg);
+  }
 }
 
 @layer utilities {
