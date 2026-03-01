@@ -20,8 +20,9 @@ npm run lint        # Run ESLint
 
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS 3.4.17
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Supabase (PostgreSQL + pgvector)
 - **Storage**: Supabase Storage (for images)
+- **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-001)
 - **Language**: TypeScript 5
 - **React**: 19.1.0
 
@@ -32,14 +33,16 @@ src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
 │   ├── (public)/            # Public pages (Header + Footer)
-│   │   ├── page.tsx         # Home page (infinite scroll)
+│   │   ├── page.tsx         # Home / AI Chat page
+│   │   ├── blog/page.tsx    # Blog listing (infinite scroll)
 │   │   ├── [category]/[slug]/ # Article detail
 │   │   └── search/          # Search page
-│   ├── (admin)/admin/       # Admin panel (CMS)
+│   ├── (admin)/admin/       # Admin panel (CMS + AI management)
 │   ├── (auth)/admin/login/  # Login
 │   └── api/                 # API routes
 ├── components/
 │   ├── ui/                  # Base UI components
+│   ├── ai/                  # AI Chat components
 │   └── admin/               # Admin components (Tiptap editor)
 └── lib/                     # Utilities, types, Supabase clients
 ```
@@ -47,13 +50,17 @@ src/
 ## URL Structure
 
 ```
-/                              → Home (all articles, infinite scroll)
+/                              → Home / AI Chat page
+/blog                          → Blog listing (infinite scroll)
+/blog?category=gourmet         → Category filter
+/blog?hashtags=tag1,tag2       → Hashtag filter
+/blog?sort=popular             → Sort by view count
 /gourmet/[slug]/               → Article detail
-/?category=gourmet             → Category filter
-/?hashtags=tag1,tag2           → Hashtag filter
-/?sort=popular                 → Sort by view count
 /search?q=keyword              → Search results
 /admin/                        → Admin dashboard
+/admin/ai/knowledge            → AI Knowledge management
+/admin/ai/tags                 → AI Prompt Tags management
+/admin/ai/analytics            → AI Analytics dashboard
 ```
 
 **Categories** (flat): gourmet, event, spot, culture, news
@@ -68,6 +75,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=https://www.sayo-kotoba.com
 ADMIN_PASSWORD=your-secure-admin-password
 NEXT_PUBLIC_GA_MEASUREMENT_ID=  # GA4 (optional, set when available)
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_MODEL=gemini-3-flash-preview        # default: gemini-3-flash-preview
+EMBEDDING_MODEL=gemini-embedding-001       # default: gemini-embedding-001
 ```
 
 ## Conventions
@@ -96,5 +106,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-03-01 (Phase 2 tickets 20-28 created)
-**Project Status**: Phase 1 completed — Phase 2 (AI Chat Page) in progress
+**Updated**: 2026-03-01 (Phase 2 completed)
+**Project Status**: Phase 1 + Phase 2 completed (AI Chat Page fully implemented)
