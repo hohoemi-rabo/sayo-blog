@@ -7,12 +7,14 @@ import type { UIChatMessage } from '@/lib/types'
 interface ChatMessagesProps {
   messages: UIChatMessage[]
   onSuggestionSelect: (label: string) => void
+  onRetry: () => void
   isStreaming: boolean
 }
 
 export function ChatMessages({
   messages,
   onSuggestionSelect,
+  onRetry,
   isStreaming,
 }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -34,6 +36,7 @@ export function ChatMessages({
             key={msg.id}
             message={msg}
             onSuggestionSelect={onSuggestionSelect}
+            onRetry={msg.isError ? onRetry : undefined}
             isStreamingActive={isStreaming}
           />
         ))}

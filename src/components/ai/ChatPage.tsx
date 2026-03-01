@@ -27,19 +27,24 @@ export function ChatPage({ tags }: ChatPageProps) {
   const [messages, setMessages] = useState<UIChatMessage[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
+  const [dailyRemaining, setDailyRemaining] = useState<number | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const sessionIdRef = useRef('')
+  const lastUserMessageRef = useRef('')
 
   useEffect(() => {
     sessionIdRef.current = getSessionId()
   }, [])
 
   const hasMessages = messages.length > 0
+  const isLimitReached = dailyRemaining !== null && dailyRemaining <= 0
 
   const sendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim()
-      if (!trimmed || isStreaming) return
+      if (!trimmed || isStreaming || isLimitReached) return
+
+      lastUserMessageRef.current = trimmed
 
       // Add user message
       const userMsg: UIChatMessage = {
@@ -84,6 +89,13 @@ export function ChatPage({ tags }: ChatPageProps) {
           if (controller.signal.aborted) break
 
           switch (event.type) {
+            case 'meta': {
+              const meta = event.content as { daily_remaining: number }
+              if (typeof meta?.daily_remaining === 'number') {
+                setDailyRemaining(meta.daily_remaining)
+              }
+              break
+            }
             case 'text':
               setMessages((prev) =>
                 prev.map((m) =>
@@ -128,6 +140,7 @@ export function ChatPage({ tags }: ChatPageProps) {
                         ...m,
                         content: event.content as string,
                         isStreaming: false,
+                        isError: true,
                       }
                     : m
                 )
@@ -153,6 +166,7 @@ export function ChatPage({ tags }: ChatPageProps) {
                     content:
                       'ごめんなさい、うまく接続できませんでした。もう一度お試しください。',
                     isStreaming: false,
+                    isError: true,
                   }
                 : m
             )
@@ -163,7 +177,7 @@ export function ChatPage({ tags }: ChatPageProps) {
         abortRef.current = null
       }
     },
-    [isStreaming, messages]
+    [isStreaming, isLimitReached, messages]
   )
 
   const handleSend = useCallback(() => {
@@ -173,11 +187,17 @@ export function ChatPage({ tags }: ChatPageProps) {
   const handleStop = useCallback(() => {
     abortRef.current?.abort()
     setIsStreaming(false)
-    // Mark streaming message as done
     setMessages((prev) =>
       prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
     )
   }, [])
+
+  const handleRetry = useCallback(() => {
+    if (!lastUserMessageRef.current || isStreaming) return
+    // Remove the last error message pair (user + assistant)
+    setMessages((prev) => prev.slice(0, -2))
+    sendMessage(lastUserMessageRef.current)
+  }, [isStreaming, sendMessage])
 
   const handleTagSelect = useCallback(
     (tag: PromptTag) => {
@@ -193,6 +213,10 @@ export function ChatPage({ tags }: ChatPageProps) {
     [sendMessage]
   )
 
+  const limitMessage = isLimitReached
+    ? '今日の質問回数に達しました。また明日お気軽にどうぞ。'
+    : undefined
+
   return (
     <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 5rem)' }}>
       {/* Message area or welcome */}
@@ -200,6 +224,7 @@ export function ChatPage({ tags }: ChatPageProps) {
         <ChatMessages
           messages={messages}
           onSuggestionSelect={handleSuggestionSelect}
+          onRetry={handleRetry}
           isStreaming={isStreaming}
         />
       ) : (
@@ -212,7 +237,7 @@ export function ChatPage({ tags }: ChatPageProps) {
         <ChatTagList
           tags={tags}
           onSelect={handleTagSelect}
-          disabled={isStreaming}
+          disabled={isStreaming || isLimitReached}
         />
 
         {/* Input */}
@@ -223,6 +248,9 @@ export function ChatPage({ tags }: ChatPageProps) {
             onSend={handleSend}
             onStop={handleStop}
             isStreaming={isStreaming}
+            disabled={isLimitReached}
+            dailyRemaining={dailyRemaining}
+            limitMessage={limitMessage}
           />
         </div>
       </div>

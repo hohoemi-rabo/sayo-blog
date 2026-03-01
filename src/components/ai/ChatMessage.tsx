@@ -3,6 +3,8 @@
 import { memo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { RefreshCw, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ChatArticleCard } from './ChatArticleCard'
 import { ChatSpotCard } from './ChatSpotCard'
@@ -12,6 +14,7 @@ import type { UIChatMessage } from '@/lib/types'
 interface ChatMessageProps {
   message: UIChatMessage
   onSuggestionSelect?: (label: string) => void
+  onRetry?: () => void
   isStreamingActive?: boolean
 }
 
@@ -51,6 +54,7 @@ function cleanMarkers(text: string): string {
 export const ChatMessage = memo(function ChatMessage({
   message,
   onSuggestionSelect,
+  onRetry,
   isStreamingActive,
 }: ChatMessageProps) {
   const isUser = message.role === 'user'
@@ -114,6 +118,28 @@ export const ChatMessage = memo(function ChatMessage({
         {/* Post-streaming attachments */}
         {isAssistant && !message.isStreaming && (
           <>
+            {/* Error actions: retry + blog link */}
+            {message.isError && (
+              <div className="flex items-center gap-3 mt-2">
+                {onRetry && !isStreamingActive && (
+                  <button
+                    onClick={onRetry}
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-noto-sans-jp"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    もう一度試す
+                  </button>
+                )}
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-1 text-xs text-text-secondary hover:text-primary font-noto-sans-jp"
+                >
+                  <BookOpen className="w-3 h-3" />
+                  ブログ記事を見る
+                </Link>
+              </div>
+            )}
+
             {/* Article cards */}
             {message.articles && message.articles.length > 0 && (
               <div className="mt-3 space-y-2">

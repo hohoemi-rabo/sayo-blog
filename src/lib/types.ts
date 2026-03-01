@@ -191,6 +191,7 @@ export type ChatEventType =
   | 'articles'
   | 'spots'
   | 'suggestions'
+  | 'meta'
   | 'done'
   | 'error'
 
@@ -203,12 +204,14 @@ export interface UIChatMessage {
   spots?: SpotInfo[]
   suggestions?: string[]
   isStreaming?: boolean
+  isError?: boolean
   timestamp: number
 }
 
 export interface ChatStreamEvent {
   type: ChatEventType
-  content: string | ArticleCard[] | SpotInfo[] | string[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any
 }
 
 // Utility types

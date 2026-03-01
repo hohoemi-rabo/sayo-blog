@@ -1,13 +1,34 @@
-import { Tags } from 'lucide-react'
+import Link from 'next/link'
+import { getTags } from './actions'
+import { TagList } from './_components/TagList'
+import { TagGenerateDialog } from './_components/TagGenerateDialog'
+import { Button } from '@/components/ui/Button'
+import { Plus } from 'lucide-react'
 
-export default function AiTagsPage() {
+export default async function AiTagsPage() {
+  const tags = await getTags()
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-        <Tags className="w-8 h-8 text-gray-400" />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">AI プロンプトタグ</h1>
+          <p className="text-text-secondary mt-1">
+            全 {tags.length} タグ
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <TagGenerateDialog />
+          <Link href="/admin/ai/tags/new">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              新規作成
+            </Button>
+          </Link>
+        </div>
       </div>
-      <h1 className="text-2xl font-bold text-text-primary">AI Tags</h1>
-      <p className="text-text-secondary">Ticket 27 で実装予定</p>
+
+      <TagList tags={tags} />
     </div>
   )
 }

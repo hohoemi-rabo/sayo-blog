@@ -50,13 +50,13 @@ export async function POST(request: Request) {
   }
 
   if (!usageCheck.allowed) {
-    // Return SSE with error event for usage limit
     const limitMessage =
       usageCheck.reason === 'daily_limit_reached'
-        ? '今日はたくさんお話しましたね！また明日お話しましょう。1日の質問回数の上限に達しました。'
-        : 'ただいまアクセスが集中しています。しばらく時間をおいてからお試しください。'
+        ? '今日はたくさんお話しましたね！また明日お気軽に聞いてください。ブログページからも記事を探せますよ。'
+        : 'ただいまメンテナンス中です。ブログページから記事をお探しください。'
 
     return createSSEResponse(async (send) => {
+      send('meta', { daily_remaining: 0 })
       send('error', limitMessage)
       send('done', '')
     })
@@ -64,6 +64,9 @@ export async function POST(request: Request) {
 
   // 4-11. Main processing in SSE stream
   return createSSEResponse(async (send) => {
+    // Send remaining count to client
+    send('meta', { daily_remaining: usageCheck.daily_remaining })
+
     let matchedArticles: MatchedArticle[] = []
     let fullText = ''
     let tokenInput: number | undefined
