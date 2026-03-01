@@ -33,7 +33,7 @@ export default function FilterBar({ categories, popularHashtags }: FilterBarProp
     const queryString = serializeFiltersToURL(updatedFilters)
 
     startTransition(() => {
-      router.push(`/?${queryString}`, { scroll: false })
+      router.push(`/blog?${queryString}`, { scroll: false })
     })
   }
 
@@ -51,7 +51,7 @@ export default function FilterBar({ categories, popularHashtags }: FilterBarProp
 
   const handleClearFilters = () => {
     startTransition(() => {
-      router.push('/', { scroll: false })
+      router.push('/blog', { scroll: false })
     })
   }
 

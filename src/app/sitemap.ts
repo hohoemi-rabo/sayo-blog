@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryUrls: MetadataRoute.Sitemap =
     categories?.map((category) => ({
-      url: `${SITE_CONFIG.url}/?category=${category.slug}`,
+      url: `${SITE_CONFIG.url}/blog?category=${category.slug}`,
       lastModified: new Date(category.updated_at),
       changeFrequency: 'daily' as const,
       priority: 0.6,
@@ -60,6 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1.0,
+    },
+    {
+      url: `${SITE_CONFIG.url}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     ...categoryUrls,
     ...postUrls,

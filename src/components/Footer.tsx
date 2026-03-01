@@ -8,8 +8,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const siteLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/categories', label: 'Categories' },
+    { href: '/', label: 'ホーム' },
+    { href: '/blog', label: 'ブログ' },
     { href: '/about', label: 'About' },
     { href: '/privacy', label: 'Privacy Policy' },
   ]

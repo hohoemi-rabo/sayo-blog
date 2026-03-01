@@ -96,6 +96,74 @@ export interface FilterBarProps {
   sort?: 'latest' | 'popular'
 }
 
+// ============================================================
+// Phase 2: AI Chat types
+// ============================================================
+
+// AI Knowledge
+export interface KnowledgeSpot {
+  name: string
+  address?: string
+  phone?: string
+  hours?: string
+  note?: string
+}
+
+export interface KnowledgeMetadata {
+  title: string
+  category: string
+  hashtags: string[]
+  published_at: string
+  area: string
+  summary: string
+  keywords: string[]
+  spots: KnowledgeSpot[]
+}
+
+export interface ArticleKnowledge {
+  id: string
+  post_id: string
+  slug: string
+  metadata: KnowledgeMetadata
+  content: string
+  embedding?: number[]
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// AI Prompt Tags
+export interface AiPromptTag {
+  id: string
+  label: string
+  prompt: string
+  tag_type: 'purpose' | 'area' | 'scene'
+  order_num: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+// AI Usage
+export interface AiUsageLog {
+  id: string
+  session_id: string
+  query: string
+  token_input?: number
+  token_output?: number
+  matched_articles?: string[]
+  created_at: string
+}
+
+export interface AiUsageLimit {
+  id: string
+  limit_type: 'daily_user' | 'monthly_site'
+  limit_value: number
+  current_value: number
+  reset_at?: string
+  updated_at: string
+}
+
 // Utility types
 export type SortOption = 'latest' | 'popular'
 

@@ -10,7 +10,7 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({ categories, title }: BreadcrumbsProps) {
   // Build breadcrumb path: Home > Prefecture > City > District > Article
   const breadcrumbs = [
-    { name: 'ホーム', href: '/' },
+    { name: 'ブログ', href: '/blog' },
     ...categories.map((category) => ({
       name: category.name,
       href: `/${category.slug}`,

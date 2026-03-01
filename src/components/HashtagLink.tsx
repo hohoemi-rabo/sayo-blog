@@ -23,12 +23,12 @@ export default function HashtagLink({ slug, name, count, fontSize, index }: Hash
     sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
 
     // Navigate without scrolling to top
-    router.push(`/?hashtags=${slug}`, { scroll: false })
+    router.push(`/blog?hashtags=${slug}`, { scroll: false })
   }
 
   return (
     <Link
-      href={`/?hashtags=${slug}`}
+      href={`/blog?hashtags=${slug}`}
       onClick={handleClick}
       className="
         inline-block px-4 py-2 rounded-full

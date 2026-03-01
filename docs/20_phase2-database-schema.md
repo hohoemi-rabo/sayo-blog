@@ -242,10 +242,10 @@ interface AiUsageLimit {
 
 ## 完了条件
 
-- [ ] pgvector 拡張が有効化されている
-- [ ] 4 テーブルが作成され、RLS が有効
-- [ ] RPC 関数 3 つが作成されている
-- [ ] インデックスが作成されている（ivfflat 除く）
-- [ ] 初期データ（ai_usage_limits）が投入されている
-- [ ] TypeScript 型定義が追加されている
-- [ ] `npm run build` が成功する
+- [×] pgvector 拡張が有効化されている
+- [×] 4 テーブルが作成され、RLS が有効
+- [×] RPC 関数 3 つが作成されている
+- [×] インデックスが作成されている（ivfflat 除く）
+- [×] 初期データ（ai_usage_limits）が投入されている
+- [×] TypeScript 型定義が追加されている
+- [×] `npm run build` が成功する

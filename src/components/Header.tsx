@@ -19,7 +19,8 @@ export default function Header() {
   }, [])
 
   const navLinks = [
-    { href: '/', label: 'Home' },
+    { href: '/', label: 'ホーム' },
+    { href: '/blog', label: 'ブログ' },
     { href: '/about', label: 'About' },
   ]
 
