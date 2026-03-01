@@ -1,13 +1,35 @@
-import { BarChart3 } from 'lucide-react'
+import { getUsageStats, getDailyBreakdown, getTopQueries } from './actions'
+import { StatsCards } from './_components/StatsCards'
+import { UsageChart } from './_components/UsageChart'
+import { TopQueries } from './_components/TopQueries'
+import { LimitSettings } from './_components/LimitSettings'
 
-export default function AiAnalyticsPage() {
+export default async function AiAnalyticsPage() {
+  const [stats, dailyBreakdown, topQueries] = await Promise.all([
+    getUsageStats(),
+    getDailyBreakdown(),
+    getTopQueries(10),
+  ])
+
   return (
-    <div className="flex flex-col items-center justify-center py-16 space-y-4">
-      <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-        <BarChart3 className="w-8 h-8 text-gray-400" />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-text-primary">
+          AI Analytics
+        </h1>
+        <p className="text-text-secondary mt-1">
+          AI チャットの利用状況とコスト管理
+        </p>
       </div>
-      <h1 className="text-2xl font-bold text-text-primary">AI Analytics</h1>
-      <p className="text-text-secondary">Ticket 28 で実装予定</p>
+
+      <StatsCards stats={stats} />
+
+      <UsageChart data={dailyBreakdown} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TopQueries queries={topQueries} />
+        <LimitSettings limits={stats.limits} />
+      </div>
     </div>
   )
 }
