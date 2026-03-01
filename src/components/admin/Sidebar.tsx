@@ -8,6 +8,9 @@ import {
   FolderOpen,
   Hash,
   ImageIcon,
+  BookOpen,
+  Tags,
+  BarChart3,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +20,12 @@ const navigation = [
   { name: 'カテゴリ', href: '/admin/categories', icon: FolderOpen },
   { name: 'ハッシュタグ', href: '/admin/hashtags', icon: Hash },
   { name: 'メディア', href: '/admin/media', icon: ImageIcon },
+]
+
+const aiNavigation = [
+  { name: 'AI Knowledge', href: '/admin/ai/knowledge', icon: BookOpen },
+  { name: 'AI Tags', href: '/admin/ai/tags', icon: Tags },
+  { name: 'AI Analytics', href: '/admin/ai/analytics', icon: BarChart3 },
 ]
 
 export function Sidebar() {
@@ -53,6 +62,32 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {/* AI 管理セクション */}
+        <div className="pt-4 mt-4 border-t border-white/10">
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            AI 管理
+          </p>
+          {aiNavigation.map((item) => {
+            const isActive = pathname.startsWith(item.href)
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-white'
+                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
+            )
+          })}
+        </div>
       </nav>
 
       <div className="absolute bottom-4 left-4 right-4">
