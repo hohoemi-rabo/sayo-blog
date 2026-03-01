@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { Plus, Sparkles } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { getKnowledgeList } from './actions'
 import { KnowledgeList } from './_components/KnowledgeList'
+import { BulkGenerateDialog } from './_components/BulkGenerateDialog'
 
 interface PageProps {
   searchParams: Promise<{
@@ -31,10 +32,10 @@ export default async function KnowledgePage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" disabled className="gap-2" title="Ticket 23 で実装予定">
-            <Sparkles className="h-4 w-4" />
-            一括生成
-          </Button>
+          <BulkGenerateDialog
+            totalPosts={totalPosts}
+            totalKnowledge={totalKnowledge}
+          />
           <Link href="/admin/ai/knowledge/new">
             <Button className="gap-2">
               <Plus className="h-4 w-4" />

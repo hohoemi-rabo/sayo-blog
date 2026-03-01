@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { SpotFieldArray } from './SpotFieldArray'
 import { ArticlePreview } from './ArticlePreview'
-import { createKnowledge, updateKnowledge } from '../actions'
+import { createKnowledge, updateKnowledge, generateDraft } from '../actions'
 import type { KnowledgeMetadata, KnowledgeSpot } from '@/lib/types'
 import type { KnowledgeDetail } from '../actions'
 
@@ -73,6 +73,9 @@ export function KnowledgeForm({
   // Active toggle
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true)
 
+  // AI draft generation
+  const [isGeneratingDraft, setIsGeneratingDraft] = useState(false)
+
   // When a post is selected in create mode, auto-fill metadata
   const handlePostSelect = (postId: string) => {
     setSelectedPostId(postId)
@@ -89,6 +92,37 @@ export function KnowledgeForm({
           ? new Date(post.published_at).toISOString().slice(0, 10)
           : ''
       )
+    }
+  }
+
+  const handleGenerateDraft = async () => {
+    if (!selectedPostId) return
+    setIsGeneratingDraft(true)
+    setError(null)
+
+    try {
+      const result = await generateDraft(selectedPostId)
+      if (result.success && result.metadata && result.content) {
+        setTitle(result.metadata.title)
+        setCategory(result.metadata.category)
+        setArea(result.metadata.area)
+        setSummary(result.metadata.summary)
+        setKeywords(result.metadata.keywords.join(', '))
+        setHashtags(result.metadata.hashtags.join(', '))
+        setPublishedAt(
+          result.metadata.published_at
+            ? new Date(result.metadata.published_at).toISOString().slice(0, 10)
+            : ''
+        )
+        setSpots(result.metadata.spots || [])
+        setContent(result.content)
+      } else {
+        setError(result.error || 'AI 生成に失敗しました')
+      }
+    } catch {
+      setError('AI 生成中にエラーが発生しました')
+    } finally {
+      setIsGeneratingDraft(false)
     }
   }
 
@@ -191,9 +225,23 @@ export function KnowledgeForm({
             {mode === 'create' ? 'ナレッジ新規作成' : 'ナレッジ編集'}
           </h1>
         </div>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '保存中...' : '保存'}
-        </Button>
+        <div className="flex items-center gap-3">
+          {mode === 'create' && selectedPostId && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGenerateDraft}
+              disabled={isGeneratingDraft}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              {isGeneratingDraft ? 'AI 生成中...' : 'AI で下書き生成'}
+            </Button>
+          )}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? '保存中...' : '保存'}
+          </Button>
+        </div>
       </div>
 
       {/* Error */}

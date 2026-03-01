@@ -181,12 +181,12 @@ EMBEDDING_MODEL=text-embedding-004
 
 ## 完了条件
 
-- [ ] `@google/generative-ai` がインストールされている
-- [ ] Gemini クライアントが作成されている
-- [ ] 記事 HTML → ナレッジデータの自動生成ができる
-- [ ] Embedding の生成・保存ができる
-- [ ] 一括生成が進捗表示付きで動作する
-- [ ] 個別の AI 下書き生成が動作する
-- [ ] 保存時に Embedding が自動再生成される
-- [ ] ivfflat インデックスが作成されている
-- [ ] `npm run build` が成功する
+- [×] `@google/generative-ai` がインストールされている
+- [×] Gemini クライアントが作成されている
+- [×] 記事 HTML → ナレッジデータの自動生成ができる
+- [×] Embedding の生成・保存ができる
+- [×] 一括生成が進捗表示付きで動作する
+- [×] 個別の AI 下書き生成が動作する
+- [×] 保存時に Embedding が自動再生成される
+- [×] ivfflat インデックスが作成されている
+- [×] `npm run build` が成功する

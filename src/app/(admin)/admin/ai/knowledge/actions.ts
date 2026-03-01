@@ -3,6 +3,11 @@
 import { createAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { KnowledgeMetadata } from '@/lib/types'
+import {
+  generateKnowledge,
+  generateEmbedding,
+  buildEmbeddingText,
+} from '@/lib/knowledge-generator'
 
 // Types for knowledge list items
 export interface KnowledgeListItem {
@@ -179,7 +184,7 @@ export async function getKnowledge(id: string): Promise<KnowledgeDetail | null> 
   }
 }
 
-// CREATE
+// CREATE (with async embedding generation)
 export async function createKnowledge(data: KnowledgeFormData) {
   const supabase = createAdminClient()
 
@@ -200,12 +205,22 @@ export async function createKnowledge(data: KnowledgeFormData) {
     return { success: false, error: error.message }
   }
 
+  // Generate embedding asynchronously (don't block the save)
+  generateEmbeddingForKnowledge(
+    knowledge.id,
+    data.metadata.title,
+    data.metadata.summary,
+    data.content
+  ).catch((err) =>
+    console.error('Embedding generation failed (create):', err)
+  )
+
   revalidatePath('/admin/ai/knowledge')
 
   return { success: true, knowledge }
 }
 
-// UPDATE
+// UPDATE (with async embedding regeneration)
 export async function updateKnowledge(
   id: string,
   data: { metadata: KnowledgeMetadata; content: string; is_active: boolean }
@@ -225,6 +240,16 @@ export async function updateKnowledge(
     console.error('Knowledge update error:', error)
     return { success: false, error: error.message }
   }
+
+  // Regenerate embedding asynchronously
+  generateEmbeddingForKnowledge(
+    id,
+    data.metadata.title,
+    data.metadata.summary,
+    data.content
+  ).catch((err) =>
+    console.error('Embedding generation failed (update):', err)
+  )
 
   revalidatePath('/admin/ai/knowledge')
   revalidatePath(`/admin/ai/knowledge/${id}`)
@@ -330,4 +355,88 @@ export async function getCategories() {
   }
 
   return data || []
+}
+
+// GENERATE DRAFT: AI-generated knowledge from a post
+export async function generateDraft(postId: string): Promise<{
+  success: boolean
+  metadata?: KnowledgeMetadata
+  content?: string
+  error?: string
+}> {
+  const supabase = createAdminClient()
+
+  // Get the post with categories and hashtags
+  const { data: post, error: postError } = await supabase
+    .from('posts')
+    .select(
+      `
+      id,
+      title,
+      content,
+      excerpt,
+      published_at,
+      post_categories(categories(slug)),
+      post_hashtags(hashtags(name))
+    `
+    )
+    .eq('id', postId)
+    .single()
+
+  if (postError || !post) {
+    return { success: false, error: '記事の取得に失敗しました' }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const postAny = post as Record<string, any>
+  const categorySlug = postAny.post_categories?.[0]?.categories?.slug || ''
+  const hashtags =
+    postAny.post_hashtags
+      ?.map(
+        (ph: { hashtags: { name: string } | null }) => ph.hashtags?.name
+      )
+      .filter(Boolean) || []
+
+  try {
+    const result = await generateKnowledge({
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt ?? undefined,
+      category: categorySlug,
+      hashtags,
+      published_at: post.published_at || '',
+    })
+
+    return {
+      success: true,
+      metadata: result.metadata,
+      content: result.content,
+    }
+  } catch (err) {
+    console.error('Draft generation failed:', err)
+    const errorMsg = err instanceof Error ? err.message : 'AI生成に失敗しました'
+    return { success: false, error: errorMsg }
+  }
+}
+
+// Internal: Generate and save embedding for a knowledge record
+async function generateEmbeddingForKnowledge(
+  knowledgeId: string,
+  title: string,
+  summary: string,
+  content: string
+): Promise<void> {
+  const embeddingText = buildEmbeddingText(title, summary, content)
+  const embedding = await generateEmbedding(embeddingText)
+
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('article_knowledge')
+    .update({ embedding: JSON.stringify(embedding) })
+    .eq('id', knowledgeId)
+
+  if (error) {
+    console.error('Failed to save embedding:', error)
+    throw error
+  }
 }
