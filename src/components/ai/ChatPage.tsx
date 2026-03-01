@@ -1,0 +1,231 @@
+'use client'
+
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { WelcomeScreen } from './WelcomeScreen'
+import { ChatMessages } from './ChatMessages'
+import { ChatInput } from './ChatInput'
+import { ChatTagList, type PromptTag } from './ChatTagList'
+import { streamChat } from '@/lib/ai-chat-client'
+import type { UIChatMessage, ArticleCard, SpotInfo } from '@/lib/types'
+
+interface ChatPageProps {
+  tags: PromptTag[]
+}
+
+function getSessionId(): string {
+  const key = 'fune_session_id'
+  if (typeof window === 'undefined') return ''
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = crypto.randomUUID()
+    localStorage.setItem(key, id)
+  }
+  return id
+}
+
+export function ChatPage({ tags }: ChatPageProps) {
+  const [messages, setMessages] = useState<UIChatMessage[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
+  const abortRef = useRef<AbortController | null>(null)
+  const sessionIdRef = useRef('')
+
+  useEffect(() => {
+    sessionIdRef.current = getSessionId()
+  }, [])
+
+  const hasMessages = messages.length > 0
+
+  const sendMessage = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim()
+      if (!trimmed || isStreaming) return
+
+      // Add user message
+      const userMsg: UIChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: trimmed,
+        timestamp: Date.now(),
+      }
+
+      // Add assistant placeholder
+      const assistantId = crypto.randomUUID()
+      const assistantMsg: UIChatMessage = {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        isStreaming: true,
+        timestamp: Date.now(),
+      }
+
+      setMessages((prev) => [...prev, userMsg, assistantMsg])
+      setInputValue('')
+      setIsStreaming(true)
+
+      // Build history from recent messages (exclude the new ones)
+      const history = messages.slice(-10).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }))
+
+      const controller = new AbortController()
+      abortRef.current = controller
+
+      try {
+        const stream = streamChat(
+          trimmed,
+          sessionIdRef.current,
+          history,
+          controller.signal
+        )
+
+        for await (const event of stream) {
+          if (controller.signal.aborted) break
+
+          switch (event.type) {
+            case 'text':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, content: m.content + (event.content as string) }
+                    : m
+                )
+              )
+              break
+            case 'articles':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, articles: event.content as ArticleCard[] }
+                    : m
+                )
+              )
+              break
+            case 'spots':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, spots: event.content as SpotInfo[] }
+                    : m
+                )
+              )
+              break
+            case 'suggestions':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, suggestions: event.content as string[] }
+                    : m
+                )
+              )
+              break
+            case 'error':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? {
+                        ...m,
+                        content: event.content as string,
+                        isStreaming: false,
+                      }
+                    : m
+                )
+              )
+              break
+            case 'done':
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId ? { ...m, isStreaming: false } : m
+                )
+              )
+              break
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error('Chat stream error:', err)
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    content:
+                      'ごめんなさい、うまく接続できませんでした。もう一度お試しください。',
+                    isStreaming: false,
+                  }
+                : m
+            )
+          )
+        }
+      } finally {
+        setIsStreaming(false)
+        abortRef.current = null
+      }
+    },
+    [isStreaming, messages]
+  )
+
+  const handleSend = useCallback(() => {
+    sendMessage(inputValue)
+  }, [inputValue, sendMessage])
+
+  const handleStop = useCallback(() => {
+    abortRef.current?.abort()
+    setIsStreaming(false)
+    // Mark streaming message as done
+    setMessages((prev) =>
+      prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
+    )
+  }, [])
+
+  const handleTagSelect = useCallback(
+    (tag: PromptTag) => {
+      sendMessage(tag.prompt || tag.label)
+    },
+    [sendMessage]
+  )
+
+  const handleSuggestionSelect = useCallback(
+    (label: string) => {
+      sendMessage(label)
+    },
+    [sendMessage]
+  )
+
+  return (
+    <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+      {/* Message area or welcome */}
+      {hasMessages ? (
+        <ChatMessages
+          messages={messages}
+          onSuggestionSelect={handleSuggestionSelect}
+          isStreaming={isStreaming}
+        />
+      ) : (
+        <WelcomeScreen />
+      )}
+
+      {/* Bottom sticky area */}
+      <div className="sticky bottom-0 bg-bg-primary/95 backdrop-blur-sm border-t border-border/50">
+        {/* Tags */}
+        <ChatTagList
+          tags={tags}
+          onSelect={handleTagSelect}
+          disabled={isStreaming}
+        />
+
+        {/* Input */}
+        <div className="max-w-3xl mx-auto w-full">
+          <ChatInput
+            value={inputValue}
+            onChange={setInputValue}
+            onSend={handleSend}
+            onStop={handleStop}
+            isStreaming={isStreaming}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -164,6 +164,53 @@ export interface AiUsageLimit {
   updated_at: string
 }
 
+// AI Chat types
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface ArticleCard {
+  slug: string
+  title: string
+  thumbnail_url: string | null
+  excerpt: string | null
+  category: string
+}
+
+export interface SpotInfo {
+  name: string
+  address?: string
+  phone?: string
+  hours?: string
+  mapUrl?: string
+}
+
+export type ChatEventType =
+  | 'text'
+  | 'articles'
+  | 'spots'
+  | 'suggestions'
+  | 'done'
+  | 'error'
+
+// UI Chat types (for ChatPage component)
+export interface UIChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  articles?: ArticleCard[]
+  spots?: SpotInfo[]
+  suggestions?: string[]
+  isStreaming?: boolean
+  timestamp: number
+}
+
+export interface ChatStreamEvent {
+  type: ChatEventType
+  content: string | ArticleCard[] | SpotInfo[] | string[]
+}
+
 // Utility types
 export type SortOption = 'latest' | 'popular'
 
