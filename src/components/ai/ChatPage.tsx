@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { WelcomeScreen } from './WelcomeScreen'
 import { ChatMessages } from './ChatMessages'
 import { ChatInput } from './ChatInput'
@@ -217,43 +218,72 @@ export function ChatPage({ tags }: ChatPageProps) {
     ? '今日の質問回数に達しました。また明日お気軽にどうぞ。'
     : undefined
 
+  const inputElement = (
+    <ChatInput
+      value={inputValue}
+      onChange={setInputValue}
+      onSend={handleSend}
+      onStop={handleStop}
+      isStreaming={isStreaming}
+      disabled={isLimitReached}
+      dailyRemaining={dailyRemaining}
+      limitMessage={limitMessage}
+    />
+  )
+
   return (
     <div className="flex flex-col h-full">
-      {/* Message area or welcome */}
-      {hasMessages ? (
-        <ChatMessages
-          messages={messages}
-          onSuggestionSelect={handleSuggestionSelect}
-          onRetry={handleRetry}
-          isStreaming={isStreaming}
-        />
-      ) : (
-        <WelcomeScreen />
-      )}
+      <AnimatePresence mode="wait">
+        {hasMessages ? (
+          /* === Conversation layout === */
+          <motion.div
+            key="conversation"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col h-full"
+          >
+            <ChatMessages
+              messages={messages}
+              onSuggestionSelect={handleSuggestionSelect}
+              onRetry={handleRetry}
+              isStreaming={isStreaming}
+            />
 
-      {/* Bottom sticky area */}
-      <div className="sticky bottom-0 bg-bg-primary/95 backdrop-blur-sm border-t border-border/50">
-        {/* Tags */}
-        <ChatTagList
-          tags={tags}
-          onSelect={handleTagSelect}
-          disabled={isStreaming || isLimitReached}
-        />
+            {/* Bottom-fixed input */}
+            <div className="bg-background/95 backdrop-blur-sm">
+              <div className="max-w-3xl mx-auto w-full">
+                {inputElement}
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* === Welcome layout === */
+          <motion.div
+            key="welcome"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -30, transition: { duration: 0.15 } }}
+            className="flex-1 flex flex-col items-center justify-center px-4 pb-8"
+          >
+            <WelcomeScreen />
 
-        {/* Input */}
-        <div className="max-w-3xl mx-auto w-full">
-          <ChatInput
-            value={inputValue}
-            onChange={setInputValue}
-            onSend={handleSend}
-            onStop={handleStop}
-            isStreaming={isStreaming}
-            disabled={isLimitReached}
-            dailyRemaining={dailyRemaining}
-            limitMessage={limitMessage}
-          />
-        </div>
-      </div>
+            {/* Center input */}
+            <div className="w-full max-w-2xl mt-8">
+              {inputElement}
+            </div>
+
+            {/* Tags below input */}
+            <div className="w-full max-w-2xl mt-3">
+              <ChatTagList
+                tags={tags}
+                onSelect={handleTagSelect}
+                disabled={isStreaming || isLimitReached}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

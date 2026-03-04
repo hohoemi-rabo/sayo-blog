@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import { ChatHeader } from "@/components/ai/ChatHeader";
 
 export default function ChatLayout({
   children,
@@ -7,8 +7,8 @@ export default function ChatLayout({
 }) {
   return (
     <>
-      <Header />
-      <main className="h-[calc(100dvh-64px)] md:h-[calc(100dvh-80px)]">
+      <ChatHeader />
+      <main className="h-[calc(100dvh-56px)]">
         {children}
       </main>
     </>

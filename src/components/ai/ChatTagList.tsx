@@ -43,8 +43,8 @@ export function ChatTagList({ tags, onSelect, disabled }: ChatTagListProps) {
             onClick={() => onSelect(tag)}
             disabled={disabled}
             className={cn(
-              'px-3 py-1.5 text-sm rounded-full border font-noto-sans-jp transition-colors duration-200',
-              'bg-bg-primary',
+              'px-4 py-2 text-sm rounded-2xl border font-noto-sans-jp transition-all duration-200',
+              'bg-white hover:shadow-sm',
               style.base,
               style.hover,
               'disabled:opacity-50 disabled:cursor-not-allowed'
