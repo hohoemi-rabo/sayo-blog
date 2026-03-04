@@ -130,7 +130,7 @@ export async function POST(request: Request) {
           { role: 'user' as const, parts: [{ text: message }] },
         ],
         generationConfig: {
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
           temperature: 0.7,
         },
       })

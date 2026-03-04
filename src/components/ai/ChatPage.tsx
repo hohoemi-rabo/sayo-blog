@@ -218,7 +218,7 @@ export function ChatPage({ tags }: ChatPageProps) {
     : undefined
 
   return (
-    <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+    <div className="flex flex-col h-full">
       {/* Message area or welcome */}
       {hasMessages ? (
         <ChatMessages

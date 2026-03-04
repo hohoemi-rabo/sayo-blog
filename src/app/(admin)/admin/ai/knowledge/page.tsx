@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { getKnowledgeList } from './actions'
 import { KnowledgeList } from './_components/KnowledgeList'
 import { BulkGenerateDialog } from './_components/BulkGenerateDialog'
+import { BulkEmbeddingDialog } from './_components/BulkEmbeddingDialog'
 
 interface PageProps {
   searchParams: Promise<{
@@ -32,6 +33,7 @@ export default async function KnowledgePage({ searchParams }: PageProps) {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <BulkEmbeddingDialog />
           <BulkGenerateDialog
             totalPosts={totalPosts}
             totalKnowledge={totalKnowledge}

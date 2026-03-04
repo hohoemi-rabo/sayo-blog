@@ -1,14 +1,101 @@
 import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase'
+import { SupabaseClient } from '@supabase/supabase-js'
 import {
   generateKnowledge,
   generateEmbedding,
   buildEmbeddingText,
   sleep,
 } from '@/lib/knowledge-generator'
+import { KnowledgeMetadata } from '@/lib/types'
 
 const MAX_RETRIES = 3
 const BASE_DELAY_MS = 2000
+
+// Regenerate embeddings only for existing knowledge records
+async function handleEmbeddingOnly(supabase: SupabaseClient) {
+  const { data: records, error } = await supabase
+    .from('article_knowledge')
+    .select('id, metadata, content')
+
+  if (error || !records || records.length === 0) {
+    return Response.json(
+      { error: 'ナレッジデータが見つかりません' },
+      { status: 400 }
+    )
+  }
+
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (event: string, data: unknown) => {
+        controller.enqueue(
+          encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+        )
+      }
+
+      let successCount = 0
+      let failedCount = 0
+      const errors: Array<{ post_id: string; title: string; error: string }> = []
+
+      for (let i = 0; i < records.length; i++) {
+        const record = records[i]
+        const metadata = record.metadata as KnowledgeMetadata
+        const title = metadata?.title || '不明'
+
+        send('progress', {
+          current: i + 1,
+          total: records.length,
+          title,
+          status: 'embedding',
+        })
+
+        try {
+          const embeddingText = buildEmbeddingText(
+            metadata?.title || '',
+            metadata?.summary || '',
+            record.content || ''
+          )
+          const embedding = await generateEmbedding(embeddingText)
+
+          const { error: updateError } = await supabase
+            .from('article_knowledge')
+            .update({ embedding: JSON.stringify(embedding) })
+            .eq('id', record.id)
+
+          if (updateError) {
+            throw new Error(updateError.message)
+          }
+
+          successCount++
+        } catch (err) {
+          failedCount++
+          errors.push({
+            post_id: record.id,
+            title,
+            error: err instanceof Error ? err.message : 'Unknown error',
+          })
+        }
+
+        // Rate limit delay
+        if (i < records.length - 1) {
+          await sleep(500)
+        }
+      }
+
+      send('complete', { success: successCount, failed: failedCount, errors })
+      controller.close()
+    },
+  })
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    },
+  })
+}
 
 export async function POST(request: Request) {
   // Auth check
@@ -24,8 +111,14 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
   const postIds: string[] | undefined = body.post_ids
   const regenerateEmbedding: boolean = body.regenerate_embedding ?? true
+  const embeddingOnly: boolean = body.embedding_only ?? false
 
   const supabase = createAdminClient()
+
+  // "embedding_only" mode: regenerate embeddings for existing knowledge without AI content generation
+  if (embeddingOnly) {
+    return handleEmbeddingOnly(supabase)
+  }
 
   // Get target posts
   let query = supabase
