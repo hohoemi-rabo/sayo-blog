@@ -16,6 +16,8 @@ export function ChatArticleCard({ article }: ChatArticleCardProps) {
   return (
     <Link
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className="flex gap-3 p-3 rounded-lg border border-border bg-bg-primary hover:shadow-decorative transition-shadow duration-200 group"
     >
       {/* Thumbnail */}

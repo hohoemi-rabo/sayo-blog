@@ -32,8 +32,9 @@ npm run lint        # Run ESLint
 src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
+│   ├── (chat)/              # AI Chat page (ChatHeader, no Footer)
+│   │   └── page.tsx         # Home / AI Chat page
 │   ├── (public)/            # Public pages (Header + Footer)
-│   │   ├── page.tsx         # Home / AI Chat page
 │   │   ├── blog/page.tsx    # Blog listing (infinite scroll)
 │   │   ├── [category]/[slug]/ # Article detail
 │   │   └── search/          # Search page
@@ -106,5 +107,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-03-01 (Phase 2 completed)
-**Project Status**: Phase 1 + Phase 2 completed (AI Chat Page fully implemented)
+**Updated**: 2026-03-04 (Gemini-style UI overhaul)
+**Project Status**: Phase 1 + Phase 2 completed, Chat UI redesigned (Gemini-style)

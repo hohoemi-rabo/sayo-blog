@@ -8,7 +8,7 @@ export function ChatHeader() {
     <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 bg-background/95 backdrop-blur-sm border-b border-border-decorative/50">
       <Link
         href="/"
-        className="text-xl md:text-2xl font-playfair font-bold text-text-primary hover:text-primary-hover transition-colors duration-200"
+        className="text-xl md:text-2xl font-playfair font-bold text-primary hover:text-primary-hover transition-colors duration-200"
       >
         Sayo&apos;s Journal
       </Link>

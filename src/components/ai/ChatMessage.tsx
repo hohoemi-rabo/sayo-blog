@@ -105,7 +105,7 @@ export const ChatMessage = memo(function ChatMessage({
             <div
               className={cn(
                 'prose prose-sm max-w-none',
-                isUser && 'prose-invert',
+                isUser && 'prose-invert [&_*]:!text-white',
                 isAssistant && '[&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:mt-3 [&_h2]:mt-3 [&_h3]:mt-2'
               )}
             >
