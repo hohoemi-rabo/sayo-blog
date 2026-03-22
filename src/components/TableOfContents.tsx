@@ -74,9 +74,9 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <>
-      {/* デスクトップ: sticky サイドバー */}
+      {/* デスクトップ: サイドバー用 */}
       <nav
-        className="hidden lg:block sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto"
+        className="hidden xl:block"
         aria-label="目次"
       >
         <h2 className="text-sm font-bold text-text-primary font-noto-sans-jp mb-3 uppercase tracking-wider">
@@ -85,8 +85,8 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
         {tocList}
       </nav>
 
-      {/* モバイル: 折りたたみ */}
-      <div className="lg:hidden mb-8">
+      {/* モバイル・タブレット: 折りたたみ */}
+      <div className="xl:hidden mb-8">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between w-full py-3 px-4 bg-background-dark/5 rounded-xl text-sm font-noto-sans-jp font-medium text-text-primary"

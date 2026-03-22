@@ -34,14 +34,18 @@
 ## Key File Map
 
 ### Pages
-- `src/app/(chat)/page.tsx` - Home / AI Chat page (dynamic, Gemini-style UI)
-- `src/app/(public)/blog/page.tsx` - Blog listing (infinite scroll, ISR 600s)
-- `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s)
+- `src/app/(public)/page.tsx` - Home (Hero + Pick Up featured/latest 6 posts)
+- `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button load more)
+- `src/app/(public)/[category]/page.tsx` - Category listing (SEO metadata + infinite scroll)
+- `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, TOC fixed right)
+- `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
+- `src/app/(chat)/layout.tsx` - AI Chat layout (paused, kept for future)
+- `src/app/not-found.tsx` - Custom 404 page
 - `src/app/(admin)/admin/` - Admin panel
 
 ### Components
-- `src/components/InfinitePostGrid.tsx` - Client Component, Intersection Observer
+- `src/components/InfinitePostGrid.tsx` - Client Component, "もっと見る" button load more
 - `src/components/PostGrid.tsx` - Server Component, for search page
 - `src/components/FilterBar.tsx` - Category/hashtag/sort filter
 - `src/components/SearchBar.tsx` - Search with autocomplete
@@ -49,7 +53,7 @@
 - `src/components/ScrollProgress.tsx` - Scroll progress bar (CSS scaleX)
 - `src/components/TableOfContents.tsx` - TOC with IntersectionObserver tracking
 - `src/components/ImageLightbox.tsx` - Native `<dialog>` lightbox
-- `src/components/ReactionBar.tsx` - Reaction buttons (localStorage + Supabase)
+- `src/components/ReactionBar.tsx` - Reaction buttons toggle (localStorage + Supabase)
 - `src/components/RelatedArticles.tsx` - Server Component, scoring-based
 - `src/components/ScrollFadeIn.tsx` - IntersectionObserver fade-in wrapper
 
@@ -101,4 +105,4 @@
 - `src/app/api/posts/route.ts` - Posts API (infinite scroll)
 - `src/app/api/search/suggest/route.ts` - Search autocomplete
 - `src/app/api/admin/media/route.ts` - Media list API
-- `src/app/api/reactions/route.ts` - Reaction counts (GET/POST, uses RPC)
+- `src/app/api/reactions/route.ts` - Reaction counts (GET/POST/DELETE, uses RPC)

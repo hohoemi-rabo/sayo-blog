@@ -218,38 +218,33 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       </div>
 
       {/* メインコンテンツ + TOC サイドバー */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="lg:flex lg:gap-8">
-          {/* メインコンテンツ */}
-          <div className="flex-1 min-w-0 max-w-4xl">
-            {/* モバイル TOC */}
-            {headings.length > 0 && (
-              <div className="lg:hidden">
-                <TableOfContents headings={headings} />
-              </div>
-            )}
-
-            <ArticleBody content={processedHtml} />
-
-            <ArticleMeta
-              categories={categories as Category[]}
-              hashtags={hashtags as Hashtag[]}
-              publishedAt={post.published_at}
-              updatedAt={post.updated_at}
-              viewCount={post.view_count}
-            />
-
-            <ReactionBar postId={post.id} />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        {/* モバイル TOC */}
+        {headings.length > 0 && (
+          <div className="xl:hidden">
+            <TableOfContents headings={headings} />
           </div>
+        )}
 
-          {/* デスクトップ TOC サイドバー */}
-          {headings.length > 0 && (
-            <aside className="hidden lg:block w-56 flex-shrink-0">
-              <TableOfContents headings={headings} />
-            </aside>
-          )}
-        </div>
+        <ArticleBody content={processedHtml} />
+
+        <ArticleMeta
+          categories={categories as Category[]}
+          hashtags={hashtags as Hashtag[]}
+          publishedAt={post.published_at}
+          updatedAt={post.updated_at}
+          viewCount={post.view_count}
+        />
+
+        <ReactionBar postId={post.id} />
       </div>
+
+      {/* デスクトップ TOC — 固定位置で右側に配置（メインのレイアウトに影響なし） */}
+      {headings.length > 0 && (
+        <aside className="hidden xl:block fixed top-24 right-[max(1rem,calc((100vw-56rem)/2-16rem))] w-56 max-h-[calc(100vh-8rem)] overflow-y-auto">
+          <TableOfContents headings={headings} />
+        </aside>
+      )}
 
       {/* 関連記事 */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">

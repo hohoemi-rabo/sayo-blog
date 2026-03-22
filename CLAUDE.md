@@ -32,11 +32,13 @@ npm run lint        # Run ESLint
 src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
-│   ├── (chat)/              # AI Chat page (ChatHeader, no Footer)
-│   │   └── page.tsx         # Home / AI Chat page
+│   ├── (chat)/              # AI Chat page (ChatHeader, no Footer) — 開発中
 │   ├── (public)/            # Public pages (Header + Footer)
-│   │   ├── blog/page.tsx    # Blog listing (infinite scroll)
+│   │   ├── page.tsx         # Home (Hero + Pick Up 6 posts)
+│   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
+│   │   ├── [category]/      # Category listing
 │   │   ├── [category]/[slug]/ # Article detail
+│   │   ├── privacy/         # Privacy Policy
 │   │   └── search/          # Search page
 │   ├── (admin)/admin/       # Admin panel (CMS + AI management)
 │   ├── (auth)/admin/login/  # Login
@@ -51,13 +53,16 @@ src/
 ## URL Structure
 
 ```
-/                              → Home / AI Chat page
-/blog                          → Blog listing (infinite scroll)
+/                              → Home (Hero + Pick Up posts)
+/blog                          → Blog listing ("もっと見る" button)
 /blog?category=gourmet         → Category filter
 /blog?hashtags=tag1,tag2       → Hashtag filter
 /blog?sort=popular             → Sort by view count
+/gourmet/                      → Category listing page
 /gourmet/[slug]/               → Article detail
 /search?q=keyword              → Search results
+/privacy                       → Privacy Policy
+/about                         → About (TBD)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
@@ -107,5 +112,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-03-04 (Gemini-style UI overhaul)
-**Project Status**: Phase 1 + Phase 2 completed, Chat UI redesigned (Gemini-style)
+**Updated**: 2026-03-22 (Blog home, category pages, featured posts)
+**Project Status**: Phase 1 + Phase 2 completed, Blog home redesigned, AI Chat paused
