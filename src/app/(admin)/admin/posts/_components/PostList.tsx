@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
-import { Pencil, Trash2, Eye, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2, Eye, ExternalLink, Star } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import {
@@ -23,7 +23,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/Dialog'
-import { deletePost } from '../actions'
+import { useToast } from '@/components/ui/Toast'
+import { deletePost, toggleFeatured } from '../actions'
 
 interface Category {
   id: string
@@ -38,6 +39,7 @@ type Post = {
   excerpt: string | null
   thumbnail_url: string | null
   is_published: boolean
+  is_featured: boolean
   published_at: string | null
   view_count: number
   created_at: string
@@ -62,10 +64,14 @@ export function PostList({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { addToast } = useToast()
   const [, startTransition] = useTransition()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [postToDelete, setPostToDelete] = useState<Post | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+
+  const featuredCount = posts.filter((p) => p.is_featured).length
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -97,7 +103,18 @@ export function PostList({
       setPostToDelete(null)
       router.refresh()
     } else {
-      alert('削除に失敗しました: ' + result.error)
+      addToast('削除に失敗しました: ' + result.error, 'error')
+    }
+  }
+
+  const handleToggleFeatured = async (post: Post) => {
+    setTogglingId(post.id)
+    const result = await toggleFeatured(post.id, post.is_featured)
+    setTogglingId(null)
+    if (!result.success) {
+      addToast(result.error || 'エラーが発生しました', 'warning')
+    } else {
+      router.refresh()
     }
   }
 
@@ -140,6 +157,11 @@ export function PostList({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12 text-center">
+                <span title={`おすすめ (${featuredCount}/6)`}>
+                  <Star className="h-4 w-4 inline text-amber-400" />
+                </span>
+              </TableHead>
               <TableHead className="w-16">画像</TableHead>
               <TableHead>タイトル</TableHead>
               <TableHead className="w-32">カテゴリ</TableHead>
@@ -152,7 +174,7 @@ export function PostList({
           <TableBody>
             {posts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-text-secondary">
+                <TableCell colSpan={8} className="text-center py-8 text-text-secondary">
                   記事がありません
                 </TableCell>
               </TableRow>
@@ -161,6 +183,22 @@ export function PostList({
                 const category = getCategoryForPost(post)
                 return (
                   <TableRow key={post.id}>
+                    <TableCell className="text-center">
+                      <button
+                        onClick={() => handleToggleFeatured(post)}
+                        disabled={togglingId === post.id}
+                        className="p-1 rounded hover:bg-amber-50 transition-colors disabled:opacity-50"
+                        title={post.is_featured ? 'おすすめを解除' : 'おすすめに追加'}
+                      >
+                        <Star
+                          className={`h-5 w-5 transition-colors ${
+                            post.is_featured
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-gray-300 hover:text-amber-300'
+                          }`}
+                        />
+                      </button>
+                    </TableCell>
                     <TableCell>
                       {post.thumbnail_url ? (
                         <div className="relative w-12 h-12 rounded overflow-hidden">

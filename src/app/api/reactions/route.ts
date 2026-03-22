@@ -64,3 +64,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { post_id, reaction_type } = await request.json()
+
+    if (!post_id || !reaction_type) {
+      return NextResponse.json(
+        { error: 'post_id and reaction_type are required' },
+        { status: 400 }
+      )
+    }
+
+    const validTypes = ['light', 'heart', 'thumbs', 'fire']
+    if (!validTypes.includes(reaction_type)) {
+      return NextResponse.json({ error: 'Invalid reaction_type' }, { status: 400 })
+    }
+
+    const supabase = createClient()
+    const { data, error } = await supabase.rpc('decrement_reaction_count', {
+      p_post_id: post_id,
+      p_reaction_type: reaction_type,
+    })
+
+    if (error) {
+      console.error('Error decrementing reaction:', error)
+      return NextResponse.json({ error: 'Failed to remove reaction' }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, count: data })
+  } catch (error) {
+    console.error('Reactions DELETE error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

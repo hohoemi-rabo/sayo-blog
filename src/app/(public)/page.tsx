@@ -20,20 +20,32 @@ export const dynamic = 'force-dynamic'
 async function getPickupPosts(): Promise<PostWithRelations[]> {
   const supabase = createClient()
 
-  // TODO: 管理画面でお気に入り記事を設定できるようにする。現在は最新6件を表示。
+  const selectQuery = `
+    *,
+    post_categories!inner(
+      categories!inner(id, slug, name, parent_id)
+    ),
+    post_hashtags(
+      hashtags(id, name, slug, count)
+    )
+  `
+
+  // おすすめ記事を優先表示。なければ最新6件にフォールバック
+  const { data: featured } = await supabase
+    .from('posts')
+    .select(selectQuery)
+    .eq('is_published', true)
+    .eq('is_featured', true)
+    .order('published_at', { ascending: false })
+    .limit(6)
+
+  if (featured && featured.length > 0) {
+    return featured as PostWithRelations[]
+  }
+
   const { data, error } = await supabase
     .from('posts')
-    .select(
-      `
-      *,
-      post_categories!inner(
-        categories!inner(id, slug, name, parent_id)
-      ),
-      post_hashtags(
-        hashtags(id, name, slug, count)
-      )
-    `
-    )
+    .select(selectQuery)
     .eq('is_published', true)
     .order('published_at', { ascending: false })
     .limit(6)

@@ -42,19 +42,8 @@ export default function ReactionBar({ postId }: ReactionBarProps) {
       .catch(() => {})
   }, [postId])
 
-  const handleReaction = useCallback(
-    async (type: string) => {
-      if (reacted.has(type)) return
-
-      // アニメーション
-      setAnimating(type)
-      setTimeout(() => setAnimating(null), 300)
-
-      // Optimistic update
-      setCounts((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }))
-      const newReacted = new Set([...reacted, type])
-      setReacted(newReacted)
-
+  const saveReacted = useCallback(
+    (newReacted: Set<string>) => {
       try {
         localStorage.setItem(
           `${STORAGE_KEY_PREFIX}${postId}`,
@@ -63,18 +52,52 @@ export default function ReactionBar({ postId }: ReactionBarProps) {
       } catch {
         // 書き込みエラーは無視
       }
+    },
+    [postId]
+  )
+
+  const handleReaction = useCallback(
+    async (type: string) => {
+      const isRemoving = reacted.has(type)
+
+      // アニメーション
+      setAnimating(type)
+      setTimeout(() => setAnimating(null), 300)
+
+      // Optimistic update
+      setCounts((prev) => ({
+        ...prev,
+        [type]: Math.max((prev[type] || 0) + (isRemoving ? -1 : 1), 0),
+      }))
+
+      const newReacted = new Set(reacted)
+      if (isRemoving) {
+        newReacted.delete(type)
+      } else {
+        newReacted.add(type)
+      }
+      setReacted(newReacted)
+      saveReacted(newReacted)
 
       try {
-        await fetch('/api/reactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ post_id: postId, reaction_type: type }),
-        })
+        if (isRemoving) {
+          await fetch('/api/reactions', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_id: postId, reaction_type: type }),
+          })
+        } else {
+          await fetch('/api/reactions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_id: postId, reaction_type: type }),
+          })
+        }
       } catch {
         // ネットワークエラーは無視（Optimistic updateを維持）
       }
     },
-    [postId, reacted]
+    [postId, reacted, saveReacted]
   )
 
   return (
@@ -87,16 +110,16 @@ export default function ReactionBar({ postId }: ReactionBarProps) {
           <button
             key={type}
             onClick={() => handleReaction(type)}
-            disabled={reacted.has(type)}
-            aria-label={`${label}${reacted.has(type) ? '（リアクション済み）' : ''}`}
+            aria-label={`${label}${reacted.has(type) ? '（リアクション済み・クリックで解除）' : ''}`}
             className={`
               relative flex items-center gap-1.5 px-4 py-2 rounded-full
               transition-all duration-200 font-noto-sans-jp text-sm
               ${
                 reacted.has(type)
-                  ? 'bg-primary/10 border border-primary/30 cursor-default'
-                  : 'bg-background border border-border-decorative hover:border-primary/50 hover:bg-primary/5 active:scale-95'
+                  ? 'bg-primary/10 border border-primary/30 hover:bg-primary/5 hover:border-primary/20'
+                  : 'bg-background border border-border-decorative hover:border-primary/50 hover:bg-primary/5'
               }
+              active:scale-95
               ${animating === type ? 'scale-110' : ''}
             `}
           >

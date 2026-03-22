@@ -184,6 +184,7 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
       excerpt,
       thumbnail_url,
       is_published,
+      is_featured,
       published_at,
       view_count,
       created_at,
@@ -191,6 +192,7 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
         categories(id, name, slug)
       )
     `, { count: 'exact' })
+    .order('published_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
 
   if (filter?.status === 'published') {
@@ -218,6 +220,37 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
   }
 
   return { posts: filteredPosts || [], count: count || 0 }
+}
+
+export async function toggleFeatured(postId: string, currentValue: boolean) {
+  const supabase = createAdminClient()
+
+  // おすすめに追加する場合、既に6件あるかチェック
+  if (!currentValue) {
+    const { count } = await supabase
+      .from('posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_featured', true)
+
+    if (count !== null && count >= 6) {
+      return { success: false, error: 'おすすめ記事は最大6件までです' }
+    }
+  }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ is_featured: !currentValue })
+    .eq('id', postId)
+
+  if (error) {
+    console.error('Toggle featured error:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/admin/posts')
+  revalidatePath('/')
+
+  return { success: true }
 }
 
 export async function getCategories() {
