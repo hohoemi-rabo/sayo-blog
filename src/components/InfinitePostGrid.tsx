@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Loader2 } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Loader2, ChevronDown } from 'lucide-react'
 import PostCard from './PostCard'
 import { PostWithRelations } from '@/lib/types'
 
@@ -24,7 +24,6 @@ export default function InfinitePostGrid({
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
-  const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Reset when filters change
   useEffect(() => {
@@ -64,29 +63,6 @@ export default function InfinitePostGrid({
     }
   }, [isLoading, hasMore, page, category, hashtags, sort])
 
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
-          loadMore()
-        }
-      },
-      { threshold: 0.1, rootMargin: '100px' }
-    )
-
-    const currentRef = loadMoreRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
-      }
-    }
-  }, [hasMore, isLoading, loadMore])
-
   if (posts.length === 0) {
     return (
       <div className="text-center py-12">
@@ -112,13 +88,26 @@ export default function InfinitePostGrid({
         ))}
       </div>
 
-      {/* Load more trigger / Loading indicator */}
-      <div ref={loadMoreRef} className="py-8 flex justify-center">
-        {isLoading && (
-          <div className="flex items-center gap-2 text-text-secondary">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            <span>読み込み中...</span>
-          </div>
+      {/* Load more button */}
+      <div className="py-8 flex justify-center">
+        {hasMore && (
+          <button
+            onClick={loadMore}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary text-primary font-noto-sans-jp hover:bg-primary hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                読み込み中...
+              </>
+            ) : (
+              <>
+                もっと見る
+                <ChevronDown className="w-4 h-4" />
+              </>
+            )}
+          </button>
         )}
         {!hasMore && posts.length > 6 && (
           <p className="text-text-secondary text-sm">すべての記事を表示しました</p>

@@ -1,6 +1,5 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
-import HeroSection from '@/components/HeroSection'
 import FilterBar from '@/components/FilterBar'
 import InfinitePostGrid from '@/components/InfinitePostGrid'
 import PopularHashtags from '@/components/PopularHashtags'
@@ -195,8 +194,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <>
-      <HeroSection />
-
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <FilterBar categories={categories} popularHashtags={popularHashtags} />
 
