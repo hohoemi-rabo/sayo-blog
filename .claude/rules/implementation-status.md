@@ -38,9 +38,10 @@
 - `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button load more)
 - `src/app/(public)/[category]/page.tsx` - Category listing (SEO metadata + infinite scroll)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, TOC fixed right)
+- `src/app/(public)/chat/page.tsx` - AI Chat (admin: full chat, user: coming soon teaser)
 - `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
-- `src/app/(chat)/layout.tsx` - AI Chat layout (paused, kept for future)
+- `src/app/(chat)/layout.tsx` - AI Chat layout (kept for future)
 - `src/app/not-found.tsx` - Custom 404 page
 - `src/app/(admin)/admin/` - Admin panel
 

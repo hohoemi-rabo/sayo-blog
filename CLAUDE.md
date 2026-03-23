@@ -61,6 +61,7 @@ src/
 /gourmet/                      → Category listing page
 /gourmet/[slug]/               → Article detail
 /search?q=keyword              → Search results
+/chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
 /about                         → About (TBD)
 /admin/                        → Admin dashboard
