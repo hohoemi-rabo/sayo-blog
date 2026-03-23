@@ -22,6 +22,7 @@ export default function Header() {
     { href: '/', label: 'ホーム' },
     { href: '/blog', label: 'ブログ' },
     { href: '/about', label: 'About' },
+    { href: '/chat', label: 'AI Chat' },
   ]
 
   return (
