@@ -71,7 +71,8 @@ export async function getKnowledgeList(filter?: {
       )
     `)
     .eq('is_published', true)
-    .order('published_at', { ascending: false })
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
 
   if (postsError) {
     console.error('Error fetching posts:', postsError)

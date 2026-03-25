@@ -95,13 +95,15 @@ export function KnowledgeForm({
     }
   }
 
+  const postIdForGeneration = mode === 'edit' ? initialData!.post_id : selectedPostId
+
   const handleGenerateDraft = async () => {
-    if (!selectedPostId) return
+    if (!postIdForGeneration) return
     setIsGeneratingDraft(true)
     setError(null)
 
     try {
-      const result = await generateDraft(selectedPostId)
+      const result = await generateDraft(postIdForGeneration)
       if (result.success && result.metadata && result.content) {
         setTitle(result.metadata.title)
         setCategory(result.metadata.category)
@@ -226,7 +228,7 @@ export function KnowledgeForm({
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          {mode === 'create' && selectedPostId && (
+          {postIdForGeneration && (
             <Button
               type="button"
               variant="outline"
@@ -235,7 +237,11 @@ export function KnowledgeForm({
               className="gap-2"
             >
               <Sparkles className="h-4 w-4" />
-              {isGeneratingDraft ? 'AI 生成中...' : 'AI で下書き生成'}
+              {isGeneratingDraft
+                ? 'AI 生成中...'
+                : mode === 'edit'
+                  ? 'AI で再生成'
+                  : 'AI で下書き生成'}
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting}>
