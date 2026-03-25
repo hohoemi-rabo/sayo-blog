@@ -50,7 +50,13 @@ export function UsageChart({ data }: UsageChartProps) {
       ) : (
         <div className="relative">
           {/* Chart */}
-          <div className="flex items-end gap-[2px] h-48">
+          <div className="relative flex items-end gap-[2px] h-48 bg-gray-50 rounded-lg p-1 border border-gray-200">
+            {/* Grid lines */}
+            <div className="absolute inset-0 flex flex-col justify-evenly pointer-events-none px-1">
+              <div className="border-b border-gray-200" />
+              <div className="border-b border-gray-200" />
+              <div className="border-b border-gray-200" />
+            </div>
             {filledData.map((item, index) => {
               const height =
                 filledMax > 0 ? (item.queries / filledMax) * 100 : 0
