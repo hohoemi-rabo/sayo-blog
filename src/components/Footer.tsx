@@ -56,9 +56,6 @@ export default function Footer() {
             <p className="text-background/80 font-noto-serif-jp leading-relaxed">
               言葉で&quot;場所・人・記憶&quot;をつなぐ
             </p>
-            <p className="text-sm text-background/60 font-noto-sans-jp">
-              ライター・インタビュアー もとおかさよ
-            </p>
           </motion.div>
 
           {/* Site Links */}

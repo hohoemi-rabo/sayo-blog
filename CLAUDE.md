@@ -63,7 +63,7 @@ src/
 /search?q=keyword              → Search results
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
-/about                         → About (TBD)
+/about                         → About (FUNE profile + specialties + contact CTA)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management

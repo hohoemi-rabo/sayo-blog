@@ -39,6 +39,7 @@
 - `src/app/(public)/[category]/page.tsx` - Category listing (SEO metadata + infinite scroll)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, TOC fixed right)
 - `src/app/(public)/chat/page.tsx` - AI Chat (admin: full chat, user: coming soon teaser)
+- `src/app/(public)/about/page.tsx` - About (FUNE profile + specialties + Instagram CTA)
 - `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
 - `src/app/(chat)/layout.tsx` - AI Chat layout (kept for future)
