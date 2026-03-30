@@ -37,7 +37,9 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     (id: string) => {
       const element = document.getElementById(id)
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        const offset = 120
+        const top = element.getBoundingClientRect().top + window.scrollY - offset
+        window.scrollTo({ top, behavior: 'smooth' })
         setIsOpen(false)
       }
     },
