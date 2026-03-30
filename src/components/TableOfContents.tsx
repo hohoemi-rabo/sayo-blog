@@ -33,22 +33,35 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     return () => observer.disconnect()
   }, [headings])
 
-  const handleClick = useCallback(
+  const scrollToHeading = useCallback((id: string) => {
+    const element = document.getElementById(id)
+    if (element) {
+      const offset = 96
+      const top = element.getBoundingClientRect().top + window.scrollY - offset
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
+  }, [])
+
+  const handleDesktopClick = useCallback(
     (id: string) => {
-      const element = document.getElementById(id)
-      if (element) {
-        const offset = 120
-        const top = element.getBoundingClientRect().top + window.scrollY - offset
-        window.scrollTo({ top, behavior: 'smooth' })
-        setIsOpen(false)
-      }
+      scrollToHeading(id)
     },
-    []
+    [scrollToHeading]
+  )
+
+  const handleMobileClick = useCallback(
+    (id: string) => {
+      setIsOpen(false)
+      setTimeout(() => {
+        scrollToHeading(id)
+      }, 350)
+    },
+    [scrollToHeading]
   )
 
   if (headings.length === 0) return null
 
-  const tocList = (
+  const buildTocList = (onClick: (id: string) => void) => (
     <ul className="space-y-1">
       {headings.map((heading) => (
         <li
@@ -56,7 +69,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
           style={{ paddingLeft: `${(heading.level - 2) * 0.75}rem` }}
         >
           <button
-            onClick={() => handleClick(heading.id)}
+            onClick={() => onClick(heading.id)}
             className={`
               text-left text-sm leading-relaxed w-full py-1 px-2 rounded
               transition-all duration-200 font-noto-sans-jp
@@ -84,7 +97,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
         <h2 className="text-sm font-bold text-text-primary font-noto-sans-jp mb-3 uppercase tracking-wider">
           目次
         </h2>
-        {tocList}
+        {buildTocList(handleDesktopClick)}
       </nav>
 
       {/* モバイル・タブレット: 折りたたみ */}
@@ -105,7 +118,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
           }`}
         >
           <div className="overflow-hidden">
-            <div className="pt-3 px-2">{tocList}</div>
+            <div className="pt-3 px-2">{buildTocList(handleMobileClick)}</div>
           </div>
         </div>
       </div>
