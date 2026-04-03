@@ -113,5 +113,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-03-22 (Blog home, category pages, featured posts)
+**Updated**: 2026-04-03 (Next.js/Supabase ベストプラクティス準拠の全面最適化)
 **Project Status**: Phase 1 + Phase 2 completed, Blog home redesigned, AI Chat paused

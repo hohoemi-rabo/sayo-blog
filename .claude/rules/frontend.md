@@ -39,7 +39,7 @@ paths:
 
 - Use `@/` path alias for imports
 - Use `PostWithRelations` type (not `Post`) for components that need nested data
-- CSS-only animations (no Framer Motion) - hardware-accelerated transforms
+- CSS-only animations — **never use framer-motion** (removed for bundle size)
 - Responsive: 375px to 1920px
 
 ## Performance Targets
@@ -47,6 +47,39 @@ paths:
 - Initial load: <2.5s
 - Lighthouse score: 90+
 - Accessibility: alt tags, heading hierarchy, keyboard navigation
+
+## Animation System (CSS-only)
+
+All animations use Tailwind utilities defined in `tailwind.config.ts` + `globals.css`. No JS animation libraries.
+
+### Tailwind Animation Utilities
+- `animate-fade-in` — opacity 0→1, 0.3s
+- `animate-slide-in` — translateY(10px)→0 + opacity, 0.3s
+- `animate-slide-in-up` — translateY(20px)→0 + opacity, 0.5s
+- `animate-slide-in-left` — translateX(-20px)→0 + opacity, 0.3s
+- `animate-fade-in-up` — defined in globals.css, 0.4s
+
+### Stagger Delay Classes
+Defined in `globals.css`:
+```css
+.stagger-1 { animation-delay: 100ms; }
+.stagger-2 { animation-delay: 200ms; }
+/* ... through .stagger-8 (800ms) */
+```
+
+### Usage Pattern
+```tsx
+<h1 className="animate-slide-in-up stagger-3">Title</h1>
+<p className="animate-slide-in-up stagger-4">Subtitle</p>
+```
+
+All animations use `animation-fill-mode: both` (via Tailwind `both` keyword) so elements start hidden.
+
+### Key Principles
+- Hardware-accelerated transforms only (scale, opacity, translateX/Y)
+- 200-500ms duration range
+- Use `stagger-N` classes for sequential appearance
+- Use `style={{ animationDelay }}` for dynamic stagger (e.g., list items)
 
 ## Known Issues
 
@@ -86,10 +119,3 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - Lazy loading with `loading="lazy"`
 - Responsive sizes: `sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"`
 - Supabase Storage structure: `/thumbnails/YYYY/MM/filename.jpg`
-
-## Animation Performance
-
-- CSS-only animations (removed Framer Motion for bundle size reduction)
-- Hardware-accelerated transforms (scale, opacity, translateY)
-- Staggered fade-in using CSS `animation-delay`
-- 200-300ms transition duration

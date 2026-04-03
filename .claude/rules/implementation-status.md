@@ -34,11 +34,11 @@
 ## Key File Map
 
 ### Pages
-- `src/app/(public)/page.tsx` - Home (Hero + Pick Up featured/latest 6 posts)
-- `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button load more)
-- `src/app/(public)/[category]/page.tsx` - Category listing (SEO metadata + infinite scroll)
-- `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, TOC fixed right)
-- `src/app/(public)/chat/page.tsx` - AI Chat (admin: full chat, user: coming soon teaser)
+- `src/app/(public)/page.tsx` - Home (Hero + Pick Up featured/latest 6 posts, ISR 600s)
+- `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button, force-dynamic)
+- `src/app/(public)/[category]/page.tsx` - Category listing (React.cache + force-dynamic)
+- `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, React.cache for dedup)
+- `src/app/(public)/chat/page.tsx` - AI Chat (ChatPage: dynamic import, admin-only)
 - `src/app/(public)/about/page.tsx` - About (FUNE profile + specialties + Instagram CTA)
 - `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
@@ -93,8 +93,8 @@
 
 ### AI Chat Components
 - `src/components/ai/ChatHeader.tsx` - Simplified header (logo + blog link only)
-- `src/components/ai/ChatPage.tsx` - Main Client Component (state + SSE, Gemini-style layout)
-- `src/components/ai/WelcomeScreen.tsx` - Greeting text (no avatar, centered)
+- `src/components/ai/ChatPage.tsx` - Main Client Component (state + SSE, dynamically imported)
+- `src/components/ai/WelcomeScreen.tsx` - Server Component, greeting text (no avatar, centered)
 - `src/components/ai/ChatMessages.tsx` - Message list container
 - `src/components/ai/ChatMessage.tsx` - Individual message (responsive + markdown)
 - `src/components/ai/ChatInput.tsx` - Gemini-style rounded input box + send/stop
