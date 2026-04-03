@@ -2,7 +2,6 @@
 
 import { memo } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { RefreshCw, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -64,11 +63,8 @@ export const ChatMessage = memo(function ChatMessage({
   const displayContent = isAssistant ? cleanMarkers(message.content) : message.content
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      className={cn('flex gap-2 mb-4', isUser ? 'justify-end' : 'justify-start')}
+    <div
+      className={cn('animate-slide-in flex gap-2 mb-4', isUser ? 'justify-end' : 'justify-start')}
     >
       {/* FUNE avatar (mobile only) */}
       {isAssistant && (
@@ -169,6 +165,6 @@ export const ChatMessage = memo(function ChatMessage({
           </>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 })

@@ -23,11 +23,6 @@ export const metadata: Metadata = {
   },
 }
 
-// Enable ISR (Incremental Static Regeneration)
-// Pages are statically generated and revalidated every 10 minutes
-export const revalidate = 600 // 10 minutes
-
-// Allow dynamic rendering (important for searchParams to work)
 export const dynamic = 'force-dynamic'
 
 // Fetch categories (flat structure now)

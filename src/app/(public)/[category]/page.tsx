@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { Metadata } from 'next'
@@ -17,7 +18,7 @@ interface CategoryPageProps {
   }>
 }
 
-async function getCategory(slug: string): Promise<Category | null> {
+const getCategory = cache(async (slug: string): Promise<Category | null> => {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('categories')
@@ -27,7 +28,7 @@ async function getCategory(slug: string): Promise<Category | null> {
 
   if (error || !data) return null
   return data
-}
+})
 
 async function getCategoryPosts(
   categorySlug: string,

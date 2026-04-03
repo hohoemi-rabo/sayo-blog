@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 600 // 10 minutes ISR
 
 async function getPickupPosts(): Promise<PostWithRelations[]> {
   const supabase = createClient()

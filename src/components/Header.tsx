@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import SearchBar from './SearchBar'
 
 export default function Header() {
@@ -26,13 +25,10 @@ export default function Header() {
   ]
 
   return (
-    <motion.header
-      className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b transition-all duration-300 ${
+    <header
+      className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b transition-all duration-300 animate-fade-in ${
         isScrolled ? 'border-border-decorative shadow-md' : 'border-transparent'
       }`}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.1 }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between h-16 md:h-20">
@@ -93,49 +89,39 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            className="md:hidden border-t border-border-decorative bg-background"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="container mx-auto px-4 py-4">
-              <ul className="space-y-4">
-                {navLinks.map((link, index) => (
-                  <motion.li
-                    key={link.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Link
-                      href={link.href}
-                      className="block py-2 text-text-primary font-noto-sans-jp font-medium hover:text-primary transition-colors duration-200"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.li>
-                ))}
-
-                {/* Mobile Search */}
-                <motion.li
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navLinks.length * 0.1 }}
+      {isMenuOpen && (
+        <div className="md:hidden border-t border-border-decorative bg-background animate-fade-in overflow-hidden">
+          <div className="container mx-auto px-4 py-4">
+            <ul className="space-y-4">
+              {navLinks.map((link, index) => (
+                <li
+                  key={link.href}
+                  className="animate-slide-in-left"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="pt-2">
-                    <SearchBar />
-                  </div>
-                </motion.li>
-              </ul>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+                  <Link
+                    href={link.href}
+                    className="block py-2 text-text-primary font-noto-sans-jp font-medium hover:text-primary transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+
+              {/* Mobile Search */}
+              <li
+                className="animate-slide-in-left"
+                style={{ animationDelay: `${navLinks.length * 100}ms` }}
+              >
+                <div className="pt-2">
+                  <SearchBar />
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+    </header>
   )
 }

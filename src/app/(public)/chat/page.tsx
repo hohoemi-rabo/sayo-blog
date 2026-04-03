@@ -1,10 +1,21 @@
 import { cookies } from 'next/headers'
+import nextDynamic from 'next/dynamic'
 import { Metadata } from 'next'
 import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { SITE_CONFIG } from '@/lib/site-config'
-import { ChatPage } from '@/components/ai/ChatPage'
+
+const ChatPage = nextDynamic(
+  () => import('@/components/ai/ChatPage').then((mod) => ({ default: mod.ChatPage })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-pulse text-text-secondary font-noto-sans-jp">読み込み中...</div>
+      </div>
+    ),
+  }
+)
 
 export const metadata: Metadata = {
   title: `AI Chat | ${SITE_CONFIG.name}`,

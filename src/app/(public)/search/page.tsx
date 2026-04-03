@@ -41,27 +41,27 @@ async function searchPosts(query: string, page: number = 1, limit: number = 12) 
   const supabase = createClient()
   const offset = (page - 1) * limit
 
-  // Use RPC function with pagination at database level
-  // Note: For accurate count, we get a large result set first
-  const { data: allResults, error: countError } = await supabase.rpc('search_posts', {
-    search_query: query.trim(),
-    result_limit: 500, // Get up to 500 for count
-    result_offset: 0,
-  })
+  // Fetch page data and count in parallel
+  const [pageResult, countResult] = await Promise.all([
+    supabase.rpc('search_posts', {
+      search_query: query.trim(),
+      result_limit: limit,
+      result_offset: offset,
+    }),
+    supabase.rpc('search_posts', {
+      search_query: query.trim(),
+      result_limit: 500,
+      result_offset: 0,
+    }),
+  ])
 
-  if (countError) {
-    console.error('Error counting search results:', countError)
+  if (pageResult.error) {
+    console.error('Error searching posts:', pageResult.error)
     return { posts: [], count: 0 }
   }
 
-  const totalCount = allResults?.length || 0
-
-  if (totalCount === 0) {
-    return { posts: [], count: 0 }
-  }
-
-  // Get paginated results
-  const paginatedResults = allResults?.slice(offset, offset + limit) || []
+  const totalCount = countResult.data?.length || 0
+  const paginatedResults = pageResult.data || []
 
   if (paginatedResults.length === 0) {
     return { posts: [], count: totalCount }

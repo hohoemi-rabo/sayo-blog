@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
@@ -26,6 +27,30 @@ interface ArticlePageProps {
     slug: string
   }>
 }
+
+// Cached post fetch — deduplicates across generateMetadata and ArticlePage
+const getPost = cache(async (slug: string) => {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(
+      `
+      *,
+      post_categories!inner(
+        categories!inner(id, name, slug, parent_id)
+      ),
+      post_hashtags(
+        hashtags(id, name, slug, count)
+      )
+    `
+    )
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .single()
+
+  if (error || !data) return null
+  return data
+})
 
 // Pre-render top 30 articles
 export async function generateStaticParams() {
@@ -71,23 +96,7 @@ export async function generateStaticParams() {
 // Dynamic metadata
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { category, slug } = await params
-  const supabase = createClient()
-
-  const { data: post } = await supabase
-    .from('posts')
-    .select(
-      `
-      title,
-      excerpt,
-      thumbnail_url,
-      published_at,
-      updated_at,
-      post_hashtags(hashtags(name))
-    `
-    )
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single()
+  const post = await getPost(slug)
 
   if (!post) {
     return {
@@ -99,7 +108,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}/og-image.png`
   const canonicalUrl = `/${category}/${slug}/`
   const hashtags = (
-    post.post_hashtags as unknown as Array<{ hashtags: { name: string } }>
+    post.post_hashtags as Array<{ hashtags: { name: string } }>
   ).map((ph) => ph.hashtags)
 
   return {
@@ -138,27 +147,10 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const resolvedParams = await params
   const { slug } = resolvedParams
-  const supabase = createClient()
 
-  // Fetch post with all relations
-  const { data: post, error } = await supabase
-    .from('posts')
-    .select(
-      `
-      *,
-      post_categories!inner(
-        categories!inner(id, name, slug, parent_id)
-      ),
-      post_hashtags(
-        hashtags(id, name, slug, count)
-      )
-    `
-    )
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single()
+  const post = await getPost(slug)
 
-  if (error || !post) {
+  if (!post) {
     notFound()
   }
 

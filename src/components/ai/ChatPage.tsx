@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { WelcomeScreen } from './WelcomeScreen'
 import { ChatMessages } from './ChatMessages'
 import { ChatInput } from './ChatInput'
@@ -233,57 +232,43 @@ export function ChatPage({ tags }: ChatPageProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <AnimatePresence mode="wait">
-        {hasMessages ? (
-          /* === Conversation layout === */
-          <motion.div
-            key="conversation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="flex flex-col h-full"
-          >
-            <ChatMessages
-              messages={messages}
-              onSuggestionSelect={handleSuggestionSelect}
-              onRetry={handleRetry}
-              isStreaming={isStreaming}
-            />
+      {hasMessages ? (
+        /* === Conversation layout === */
+        <div key="conversation" className="flex flex-col h-full animate-fade-in">
+          <ChatMessages
+            messages={messages}
+            onSuggestionSelect={handleSuggestionSelect}
+            onRetry={handleRetry}
+            isStreaming={isStreaming}
+          />
 
-            {/* Bottom-fixed input */}
-            <div className="bg-background/95 backdrop-blur-sm">
-              <div className="max-w-3xl mx-auto w-full">
-                {inputElement}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          /* === Welcome layout === */
-          <motion.div
-            key="welcome"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -30, transition: { duration: 0.15 } }}
-            className="flex-1 flex flex-col items-center justify-center px-4 pb-8"
-          >
-            <WelcomeScreen />
-
-            {/* Center input */}
-            <div className="w-full max-w-2xl mt-8">
+          {/* Bottom-fixed input */}
+          <div className="bg-background/95 backdrop-blur-sm">
+            <div className="max-w-3xl mx-auto w-full">
               {inputElement}
             </div>
+          </div>
+        </div>
+      ) : (
+        /* === Welcome layout === */
+        <div key="welcome" className="flex-1 flex flex-col items-center justify-center px-4 pb-8 animate-fade-in">
+          <WelcomeScreen />
 
-            {/* Tags below input */}
-            <div className="w-full max-w-2xl mt-3">
-              <ChatTagList
-                tags={tags}
-                onSelect={handleTagSelect}
-                disabled={isStreaming || isLimitReached}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Center input */}
+          <div className="w-full max-w-2xl mt-8">
+            {inputElement}
+          </div>
+
+          {/* Tags below input */}
+          <div className="w-full max-w-2xl mt-3">
+            <ChatTagList
+              tags={tags}
+              onSelect={handleTagSelect}
+              disabled={isStreaming || isLimitReached}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

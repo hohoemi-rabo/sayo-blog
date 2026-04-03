@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { Loader2, ChevronDown } from 'lucide-react'
 import PostCard from './PostCard'
 import { PostWithRelations } from '@/lib/types'
@@ -24,13 +24,6 @@ export default function InfinitePostGrid({
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [isLoading, setIsLoading] = useState(false)
-
-  // Reset when filters change
-  useEffect(() => {
-    setPosts(initialPosts)
-    setPage(1)
-    setHasMore(initialHasMore)
-  }, [initialPosts, initialHasMore, category, hashtags, sort])
 
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore) return
