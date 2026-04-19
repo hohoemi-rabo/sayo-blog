@@ -225,3 +225,85 @@ export interface SearchParams {
   page?: string
   q?: string
 }
+
+// ============================================================
+// Phase 3: Instagram Integration types
+// ============================================================
+
+export type IgPostStatus = 'draft' | 'published' | 'manual_published'
+export type IgPermissionStatus = 'not_requested' | 'requested' | 'approved' | 'denied'
+export type IgImportedStatus = 'pending' | 'processing' | 'published' | 'skipped'
+
+// Blog -> IG: draft/published IG posts generated from blog articles
+export interface IgPost {
+  id: string
+  post_id: string
+  caption: string
+  hashtags: string[]
+  image_url: string | null
+  sequence_number: number
+  status: IgPostStatus
+  instagram_media_id: string | null
+  instagram_published_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface IgPostWithRelations extends IgPost {
+  post?: Pick<Post, 'id' | 'title' | 'slug' | 'thumbnail_url'>
+}
+
+// IG -> Blog: IG accounts we pull posts from
+export interface IgSource {
+  id: string
+  ig_username: string
+  display_name: string
+  category_slug: string | null
+  permission_status: IgPermissionStatus
+  permission_date: string | null
+  permission_memo: string | null
+  contact_info: string | null
+  is_active: boolean
+  last_fetched_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+// IG -> Blog: IG posts imported for blog regeneration
+export interface IgImportedPost {
+  id: string
+  source_id: string
+  ig_post_id: string
+  caption: string | null
+  image_urls: string[] | null
+  ig_posted_at: string | null
+  likes_count: number | null
+  ig_post_url: string | null
+  status: IgImportedStatus
+  generated_post_id: string | null
+  stored_image_urls: string[] | null
+  created_at: string
+  updated_at: string
+}
+
+export interface IgImportedPostWithSource extends IgImportedPost {
+  source?: Pick<IgSource, 'ig_username' | 'display_name' | 'category_slug'>
+}
+
+// ig_settings value shapes
+export interface IgCaptionConfig {
+  required_hashtags: string[]
+  min_length: number
+  max_length: number
+  generated_hashtag_count: number
+}
+
+export interface IgAutoGenerateConfig {
+  enabled: boolean
+  count_on_publish: number
+}
+
+export interface IgAccountConfig {
+  username: string
+  facebook_page_connected: boolean
+}

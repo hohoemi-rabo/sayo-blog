@@ -11,6 +11,9 @@ import {
   BookOpen,
   Tags,
   BarChart3,
+  Send,
+  Users,
+  Inbox,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +23,12 @@ const navigation = [
   { name: 'カテゴリ', href: '/admin/categories', icon: FolderOpen },
   { name: 'ハッシュタグ', href: '/admin/hashtags', icon: Hash },
   { name: 'メディア', href: '/admin/media', icon: ImageIcon },
+]
+
+const instagramNavigation = [
+  { name: 'IG 投稿管理', href: '/admin/instagram/posts', icon: Send },
+  { name: '取得先アカウント', href: '/admin/instagram/sources', icon: Users },
+  { name: '取得投稿', href: '/admin/instagram/imports', icon: Inbox },
 ]
 
 const aiNavigation = [
@@ -62,6 +71,32 @@ export function Sidebar() {
             </Link>
           )
         })}
+
+        {/* Instagram 連携セクション */}
+        <div className="pt-4 mt-4 border-t border-white/10">
+          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Instagram 連携
+          </p>
+          {instagramNavigation.map((item) => {
+            const isActive = pathname.startsWith(item.href)
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-white'
+                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
+            )
+          })}
+        </div>
 
         {/* AI 管理セクション */}
         <div className="pt-4 mt-4 border-t border-white/10">

@@ -252,14 +252,14 @@ src/app/(admin)/admin/instagram/page.tsx         # 新規 (redirect)
 
 ## 完了条件
 
-- [ ] pgvector は既存のまま、4 テーブル（ig_posts, ig_sources, ig_imported_posts, ig_settings）が作成されている
-- [ ] インデックス 6 件が作成されている
-- [ ] 全 4 テーブルで RLS が有効かつ認証ユーザーのみ ALL 操作可
-- [ ] updated_at トリガーが 4 テーブルに適用されている
-- [ ] Storage バケット `ig-posts` `ig-imported` が公開設定で作成されている
-- [ ] Storage ポリシーで認証ユーザーのみ upload/delete 可になっている
-- [ ] `ig_settings` に初期 3 レコード（caption_config / auto_generate / instagram_account）が投入されている
-- [ ] TypeScript 型（IgPost, IgSource, IgImportedPost, 関連 interfaces）が `lib/types.ts` に追加されている
-- [ ] 管理パネルサイドバーに「📷 Instagram 連携」セクションと 3 サブメニューが追加されている
-- [ ] `/admin/instagram/` にアクセスすると `/admin/instagram/posts` にリダイレクトする
-- [ ] `npm run build` が成功する
+- [×] pgvector は既存のまま、4 テーブル（ig_posts, ig_sources, ig_imported_posts, ig_settings）が作成されている
+- [×] インデックス 6 件が作成されている
+- [×] 全 4 テーブルで RLS が有効かつ認証ユーザーのみ ALL 操作可
+- [×] updated_at トリガーが 4 テーブルに適用されている
+- [×] Storage バケット `ig-posts` `ig-imported` が公開設定で作成されている
+- [×] Storage ポリシーで認証ユーザーのみ upload/delete 可になっている
+- [×] `ig_settings` に初期 3 レコード（caption_config / auto_generate / instagram_account）が投入されている
+- [×] TypeScript 型（IgPost, IgSource, IgImportedPost, 関連 interfaces）が `lib/types.ts` に追加されている
+- [×] 管理パネルサイドバーに「📷 Instagram 連携」セクションと 3 サブメニューが追加されている
+- [×] `/admin/instagram/` にアクセスすると `/admin/instagram/posts` にリダイレクトする
+- [×] `npm run build` が成功する
