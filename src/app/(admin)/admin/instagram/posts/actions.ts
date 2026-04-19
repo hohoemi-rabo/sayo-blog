@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { assertAdminAuth } from '@/lib/admin-auth'
 import { generateIgCaptions } from '@/lib/ig-caption-generator'
+import { parsePostSections, type PostSection } from '@/lib/post-sections'
 import type {
   IgPost,
   IgPostStatus,
@@ -79,6 +80,45 @@ export async function getIgPosts(filter: IgPostsFilter = {}): Promise<IgPostsRes
   return { items, totalCount: count ?? 0 }
 }
 
+export interface PostSectionSummary {
+  index: number
+  heading: string
+  hasImage: boolean
+  textPreview: string // first ~80 chars, plain text
+}
+
+/**
+ * Return the h2-based sections of a published article, formatted for the
+ * GenerateDialog UI. Empty array if the article has no <h2> structure.
+ */
+export async function getPostSections(
+  postId: string
+): Promise<{ sections: PostSectionSummary[]; articleEditUrl: string }> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select('id, content')
+    .eq('id', postId)
+    .eq('is_published', true)
+    .maybeSingle()
+
+  if (error || !data) {
+    return { sections: [], articleEditUrl: `/admin/posts/${postId}` }
+  }
+
+  const sections = parsePostSections(data.content).map(
+    (s: PostSection): PostSectionSummary => ({
+      index: s.index,
+      heading: s.heading,
+      hasImage: Boolean(s.imageUrl),
+      textPreview:
+        s.text.length > 80 ? `${s.text.slice(0, 80).trim()}…` : s.text,
+    })
+  )
+
+  return { sections, articleEditUrl: `/admin/posts/${postId}` }
+}
+
 export async function getPublishedPostsForSelect(): Promise<
   Array<{ id: string; title: string; slug: string }>
 > {
@@ -104,7 +144,7 @@ export async function getPublishedPostsForSelect(): Promise<
 
 export async function generateIgPosts(
   postId: string,
-  count: number
+  sectionIndexes: number[]
 ): Promise<ActionResult<IgPost[]>> {
   try {
     await assertAdminAuth()
@@ -113,8 +153,11 @@ export async function generateIgPosts(
   }
 
   if (!postId) return { success: false, error: 'post_id が指定されていません' }
-  if (!Number.isInteger(count) || count < 1 || count > 10) {
-    return { success: false, error: 'count は 1〜10 の整数で指定してください' }
+  if (!Array.isArray(sectionIndexes) || sectionIndexes.length === 0) {
+    return { success: false, error: 'セクションを 1 つ以上選択してください' }
+  }
+  if (sectionIndexes.length > 10) {
+    return { success: false, error: '一度に生成できるのは 10 セクションまでです' }
   }
 
   const supabase = createAdminClient()
@@ -132,7 +175,7 @@ export async function generateIgPosts(
   try {
     generated = await generateIgCaptions({
       postId,
-      count,
+      sectionIndexes,
       startSequence: nextSequence,
     })
   } catch (err) {
@@ -144,6 +187,7 @@ export async function generateIgPosts(
     post_id: postId,
     caption: g.caption,
     hashtags: g.hashtags,
+    image_url: g.image_url,
     sequence_number: g.sequence_number,
     status: 'draft' as IgPostStatus,
   }))

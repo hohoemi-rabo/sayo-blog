@@ -3,6 +3,7 @@ import { sleep } from './knowledge-generator'
 import { createAdminClient } from './supabase'
 import { SITE_CONFIG } from './site-config'
 import { buildCaptionPrompt, assembleCaptionText } from './ig-caption-prompt'
+import { parsePostSections, type PostSection } from './post-sections'
 import type { IgCaptionConfig } from './types'
 
 const DEFAULT_CAPTION_CONFIG: IgCaptionConfig = {
@@ -14,62 +15,90 @@ const DEFAULT_CAPTION_CONFIG: IgCaptionConfig = {
 
 const MAX_RETRIES = 3
 const INITIAL_BACKOFF_MS = 1000
-const MAX_CONTENT_CHARS = 6000
+const MAX_SECTION_TEXT_CHARS = 3000
 
 export interface GeneratedIgCaption {
   caption: string
   hashtags: string[]
+  image_url: string | null
   sequence_number: number
+  section_heading: string
 }
 
 export interface GenerateIgCaptionsOptions {
   postId: string
-  count: number
+  sectionIndexes: number[]
   startSequence?: number
 }
 
+/**
+ * Generate one IG post draft per selected section of the blog article.
+ *
+ * Each selected <h2> section produces exactly one IG caption + hashtags,
+ * using the section's heading + body + first <img> as inputs.
+ */
 export async function generateIgCaptions(
   options: GenerateIgCaptionsOptions
 ): Promise<GeneratedIgCaption[]> {
-  const { postId, count, startSequence = 1 } = options
+  const { postId, sectionIndexes, startSequence = 1 } = options
 
-  if (count < 1) {
-    throw new Error('count must be >= 1')
+  if (!Array.isArray(sectionIndexes) || sectionIndexes.length === 0) {
+    throw new Error('sectionIndexes must be a non-empty array')
   }
 
   const supabase = createAdminClient()
-
   const config = await loadCaptionConfig(supabase)
-
   const article = await loadArticle(supabase, postId)
+
   if (!article.is_published) {
     throw new Error('Cannot generate IG captions for an unpublished post')
   }
 
+  const allSections = parsePostSections(article.content)
+  if (allSections.length === 0) {
+    throw new Error('この記事には見出し (h2) がありません。セクション構造に整形してください。')
+  }
+
+  // Validate + dedupe requested section indexes
+  const uniqueIndexes = Array.from(new Set(sectionIndexes)).sort((a, b) => a - b)
+  const chosen = uniqueIndexes
+    .map((i) => allSections[i])
+    .filter((s): s is PostSection => Boolean(s))
+  if (chosen.length === 0) {
+    throw new Error('指定されたセクションが見つかりません')
+  }
+
   const articleUrl = buildArticleUrl(article.category_slug, article.slug)
-  const contentText = htmlToText(article.content).slice(0, MAX_CONTENT_CHARS)
 
-  const prompt = buildCaptionPrompt({
-    title: article.title,
-    category: article.category_name,
-    excerpt: article.excerpt,
-    hashtags: article.hashtags,
-    contentText,
-    articleUrl,
-    count,
-    config,
-  })
+  const results: GeneratedIgCaption[] = []
 
-  const aiPosts = await callGeminiWithRetry(prompt)
+  for (let idx = 0; idx < chosen.length; idx++) {
+    const section = chosen[idx]
+    const sectionText = section.text.slice(0, MAX_SECTION_TEXT_CHARS)
 
-  const results: GeneratedIgCaption[] = aiPosts.slice(0, count).map((p, idx) => {
+    const prompt = buildCaptionPrompt({
+      title: article.title,
+      category: article.category_name,
+      excerpt: article.excerpt,
+      hashtags: article.hashtags,
+      contentText: sectionText,
+      articleUrl,
+      count: 1,
+      config,
+      sectionHeading: section.heading,
+    })
+
+    const aiPosts = await callGeminiWithRetry(prompt)
+    const first = aiPosts[0]
+    if (!first) continue
+
     const generatedHashtags = mergeHashtags(
-      p.hashtags,
+      first.hashtags,
       config.required_hashtags,
       config.generated_hashtag_count
     )
     const sanitizedBody = sanitizeCaptionBody({
-      body: p.caption,
+      body: first.caption,
       articleUrl,
       articleTitle: article.title,
       requiredHashtags: config.required_hashtags,
@@ -80,12 +109,15 @@ export async function generateIgCaptions(
       requiredHashtags: config.required_hashtags,
       generatedHashtags,
     })
-    return {
+
+    results.push({
       caption,
       hashtags: [...config.required_hashtags, ...generatedHashtags],
+      image_url: section.imageUrl ?? null,
       sequence_number: startSequence + idx,
-    }
-  })
+      section_heading: section.heading,
+    })
+  }
 
   return results
 }
@@ -311,24 +343,6 @@ async function loadArticle(
 function buildArticleUrl(categorySlug: string, postSlug: string): string {
   const base = SITE_CONFIG.url.replace(/\/$/, '')
   return `${base}/${categorySlug}/${postSlug}`
-}
-
-function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|h[1-6]|li)>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
 }
 
 interface AiCaptionItem {

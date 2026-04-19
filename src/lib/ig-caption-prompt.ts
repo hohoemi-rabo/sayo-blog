@@ -9,6 +9,12 @@ export interface IgCaptionPromptInput {
   articleUrl: string
   count: number
   config: IgCaptionConfig
+  /**
+   * When provided, the prompt frames the task as "create one IG post focused
+   * on this section of the article". The full article text is not passed —
+   * only the section body is supplied via contentText.
+   */
+  sectionHeading?: string
 }
 
 const PERSONA = `あなたは南信州（飯田市・下伊那地域）の地域情報を発信するライター「FUNE」です。
@@ -37,13 +43,19 @@ export function buildCaptionPrompt(input: IgCaptionPromptInput): string {
     articleUrl,
     count,
     config,
+    sectionHeading,
   } = input
 
   const isMulti = count > 1
+  const isSectionMode = Boolean(sectionHeading && sectionHeading.trim())
   const excludeList = config.required_hashtags.map((t) => t.replace(/^#/, '')).join(', ')
 
-  return `${PERSONA}
+  const sectionFocus = isSectionMode
+    ? `\n【今回のフォーカス】\n記事全体ではなく、以下の見出しセクションだけを取り上げて 1 件の Instagram 投稿を作成してください。\n見出し: ${sectionHeading}\n※ このセクションで扱うテーマを主題にし、他のセクションの内容には触れないこと。\n※ 見出しそのものをキャプション冒頭に書かず、FUNE の語り口に自然に溶け込ませること。\n`
+    : ''
 
+  return `${PERSONA}
+${sectionFocus}
 以下のブログ記事の内容をもとに、Instagram投稿用のキャプション本文とハッシュタグを生成してください。
 
 【ルール】
@@ -83,13 +95,11 @@ ${isMulti ? `\n【複数生成の指針】\n${MULTI_VIEWPOINT_GUIDE}\n` : ''}
 }
 
 【ブログ記事データ】
-タイトル: ${title}
+記事タイトル: ${title}
 カテゴリ: ${category}
-抜粋: ${excerpt ?? '（なし）'}
-記事の既存ハッシュタグ（参考、本文に含めないこと）: ${hashtags.join(', ') || '（なし）'}
+${excerpt ? `記事抜粋: ${excerpt}\n` : ''}記事の既存ハッシュタグ（参考、本文に含めないこと）: ${hashtags.join(', ') || '（なし）'}
 記事URL（本文に含めないこと）: ${articleUrl}
-本文:
-${contentText}
+${isSectionMode ? `\n【このセクションの本文】\n見出し: ${sectionHeading}\n---\n${contentText}` : `本文:\n${contentText}`}
 `
 }
 
