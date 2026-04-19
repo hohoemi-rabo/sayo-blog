@@ -168,14 +168,21 @@ src/app/(admin)/admin/instagram/posts/
 
 ## 完了条件
 
-- [ ] `GET /api/admin/instagram/posts` が status / post_id フィルターで絞り込み可能
-- [ ] `POST /api/admin/instagram/posts` で指定件数の下書きが生成され INSERT される
-- [ ] `PATCH /api/admin/instagram/posts/[id]` で caption / hashtags / status / image_url が更新される
-- [ ] `DELETE /api/admin/instagram/posts/[id]` で行と Storage 画像が削除される
-- [ ] `/admin/instagram/posts` で下書き一覧が表示される
-- [ ] ステータスフィルター・記事フィルターが動作する
-- [ ] 「追加生成」ダイアログで記事選択 + 件数指定 → 下書きが作成される
-- [ ] コピー・画像ダウンロード・手動投稿済み・編集・削除の各アクションが動作する
-- [ ] 編集ダイアログで caption / hashtags / image_url が編集・保存できる
-- [ ] 全 API が未認証時に 401 を返す
-- [ ] `npm run build` が成功する
+- [×] `GET /api/admin/instagram/posts` が status / post_id フィルターで絞り込み可能
+- [×] `POST /api/admin/instagram/posts` で指定件数の下書きが生成され INSERT される
+- [×] `PATCH /api/admin/instagram/posts/[id]` で caption / hashtags / status / image_url が更新される
+- [×] `DELETE /api/admin/instagram/posts/[id]` で行と Storage 画像（`ig-posts` バケット配下のみ）が削除される
+- [×] `/admin/instagram/posts` で下書き一覧が表示される
+- [×] ステータスフィルター・記事フィルターが動作する（searchParams 連携）
+- [×] 「追加生成」ダイアログで記事選択 + 件数指定 → 下書きが作成される
+- [×] コピー・画像ダウンロード・手動投稿済み・編集・削除の各アクションが動作する
+- [×] 編集ダイアログで caption / hashtags / image_url が編集・保存できる
+- [×] 全 API が未認証時に 401 を返す（`requireAdminAuth()` ヘルパー経由）
+- [×] `npm run build` が成功する
+
+### 実装メモ
+- Graph API 投稿ボタン（「🚀 Instagram に投稿」）は disabled 配置のみ。Ticket 33 で実装予定
+- 生成件数は 1〜5 に制限（暴走防止）
+- 認証は `src/lib/admin-auth.ts` の `requireAdminAuth()` / `assertAdminAuth()` で共通化
+- フィルタ同期ユーティリティ `parseIgPostStatus` は `actions.ts`（`'use server'`）に置けないため `filters.ts` に分離
+- `sequence_number` は INSERT 時に `MAX + 1` で採番。削除後のリナンバリングはしない（歯抜け許容）
