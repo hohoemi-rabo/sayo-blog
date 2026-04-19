@@ -184,13 +184,19 @@ src/lib/
 
 ## 完了条件
 
-- [ ] `buildSingleCaptionPrompt` / `buildMultiCaptionPrompt` / `buildHashtagPrompt` が実装されている
-- [ ] `generateIgCaptions(postId, count)` が `GeneratedIgCaption[]` を返す
-- [ ] 必須ハッシュタグ 2 件がキャプション冒頭に挿入される
-- [ ] 生成ハッシュタグ 8 件がキャプション末尾に縦並びで付与される
-- [ ] 合計ハッシュタグ数が 10 件（必須 2 + 生成 8）になる
-- [ ] 記事 URL がキャプション末尾（ハッシュタグの直前）に含まれる
-- [ ] `count > 1` で指定件数分の異なる切り口のキャプションが生成される
-- [ ] Gemini API 失敗時に最大 3 回リトライされる
-- [ ] `ig_settings.caption_config` の値（min/max_length, required_hashtags）が反映される
-- [ ] `npm run build` が成功する
+- [×] `buildCaptionPrompt`（単体・複数統合 / JSON 一括生成）と `assembleCaptionText` が実装されている
+- [×] `generateIgCaptions({ postId, count })` が `GeneratedIgCaption[]` を返す
+- [×] 必須ハッシュタグ 2 件がキャプション冒頭に挿入される
+- [×] 生成ハッシュタグ 8 件がキャプション末尾に縦並びで付与される
+- [×] 合計ハッシュタグ数が 10 件（必須 2 + 生成 8）になる
+- [×] 記事 URL がキャプション末尾（ハッシュタグの直前）に含まれる
+- [×] `count > 1` で指定件数分の異なる切り口のキャプションが生成される
+- [×] Gemini API 失敗時に最大 3 回リトライされる（指数バックオフ）
+- [×] `ig_settings.caption_config` の値（min/max_length, required_hashtags, generated_hashtag_count）が反映される
+- [×] 公開済み記事のみ生成対象（下書きは拒否）
+- [×] 記事 URL は `post_categories` の最初のカテゴリ（order_num 最小）を使用
+- [×] `npm run build` が成功する
+
+### 設計判断メモ
+- Gemini 呼び出しはキャプション＋ハッシュタグを **1 プロンプト JSON 一括** に統合（仕様書では 2 分離だったが API コール数・コスト・レイテンシ削減のため統合。ユーザー承認済み）
+- 必須ハッシュタグと生成ハッシュタグの重複は大文字小文字を無視して自動除去
