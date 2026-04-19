@@ -91,8 +91,15 @@ EMBEDDING_MODEL=gemini-embedding-001       # default: gemini-embedding-001
 
 - Use `@/` path alias for all imports
 - Use `PostWithRelations` type (not `Post`) for components needing nested data
-- Todo format: `- [×]` for completed (not `- [x]` or `- [✓]`)
-- Feature tickets in `docs/*.md`
+- Feature tickets live in `docs/*.md` with numeric prefix (e.g. `29_xxx.md`)
+
+### Todo format in ticket files
+
+Each ticket file (`docs/NN_*.md`) manages its own Todo list under 「完了条件」.
+- Unfinished: `- [ ]`
+- **Completed: `- [×]`** (full-width ×, NOT `- [x]` or `- [✓]`)
+- When a task is finished, immediately update `- [ ]` → `- [×]` in the corresponding ticket
+- Do not delete completed items — keep the full history visible
 
 ## MCP Setup
 
