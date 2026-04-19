@@ -85,14 +85,14 @@ export function IgPostCard({
   return (
     <article className="flex flex-col overflow-hidden rounded-lg border border-border-decorative bg-white shadow-sm">
       {/* Image area */}
-      <div className="relative aspect-square bg-background-dark/5">
+      <div className="relative aspect-[4/3] bg-background-dark/5">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt=""
             fill
             className="object-contain"
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw"
             unoptimized
           />
         ) : (
