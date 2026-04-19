@@ -54,15 +54,15 @@ export function IgPostEditDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-2xl flex-col p-0">
+        <DialogHeader className="border-b border-border-decorative px-6 py-4">
           <DialogTitle>下書きを編集</DialogTitle>
           <DialogDescription>
             下のテキストが Instagram にそのまま投稿されます。ハッシュタグも含めてここで編集してください。
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 pt-4">
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
           <div>
             <div className="mb-1 flex items-baseline justify-between">
               <label className="block text-sm font-medium">投稿テキスト</label>
@@ -71,9 +71,9 @@ export function IgPostEditDialog({
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              rows={18}
+              rows={12}
               className="w-full rounded-md border border-border-decorative bg-background p-3 text-sm font-mono leading-relaxed"
-              placeholder="#長野県飯田市 #sayosjournalブログ記事\n\n本文..."
+              placeholder="#長野県飯田市 #sayosjournalブログ記事&#10;&#10;本文..."
             />
           </div>
 
@@ -90,7 +90,7 @@ export function IgPostEditDialog({
           </div>
         </div>
 
-        <DialogFooter className="pt-6">
+        <DialogFooter className="border-t border-border-decorative px-6 py-4">
           <Button variant="outline" onClick={onClose} disabled={isPending}>
             キャンセル
           </Button>
