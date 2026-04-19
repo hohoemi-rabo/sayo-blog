@@ -35,6 +35,20 @@ paths:
 - `createAdminClient()` for DB access
 - Cookie-based auth check (`admin_auth`) for API routes
 
+## Instagram Integration Pages (Phase 3)
+
+- `/admin/instagram/posts` — IG 下書き管理 (セクション選択式生成 + CRUD)
+- `/admin/instagram/sources` — 取得先アカウント管理 (Ticket 34 で実装予定)
+- `/admin/instagram/imports` — 取得投稿管理 (Ticket 36 で実装予定)
+
+### Instagram Admin Pattern
+- `'use server'` ファイルは async 関数しか export できないため、同期ヘルパー
+  (例: `parseIgPostStatus`) は別ファイル `filters.ts` に分離する
+- 認証は `src/lib/admin-auth.ts` の `requireAdminAuth()` (API ルート用 /
+  NextResponse 返却) または `assertAdminAuth()` (Server Action 用 / throw) で統一
+- mutation は `withRetry()` で Cloudflare 502/503/504 を指数バックオフ自動リトライ
+- エラーメッセージは `friendlyDbError()` で HTML レスポンスを「サーバー一時エラー」に整形
+
 ## Known Issues
 
 ### Tiptap Editor in React 18 StrictMode
@@ -83,3 +97,23 @@ Wrap in `<label>` element to make visual checkbox clickable:
   <div className="checkbox-visual">...</div>
 </label>
 ```
+
+### Dialog Overflow Pattern (tall content)
+Long dialogs (多数のフィールド、画像ピッカー付き編集等) must use a 3-section
+flex column layout so action buttons stay visible:
+
+```tsx
+<DialogContent className="flex max-h-[90vh] w-[95vw] max-w-2xl flex-col p-0">
+  <DialogHeader className="border-b border-border-decorative px-6 py-4">
+    ...
+  </DialogHeader>
+  <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
+    {/* form fields */}
+  </div>
+  <DialogFooter className="border-t border-border-decorative px-6 py-4">
+    {/* cancel / save buttons — always visible */}
+  </DialogFooter>
+</DialogContent>
+```
+
+Applied in `IgPostEditDialog.tsx`, `GenerateDialog.tsx`.

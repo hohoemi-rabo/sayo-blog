@@ -29,10 +29,18 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 6. **reactions** - post_id FK (CASCADE), reaction_type (CHECK constraint), count, UNIQUE(post_id, reaction_type)
 
 ### Phase 2 Tables (AI Chat)
-7. **article_knowledge** - post_id FK UNIQUE (CASCADE), slug, metadata (jsonb), content, embedding vector(768), is_active
+7. **article_knowledge** - post_id FK UNIQUE (CASCADE), slug, metadata (jsonb), content, embedding vector(3072), is_active
 8. **ai_prompt_tags** - label, prompt, tag_type (purpose/area/scene), order_num, is_active
 9. **ai_usage_logs** - session_id, query, token_input, token_output, matched_articles (jsonb)
 10. **ai_usage_limits** - limit_type (daily_user/monthly_site), limit_value, current_value, reset_at
+
+### Phase 3 Tables (Instagram Integration)
+11. **ig_posts** - post_id FK (CASCADE), caption, hashtags text[], image_url, sequence_number, status (draft/published/manual_published), instagram_media_id, instagram_published_at
+12. **ig_sources** - ig_username UNIQUE, display_name, category_slug, permission_status (not_requested/requested/approved/denied), permission_date, is_active, last_fetched_at
+13. **ig_imported_posts** - source_id FK (CASCADE), ig_post_id UNIQUE, caption, image_urls text[], status (pending/processing/published/skipped), generated_post_id FK posts (SET NULL), stored_image_urls text[]
+14. **ig_settings** - setting_key UNIQUE, setting_value jsonb (caption_config / auto_generate / instagram_account)
+
+All Phase 3 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
 
 ### RPC Functions
 - `increment_post_view_count(post_slug)` — SECURITY DEFINER
@@ -132,6 +140,16 @@ interface PostCardProps {
   - ❌ Custom `Keep-Alive` headers
   - ❌ Complex `unstable_cache` wrappers
   - ❌ Custom timeout signals in fetch wrappers
+
+## Storage Buckets
+
+| Bucket | Public | Purpose |
+|--------|--------|---------|
+| `thumbnails` | yes | 記事サムネイル + Tiptap 本文画像 (`/YYYY/MM/{timestamp}.{ext}`) |
+| `ig-posts` | yes | ブログ→IG 方向の投稿画像 (Phase 3A) |
+| `ig-imported` | yes | IG→ブログ方向の取得画像 (Phase 3B) |
+
+Phase 3 buckets: SELECT 全ユーザー許可、INSERT/UPDATE/DELETE は `(select auth.role()) = 'authenticated'` 制限。
 
 ## MCP Setup
 

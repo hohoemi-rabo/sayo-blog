@@ -31,6 +31,19 @@
 - Ticket 27: AI Prompt Tags
 - Ticket 28: AI Analytics Dashboard
 
+### Phase 3 (Blog × Instagram) — In Progress
+- Ticket 29: 共通基盤 (DB 4 テーブル + Storage + 型 + Sidebar) ✅
+- Ticket 30: ブログ→IG AI キャプション生成ライブラリ ✅
+- Ticket 31: IG 投稿管理 CRUD (API + 管理画面 UI, セクション選択式) ✅
+- Ticket 32: 自動下書き生成 + 記事編集画面統合 (未着手)
+- Ticket 33: Graph API 直接投稿 (未着手)
+- Ticket 34: IG 取得先アカウント管理 (未着手)
+- Ticket 35: 外部データ取得サービス連携 (未着手)
+- Ticket 36: 取得投稿管理画面 (未着手)
+- Ticket 37: AI 記事再構成 (未着手)
+- Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
+- Ticket 39: 統合テスト & ドキュメント最終化 (未着手)
+
 ## Key File Map
 
 ### Pages
@@ -108,3 +121,20 @@
 - `src/app/api/search/suggest/route.ts` - Search autocomplete
 - `src/app/api/admin/media/route.ts` - Media list API
 - `src/app/api/reactions/route.ts` - Reaction counts (GET/POST/DELETE, uses RPC)
+
+### Phase 3: Instagram Integration
+- `src/lib/admin-auth.ts` - requireAdminAuth() / assertAdminAuth() 共通ヘルパー
+- `src/lib/post-sections.ts` - 記事 HTML を h2 単位でセクション分割
+- `src/lib/ig-caption-prompt.ts` - Gemini プロンプト組み立て + assembleCaptionText
+- `src/lib/ig-caption-generator.ts` - generateIgCaptions() キャプション生成本体 (セクションモード)
+- `src/app/(admin)/admin/instagram/page.tsx` - /admin/instagram/posts へのリダイレクト
+- `src/app/(admin)/admin/instagram/posts/page.tsx` - IG 投稿管理 (force-dynamic)
+- `src/app/(admin)/admin/instagram/posts/actions.ts` - Server Actions (6 関数)
+- `src/app/(admin)/admin/instagram/posts/filters.ts` - parseIgPostStatus (同期ヘルパー)
+- `src/app/(admin)/admin/instagram/posts/_components/IgPostsClient.tsx` - フィルター + カードグリッド
+- `src/app/(admin)/admin/instagram/posts/_components/IgPostCard.tsx` - カード (Graph API ボタンは Ticket 33 で実装予定)
+- `src/app/(admin)/admin/instagram/posts/_components/IgPostEditDialog.tsx` - caption 一本編集
+- `src/app/(admin)/admin/instagram/posts/_components/GenerateDialog.tsx` - セクション選択式生成
+- `src/app/api/admin/instagram/posts/route.ts` - GET (一覧) / POST (生成)
+- `src/app/api/admin/instagram/posts/[id]/route.ts` - PATCH / DELETE
+- `src/app/api/admin/instagram/generate/route.ts` - POST 生成エイリアス

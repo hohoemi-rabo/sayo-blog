@@ -21,8 +21,8 @@ npm run lint        # Run ESLint
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS 3.4.17
 - **Database**: Supabase (PostgreSQL + pgvector)
-- **Storage**: Supabase Storage (for images)
-- **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-001)
+- **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `ig-imported`)
+- **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-2-preview)
 - **Language**: TypeScript 5
 - **React**: 19.1.0
 
@@ -40,7 +40,7 @@ src/
 │   │   ├── [category]/[slug]/ # Article detail
 │   │   ├── privacy/         # Privacy Policy
 │   │   └── search/          # Search page
-│   ├── (admin)/admin/       # Admin panel (CMS + AI management)
+│   ├── (admin)/admin/       # Admin panel (CMS + AI + Instagram)
 │   ├── (auth)/admin/login/  # Login
 │   └── api/                 # API routes
 ├── components/
@@ -68,6 +68,9 @@ src/
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
 /admin/ai/analytics            → AI Analytics dashboard
+/admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
+/admin/instagram/sources       → IG 取得先アカウント管理 (Ticket 34 で実装予定)
+/admin/instagram/imports       → IG 取得投稿管理 (Ticket 36 で実装予定)
 ```
 
 **Categories** (flat): gourmet, event, spot, culture, news
@@ -84,7 +87,7 @@ ADMIN_PASSWORD=your-secure-admin-password
 NEXT_PUBLIC_GA_MEASUREMENT_ID=  # GA4 (optional, set when available)
 GEMINI_API_KEY=your-gemini-api-key
 GEMINI_MODEL=gemini-3-flash-preview        # default: gemini-3-flash-preview
-EMBEDDING_MODEL=gemini-embedding-001       # default: gemini-embedding-001
+EMBEDDING_MODEL=gemini-embedding-2-preview # default: gemini-embedding-2-preview
 ```
 
 ## Conventions
@@ -113,12 +116,18 @@ Context-specific rules are loaded based on file paths being worked on:
 |------|----------------------|---------|
 | `.claude/rules/nextjs-patterns.md` | `src/app/**`, `src/components/**` | Next.js 15 best practices |
 | `.claude/rules/frontend.md` | `src/components/**`, `src/app/(public)/**` | Design system, known issues |
-| `.claude/rules/admin.md` | `src/app/(admin)/**`, `src/components/admin/**` | Admin panel, Tiptap issues |
+| `.claude/rules/admin.md` | `src/app/(admin)/**`, `src/components/admin/**` | Admin panel, Tiptap, Dialog pattern |
 | `.claude/rules/database.md` | `src/lib/supabase*`, `src/app/api/**`, `supabase/**` | DB schema, Supabase patterns |
+| `.claude/rules/instagram.md` | `src/lib/ig-*`, `src/lib/post-sections*`, `src/app/**/instagram/**` | Blog 執筆ルール, キャプション設計, サニタイザ |
 | `.claude/rules/implementation-status.md` | Always | Completed tickets, file map |
+
+## Blog Authoring Rule for Instagram Integration
+
+**IG 投稿する記事は必ず「h2 見出し → 画像 → 文章」のセクション構造で書く。**
+1 セクション = 1 IG 投稿にマッピングされる。詳細は `.claude/rules/instagram.md` 参照。
 
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-04-03 (Next.js/Supabase ベストプラクティス準拠の全面最適化)
-**Project Status**: Phase 1 + Phase 2 completed, Blog home redesigned, AI Chat paused
+**Updated**: 2026-04-19 (Phase 3A: Ticket 29/30/31 完了、セクション選択式 IG 生成)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-31 done, 32-39 pending) / AI Chat paused

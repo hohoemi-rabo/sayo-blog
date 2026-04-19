@@ -37,8 +37,9 @@ yarn-error.log*
 .mcp.json
 
 # Claude Code project settings (keep rules/ tracked)
-.claude/
-!.claude/rules/
+.claude/*
+!.claude/rules
+!.claude/rules/**
 
 # vercel
 .vercel
