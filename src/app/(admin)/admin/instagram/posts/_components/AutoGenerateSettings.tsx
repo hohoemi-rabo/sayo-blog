@@ -38,25 +38,23 @@ export function AutoGenerateSettings({ initialEnabled }: AutoGenerateSettingsPro
 
   return (
     <div className="rounded-lg border border-border-decorative bg-white p-4">
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <Checkbox
           id="ig_auto_generate"
           checked={enabled}
           onCheckedChange={handleChange}
           disabled={isPending}
         />
-        <div className="flex-1">
-          <label
-            htmlFor="ig_auto_generate"
-            className="cursor-pointer text-sm font-medium text-text-primary"
-          >
-            記事公開時に IG 下書きを自動生成する（全セクション）
-          </label>
-          <p className="mt-1 text-xs text-text-secondary">
-            ON の場合、記事を「公開」に切り替えた時点で全 h2 セクション分の下書きを自動生成します。既に下書きがある記事は重複生成されません。
-          </p>
-        </div>
+        <label
+          htmlFor="ig_auto_generate"
+          className="cursor-pointer text-sm font-medium text-text-primary"
+        >
+          記事公開時に IG 下書きを自動生成する（全セクション）
+        </label>
       </div>
+      <p className="mt-2 pl-7 text-xs text-text-secondary">
+        ON の場合、記事を「公開」に切り替えた時点で全 h2 セクション分の下書きを自動生成します。既に下書きがある記事は重複生成されません。
+      </p>
     </div>
   )
 }

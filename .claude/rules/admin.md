@@ -98,6 +98,26 @@ Wrap in `<label>` element to make visual checkbox clickable:
 </label>
 ```
 
+**Layout pattern** — チェックボックスの横に見出しラベル + その下に説明文を
+置く場合、`items-start` で並べると ✅ が一行目の上に寄ってズレるので、
+チェックボックスとラベルを `items-center` の flex 行で並べ、説明文は
+別の段に分離して `pl-7`（checkbox 16px + gap 12px ≈ 28px）で
+ラベル開始位置と揃える:
+
+```tsx
+<div className="flex items-center gap-3">
+  <Checkbox id="x" checked={...} onCheckedChange={...} />
+  <label htmlFor="x" className="cursor-pointer text-sm font-medium">
+    メインラベル
+  </label>
+</div>
+<p className="mt-2 pl-7 text-xs text-text-secondary">
+  補足説明文...
+</p>
+```
+
+Applied in `AutoGenerateSettings.tsx`.
+
 ### Dialog Overflow Pattern (tall content)
 Long dialogs (多数のフィールド、画像ピッカー付き編集等) must use a 3-section
 flex column layout so action buttons stay visible:
