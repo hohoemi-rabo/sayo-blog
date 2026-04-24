@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import {
   Copy,
   Download,
@@ -45,7 +45,6 @@ export function IgPostCard({
   onMutated,
   onError,
 }: IgPostCardProps) {
-  const [expanded, setExpanded] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const status = STATUS_STYLES[item.status]
@@ -123,22 +122,9 @@ export function IgPostCard({
           </Link>
         )}
 
-        <div className="flex-1">
-          <p
-            className={`whitespace-pre-wrap text-sm text-text-primary ${
-              expanded ? '' : 'line-clamp-4'
-            }`}
-          >
-            {item.caption}
-          </p>
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="mt-1 text-xs text-text-secondary hover:text-primary"
-          >
-            {expanded ? '折りたたむ' : 'すべて表示'}
-          </button>
-        </div>
+        <p className="line-clamp-4 whitespace-pre-wrap text-sm text-text-primary">
+          {item.caption}
+        </p>
 
         <p className="text-xs text-text-secondary">
           作成: {formatDate(item.created_at)}

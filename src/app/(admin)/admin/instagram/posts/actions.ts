@@ -5,7 +5,13 @@ import { revalidatePath } from 'next/cache'
 import { assertAdminAuth } from '@/lib/admin-auth'
 import { generateIgCaptions } from '@/lib/ig-caption-generator'
 import { parsePostSections, type PostSection } from '@/lib/post-sections'
+import {
+  DEFAULT_AUTO_GENERATE,
+  getAutoGenerateConfigOrDefault,
+  updateIgSetting,
+} from '@/lib/ig-settings'
 import type {
+  IgAutoGenerateConfig,
   IgPost,
   IgPostStatus,
   IgPostWithRelations,
@@ -300,6 +306,38 @@ export async function deleteIgPost(id: string): Promise<ActionResult> {
   )
   if (result.error) {
     return { success: false, error: friendlyDbError(result.error) }
+  }
+
+  revalidatePath(ADMIN_PATH)
+  return { success: true }
+}
+
+// ------------------------------------------------------------
+// Auto-generate settings
+// ------------------------------------------------------------
+
+export async function getAutoGenerateConfig(): Promise<IgAutoGenerateConfig> {
+  return getAutoGenerateConfigOrDefault()
+}
+
+export async function updateAutoGenerateConfig(
+  enabled: boolean
+): Promise<ActionResult> {
+  try {
+    await assertAdminAuth()
+  } catch {
+    return { success: false, error: '認証が必要です' }
+  }
+
+  try {
+    const current = await getAutoGenerateConfigOrDefault()
+    await updateIgSetting('auto_generate', {
+      enabled,
+      count_on_publish:
+        current.count_on_publish ?? DEFAULT_AUTO_GENERATE.count_on_publish,
+    })
+  } catch (err) {
+    return { success: false, error: friendlyDbError(err) }
   }
 
   revalidatePath(ADMIN_PATH)

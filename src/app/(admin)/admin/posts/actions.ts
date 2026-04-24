@@ -2,6 +2,8 @@
 
 import { createAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
+import { triggerIgAutoGenerate } from '@/lib/ig-auto-generator'
 
 export type PostFormData = {
   title: string
@@ -72,11 +74,25 @@ export async function createPost(data: PostFormData) {
   revalidatePath('/admin/posts')
   revalidatePath('/')
 
+  if (data.is_published && post?.id) {
+    const newPostId = post.id as string
+    after(() => triggerIgAutoGenerate(newPostId))
+  }
+
   return { success: true, post }
 }
 
 export async function updatePost(id: string, data: PostFormData) {
   const supabase = createAdminClient()
+
+  // Capture the current is_published so we can detect a false -> true transition
+  // and trigger IG auto-generation after the save succeeds.
+  const { data: current } = await supabase
+    .from('posts')
+    .select('is_published')
+    .eq('id', id)
+    .maybeSingle()
+  const wasPublished = current?.is_published === true
 
   // Update post
   const { error: postError } = await supabase
@@ -122,6 +138,10 @@ export async function updatePost(id: string, data: PostFormData) {
   revalidatePath('/admin/posts')
   revalidatePath(`/admin/posts/${id}`)
   revalidatePath('/')
+
+  if (!wasPublished && data.is_published) {
+    after(() => triggerIgAutoGenerate(id))
+  }
 
   return { success: true }
 }
@@ -283,4 +303,53 @@ export async function getHashtags() {
   }
 
   return data || []
+}
+
+export interface ImportedOrigin {
+  ig_username: string
+  display_name: string
+  ig_post_url: string | null
+}
+
+/**
+ * Look up the Instagram source post that this blog post was generated from.
+ * Phase 3B populates `ig_imported_posts.generated_post_id`; for now this
+ * returns null for every post that was authored manually.
+ */
+export async function getImportedOrigin(
+  postId: string
+): Promise<ImportedOrigin | null> {
+  const supabase = createAdminClient()
+
+  const { data, error } = await supabase
+    .from('ig_imported_posts')
+    .select(
+      `
+      ig_post_url,
+      source:ig_sources(ig_username, display_name)
+    `
+    )
+    .eq('generated_post_id', postId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Imported origin fetch error:', error)
+    return null
+  }
+  if (!data) return null
+
+  const rawSource = (data as { source?: unknown }).source
+  let src: { ig_username?: string; display_name?: string } | undefined
+  if (Array.isArray(rawSource)) {
+    src = rawSource[0] as typeof src
+  } else if (rawSource && typeof rawSource === 'object') {
+    src = rawSource as typeof src
+  }
+  if (!src?.ig_username) return null
+
+  return {
+    ig_username: src.ig_username,
+    display_name: src.display_name ?? src.ig_username,
+    ig_post_url: (data as { ig_post_url?: string | null }).ig_post_url ?? null,
+  }
 }

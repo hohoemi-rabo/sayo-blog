@@ -21,9 +21,13 @@ import {
 interface GenerateDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  publishedPosts: Array<{ id: string; title: string; slug: string }>
+  publishedPosts?: Array<{ id: string; title: string; slug: string }>
   onGenerated: (count: number) => void
   onError: (message: string) => void
+  /** When set, the post selector is hidden and the dialog operates on this post only. */
+  lockedPostId?: string
+  /** Display title for the locked post (shown as subtext when lockedPostId is set). */
+  lockedPostTitle?: string
 }
 
 export function GenerateDialog({
@@ -32,6 +36,8 @@ export function GenerateDialog({
   publishedPosts,
   onGenerated,
   onError,
+  lockedPostId,
+  lockedPostTitle,
 }: GenerateDialogProps) {
   const [postId, setPostId] = useState('')
   const [sections, setSections] = useState<PostSectionSummary[]>([])
@@ -42,12 +48,12 @@ export function GenerateDialog({
 
   useEffect(() => {
     if (open) {
-      setPostId('')
+      setPostId(lockedPostId ?? '')
       setSections([])
       setSelectedIndexes(new Set())
       setArticleEditUrl('')
     }
-  }, [open])
+  }, [open, lockedPostId])
 
   useEffect(() => {
     if (!postId) {
@@ -120,26 +126,30 @@ export function GenerateDialog({
         <DialogHeader className="border-b border-border-decorative px-6 py-4">
           <DialogTitle>Instagram 下書きを生成</DialogTitle>
           <DialogDescription>
-            記事内の見出しセクションを選んで、それぞれを 1 件の Instagram 投稿として生成します。
+            {lockedPostId && lockedPostTitle
+              ? `「${lockedPostTitle}」の見出しセクションを選んで、それぞれを 1 件の Instagram 投稿として生成します。`
+              : '記事内の見出しセクションを選んで、それぞれを 1 件の Instagram 投稿として生成します。'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">記事</label>
-            <select
-              value={postId}
-              onChange={(e) => setPostId(e.target.value)}
-              className="h-10 w-full rounded-md border border-border-decorative bg-background px-3 text-sm"
-            >
-              <option value="">選択してください</option>
-              {publishedPosts.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.title}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!lockedPostId && (
+            <div>
+              <label className="mb-1 block text-sm font-medium">記事</label>
+              <select
+                value={postId}
+                onChange={(e) => setPostId(e.target.value)}
+                className="h-10 w-full rounded-md border border-border-decorative bg-background px-3 text-sm"
+              >
+                <option value="">選択してください</option>
+                {(publishedPosts ?? []).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Section list */}
           {postId && isLoadingSections && (

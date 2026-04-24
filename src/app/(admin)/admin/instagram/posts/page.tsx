@@ -1,6 +1,11 @@
-import { getIgPosts, getPublishedPostsForSelect } from './actions'
+import {
+  getAutoGenerateConfig,
+  getIgPosts,
+  getPublishedPostsForSelect,
+} from './actions'
 import { parseIgPostStatus } from './filters'
 import { IgPostsClient } from './_components/IgPostsClient'
+import { AutoGenerateSettings } from './_components/AutoGenerateSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,9 +21,10 @@ export default async function IgPostsPage({ searchParams }: PageProps) {
   const status = parseIgPostStatus(params.status)
   const postId = params.post_id
 
-  const [postsResult, publishedPosts] = await Promise.all([
+  const [postsResult, publishedPosts, autoGenerate] = await Promise.all([
     getIgPosts({ status, post_id: postId, limit: 50 }),
     getPublishedPostsForSelect(),
+    getAutoGenerateConfig(),
   ])
 
   return (
@@ -33,6 +39,8 @@ export default async function IgPostsPage({ searchParams }: PageProps) {
           </p>
         </div>
       </div>
+
+      <AutoGenerateSettings initialEnabled={autoGenerate.enabled} />
 
       <IgPostsClient
         initialItems={postsResult.items}

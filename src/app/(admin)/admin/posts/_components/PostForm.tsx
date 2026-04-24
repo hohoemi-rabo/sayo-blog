@@ -12,8 +12,11 @@ import { Card } from '@/components/ui/Card'
 import { RichTextEditor } from '@/components/admin/editor/RichTextEditor'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { createPost, updatePost, PostFormData } from '../actions'
+import type { ImportedOrigin } from '../actions'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
+import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
+import type { IgPostWithRelations } from '@/lib/types'
 
 interface Category {
   id: string
@@ -43,6 +46,11 @@ interface PostFormProps {
     post_categories?: Array<{ categories: Category }>
     post_hashtags?: Array<{ hashtags: Hashtag }>
   }
+  igSection?: {
+    initialIgPosts: IgPostWithRelations[]
+    totalIgPosts: number
+    importedOrigin: ImportedOrigin | null
+  }
 }
 
 function generateSlug(title: string): string {
@@ -58,6 +66,7 @@ export function PostForm({
   categories,
   hashtags,
   initialData,
+  igSection,
 }: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -345,6 +354,16 @@ export function PostForm({
               </p>
             )}
           </Card>
+
+          {mode === 'edit' && initialData && igSection && (
+            <IgPostsSection
+              postId={initialData.id}
+              postTitle={initialData.title}
+              initialIgPosts={igSection.initialIgPosts}
+              totalIgPosts={igSection.totalIgPosts}
+              importedOrigin={igSection.importedOrigin}
+            />
+          )}
         </div>
       </div>
 

@@ -35,7 +35,7 @@
 - Ticket 29: 共通基盤 (DB 4 テーブル + Storage + 型 + Sidebar) ✅
 - Ticket 30: ブログ→IG AI キャプション生成ライブラリ ✅
 - Ticket 31: IG 投稿管理 CRUD (API + 管理画面 UI, セクション選択式) ✅
-- Ticket 32: 自動下書き生成 + 記事編集画面統合 (未着手)
+- Ticket 32: 自動下書き生成 + 記事編集画面統合 (after() + 全セクション自動生成, AutoGenerateSettings, IgPostsSection) ✅
 - Ticket 33: Graph API 直接投稿 (未着手)
 - Ticket 34: IG 取得先アカウント管理 (未着手)
 - Ticket 35: 外部データ取得サービス連携 (未着手)
@@ -127,14 +127,18 @@
 - `src/lib/post-sections.ts` - 記事 HTML を h2 単位でセクション分割
 - `src/lib/ig-caption-prompt.ts` - Gemini プロンプト組み立て + assembleCaptionText
 - `src/lib/ig-caption-generator.ts` - generateIgCaptions() キャプション生成本体 (セクションモード)
+- `src/lib/ig-settings.ts` - ig_settings 読み書き (getIgSetting / updateIgSetting)
+- `src/lib/ig-auto-generator.ts` - triggerIgAutoGenerate() 公開時の自動下書き生成
 - `src/app/(admin)/admin/instagram/page.tsx` - /admin/instagram/posts へのリダイレクト
-- `src/app/(admin)/admin/instagram/posts/page.tsx` - IG 投稿管理 (force-dynamic)
-- `src/app/(admin)/admin/instagram/posts/actions.ts` - Server Actions (6 関数)
+- `src/app/(admin)/admin/instagram/posts/page.tsx` - IG 投稿管理 (force-dynamic, auto-generate 設定表示)
+- `src/app/(admin)/admin/instagram/posts/actions.ts` - Server Actions (CRUD + auto-generate 設定)
 - `src/app/(admin)/admin/instagram/posts/filters.ts` - parseIgPostStatus (同期ヘルパー)
 - `src/app/(admin)/admin/instagram/posts/_components/IgPostsClient.tsx` - フィルター + カードグリッド
 - `src/app/(admin)/admin/instagram/posts/_components/IgPostCard.tsx` - カード (Graph API ボタンは Ticket 33 で実装予定)
 - `src/app/(admin)/admin/instagram/posts/_components/IgPostEditDialog.tsx` - caption 一本編集
-- `src/app/(admin)/admin/instagram/posts/_components/GenerateDialog.tsx` - セクション選択式生成
+- `src/app/(admin)/admin/instagram/posts/_components/GenerateDialog.tsx` - セクション選択式生成 (lockedPostId 対応)
+- `src/app/(admin)/admin/instagram/posts/_components/AutoGenerateSettings.tsx` - 公開時自動生成 ON/OFF トグル
+- `src/components/admin/posts/IgPostsSection.tsx` - 記事編集画面の IG セクション
 - `src/app/api/admin/instagram/posts/route.ts` - GET (一覧) / POST (生成)
 - `src/app/api/admin/instagram/posts/[id]/route.ts` - PATCH / DELETE
 - `src/app/api/admin/instagram/generate/route.ts` - POST 生成エイリアス

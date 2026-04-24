@@ -129,5 +129,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-04-19 (Phase 3A: Ticket 29/30/31 完了、セクション選択式 IG 生成)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-31 done, 32-39 pending) / AI Chat paused
+**Updated**: 2026-04-24 (Phase 3A: Ticket 32 完了、公開時自動生成 + 記事編集画面の IG セクション)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32 done, 33-39 pending) / AI Chat paused

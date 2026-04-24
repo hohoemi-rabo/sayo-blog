@@ -1,5 +1,11 @@
 import { notFound } from 'next/navigation'
-import { getPost, getCategories, getHashtags } from '../actions'
+import {
+  getCategories,
+  getHashtags,
+  getImportedOrigin,
+  getPost,
+} from '../actions'
+import { getIgPosts } from '../../instagram/posts/actions'
 import { PostForm } from '../_components/PostForm'
 
 interface PageProps {
@@ -9,10 +15,12 @@ interface PageProps {
 export default async function EditPostPage({ params }: PageProps) {
   const { id } = await params
 
-  const [post, categories, hashtags] = await Promise.all([
+  const [post, categories, hashtags, igPosts, importedOrigin] = await Promise.all([
     getPost(id),
     getCategories(),
     getHashtags(),
+    getIgPosts({ post_id: id, limit: 3 }),
+    getImportedOrigin(id),
   ])
 
   if (!post) {
@@ -25,6 +33,11 @@ export default async function EditPostPage({ params }: PageProps) {
       categories={categories}
       hashtags={hashtags}
       initialData={post}
+      igSection={{
+        initialIgPosts: igPosts.items,
+        totalIgPosts: igPosts.totalCount,
+        importedOrigin,
+      }}
     />
   )
 }
