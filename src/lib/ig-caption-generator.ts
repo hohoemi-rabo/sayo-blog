@@ -190,11 +190,17 @@ function sanitizeCaptionBody(input: {
 
 /**
  * Decide whether a line looks like a prepended title (should be removed).
+ *
+ * NOTE: We are intentionally conservative here. FUNE's Instagram style begins
+ * posts with location openers like "📍【飯田市・上郷黒田】" or "【飯田市・xx】" —
+ * these MUST be preserved. We only strip lines that clearly match the article
+ * title itself, not any short bracketed line.
+ *
  * Triggers:
  *  - Exact match with articleTitle
- *  - Contains articleTitle (e.g. "【飯田市】articleTitle")
- *  - articleTitle contains the line stripped of decorations
- *  - Starts with 【...】 and has no sentence-ending punctuation (short heading)
+ *  - 【articleTitle】 wrapping
+ *  - Line contains the full articleTitle as a substring
+ *  - Line stripped of leading/trailing brackets equals the title (or vice versa)
  */
 function isTitleLikeLine(line: string, articleTitle: string): boolean {
   if (!line) return false
@@ -208,11 +214,6 @@ function isTitleLikeLine(line: string, articleTitle: string): boolean {
   // Strip leading/trailing brackets and compare
   const stripped = line.replace(/^【[^】]*】/, '').replace(/【[^】]*】$/, '').trim()
   if (stripped && (stripped === title || title.includes(stripped))) return true
-
-  // Heuristic: 【xxx】で始まる短い見出し (≤40 chars, no 。 or 、)
-  if (/^【[^】]+】/.test(line) && line.length <= 40 && !/[。、]/.test(line)) {
-    return true
-  }
 
   return false
 }
