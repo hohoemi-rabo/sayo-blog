@@ -37,10 +37,10 @@
 - Ticket 31: IG 投稿管理 CRUD (API + 管理画面 UI, セクション選択式) ✅
 - Ticket 32: 自動下書き生成 + 記事編集画面統合 (after() + 全セクション自動生成, AutoGenerateSettings, IgPostsSection) ✅
 - Ticket 33: Graph API 直接投稿 (未着手)
-- Ticket 34: IG 取得先アカウント管理 (未着手)
-- Ticket 35: 外部データ取得サービス連携 (未着手)
-- Ticket 36: 取得投稿管理画面 (未着手)
-- Ticket 37: AI 記事再構成 (未着手)
+- Ticket 34: IG 取得先アカウント管理 (未着手 / Cowork 指示書 DL ボタン仕様に改訂済)
+- Ticket 35: Cowork CSV 取り込み (未着手 / Bright Data 撤去・CSV+画像アップロード方式に全面改訂)
+- Ticket 36: 取得投稿管理画面 (未着手 / カルーセル画像選択 UI 追加)
+- Ticket 37: AI 記事再構成 + イベント情報抽出 (未着手 / posts に event カラム追加, 構造化抽出仕様追加)
 - Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
 - Ticket 39: 統合テスト & ドキュメント最終化 (未着手)
 
