@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { Calendar, Eye } from 'lucide-react'
 import { Category } from '@/lib/types'
 import CategoryBadge from './CategoryBadge'
+import EventEndedOverlay from './EventEndedOverlay'
 
 interface ArticleHeroProps {
   title: string
@@ -10,6 +11,7 @@ interface ArticleHeroProps {
   publishedAt?: string | null
   updatedAt: string
   viewCount: number
+  eventEnded?: boolean
 }
 
 export default function ArticleHero({
@@ -19,6 +21,7 @@ export default function ArticleHero({
   publishedAt,
   updatedAt,
   viewCount,
+  eventEnded = false,
 }: ArticleHeroProps) {
   // Format date: YYYY年MM月DD日
   const formatDate = (dateString?: string | null) => {
@@ -40,12 +43,15 @@ export default function ArticleHero({
             src={thumbnail}
             alt={title}
             fill
-            className="object-cover"
+            className={`object-cover ${eventEnded ? 'grayscale' : ''}`}
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 70vw"
           />
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background-dark/60 via-transparent to-transparent" />
+          {!eventEnded && (
+            <div className="absolute inset-0 bg-gradient-to-t from-background-dark/60 via-transparent to-transparent" />
+          )}
+          {eventEnded && <EventEndedOverlay mode="hero" />}
         </div>
       )}
 

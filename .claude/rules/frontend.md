@@ -119,3 +119,14 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - Lazy loading with `loading="lazy"`
 - Responsive sizes: `sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"`
 - Supabase Storage structure: `/thumbnails/YYYY/MM/filename.jpg`
+
+## Event Ended Posts
+
+`posts.event_ended === true` の記事はサムネイル/ヒーロー画像を `grayscale` 化し、
+`<EventEndedOverlay mode="card" | "hero" />` を重ねて「終了済み」を伝える。
+- `mode="card"` — `PostCard.tsx` のサムネ用。中央に「📅 このイベントは終了しています」ピル
+- `mode="hero"` — 記事詳細 `ArticleHero.tsx` 用。下部の半透明バーに紗代さん指定の全文案内
+- 通常時のヒーローのグラデーションは `eventEnded` 時は描画しない（オーバーレイと二重になるため）
+- 一覧用の `<Image>` には条件付きで `grayscale` クラスを当てる
+- 管理画面の記事一覧 `PostList.tsx` でも同フラグでサムネ白黒 + タイトル右に「📅 終了」ラベル
+- フラグ自体は admin の記事編集「公開設定」カード内のチェックボックスで切替

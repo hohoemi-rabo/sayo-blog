@@ -42,6 +42,7 @@ interface PostFormProps {
     excerpt: string | null
     thumbnail_url: string | null
     is_published: boolean
+    event_ended?: boolean
     published_at: string | null
     post_categories?: Array<{ categories: Category }>
     post_hashtags?: Array<{ hashtags: Hashtag }>
@@ -88,6 +89,9 @@ export function PostForm({
   )
   const [isPublished, setIsPublished] = useState(
     initialData?.is_published || false
+  )
+  const [eventEnded, setEventEnded] = useState(
+    initialData?.event_ended || false
   )
   const [publishedAt, setPublishedAt] = useState(
     initialData?.published_at
@@ -144,6 +148,7 @@ export function PostForm({
       hashtag_ids: selectedHashtags,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : null,
       is_published: isPublished,
+      event_ended: eventEnded,
     }
 
     try {
@@ -293,6 +298,23 @@ export function PostForm({
                   value={publishedAt}
                   onChange={(e) => setPublishedAt(e.target.value)}
                 />
+              </div>
+
+              <div className="border-t border-border-decorative pt-4">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    id="event_ended"
+                    checked={eventEnded}
+                    onCheckedChange={(checked) => setEventEnded(checked)}
+                  />
+                  <Label htmlFor="event_ended" className="cursor-pointer">
+                    イベント終了
+                  </Label>
+                </div>
+                <p className="mt-2 pl-7 text-xs text-text-secondary">
+                  ON にするとサムネイルが白黒になり、終了案内が表示されます。
+                  イベント記事の開催回が過ぎた場合に使用してください。
+                </p>
               </div>
             </div>
           </Card>

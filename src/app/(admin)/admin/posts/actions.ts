@@ -15,6 +15,7 @@ export type PostFormData = {
   hashtag_ids: string[]
   published_at: string | null
   is_published: boolean
+  event_ended: boolean
 }
 
 export async function createPost(data: PostFormData) {
@@ -31,6 +32,7 @@ export async function createPost(data: PostFormData) {
       thumbnail_url: data.thumbnail_url,
       published_at: data.published_at,
       is_published: data.is_published,
+      event_ended: data.event_ended,
       view_count: 0,
     })
     .select()
@@ -105,6 +107,7 @@ export async function updatePost(id: string, data: PostFormData) {
       thumbnail_url: data.thumbnail_url,
       published_at: data.published_at,
       is_published: data.is_published,
+      event_ended: data.event_ended,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
@@ -205,6 +208,7 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
       thumbnail_url,
       is_published,
       is_featured,
+      event_ended,
       published_at,
       view_count,
       created_at,

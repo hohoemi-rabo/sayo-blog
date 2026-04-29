@@ -206,6 +206,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           publishedAt={post.published_at}
           updatedAt={post.updated_at}
           viewCount={post.view_count}
+          eventEnded={post.event_ended ?? false}
         />
       </div>
 

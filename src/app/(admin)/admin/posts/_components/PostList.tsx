@@ -40,6 +40,7 @@ type Post = {
   thumbnail_url: string | null
   is_published: boolean
   is_featured: boolean
+  event_ended: boolean
   published_at: string | null
   view_count: number
   created_at: string
@@ -206,7 +207,7 @@ export function PostList({
                             src={post.thumbnail_url}
                             alt={post.title}
                             fill
-                            className="object-cover"
+                            className={`object-cover ${post.event_ended ? 'grayscale' : ''}`}
                           />
                         </div>
                       ) : (
@@ -222,6 +223,14 @@ export function PostList({
                       >
                         {post.title}
                       </Link>
+                      {post.event_ended && (
+                        <span
+                          className="ml-2 inline-flex items-center gap-0.5 rounded bg-gray-200 px-1.5 py-0.5 align-middle text-[10px] font-medium text-gray-600"
+                          title="このイベントは終了済みとしてマークされています"
+                        >
+                          📅 終了
+                        </span>
+                      )}
                       <p className="text-xs text-text-secondary mt-1 truncate max-w-md">
                         {post.excerpt || 'No excerpt'}
                       </p>

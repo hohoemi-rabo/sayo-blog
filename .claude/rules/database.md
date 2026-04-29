@@ -21,7 +21,7 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 ## Database Schema
 
 ### Core Tables
-1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, created_at, updated_at, search_vector (tsvector, generated)
+1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, event_ended (boolean: イベント記事の終了済みフラグ — true で公開側のサムネ/ヒーローを白黒化 + 終了案内オーバーレイを表示), created_at, updated_at, search_vector (tsvector, generated)
 2. **categories** - id, name, slug, description, order_num (flat structure: gourmet, event, spot, culture, news)
 3. **post_categories** - Many-to-many junction (CASCADE DELETE on both FKs)
 4. **hashtags** - id, name, slug, count (auto-updated via triggers)

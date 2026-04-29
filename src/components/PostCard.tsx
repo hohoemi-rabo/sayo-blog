@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import CategoryBadge from './CategoryBadge'
+import EventEndedOverlay from './EventEndedOverlay'
 import HashtagList from './HashtagList'
 import { PostWithRelations } from '@/lib/types'
 
@@ -64,7 +65,9 @@ export default function PostCard({ post }: PostCardProps) {
             alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
+              post.event_ended ? 'grayscale' : ''
+            }`}
             loading="lazy"
           />
         ) : (
@@ -74,10 +77,12 @@ export default function PostCard({ post }: PostCardProps) {
         )}
         {/* Category Badge Overlay */}
         {category && (
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 z-10">
             <CategoryBadge category={category} />
           </div>
         )}
+        {/* Event Ended Overlay */}
+        {post.event_ended && <EventEndedOverlay mode="card" />}
       </Link>
 
       {/* Content */}

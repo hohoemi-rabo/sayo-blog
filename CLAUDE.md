@@ -129,5 +129,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-04-29 (Phase 3B 進行: Ticket 35 完了、Cowork CSV 取り込み + 画像アップロード + 指示書配信)
+**Updated**: 2026-04-29 (イベント終了記事の表示対応: posts.event_ended カラム + サムネ白黒化 + 終了案内オーバーレイ)
 **Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34, 35 done, 33 / 36-39 pending) / AI Chat paused

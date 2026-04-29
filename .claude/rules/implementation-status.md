@@ -71,6 +71,7 @@
 - `src/components/ReactionBar.tsx` - Reaction buttons toggle (localStorage + Supabase)
 - `src/components/RelatedArticles.tsx` - Server Component, scoring-based
 - `src/components/ScrollFadeIn.tsx` - IntersectionObserver fade-in wrapper
+- `src/components/EventEndedOverlay.tsx` - イベント終了記事のサムネ/ヒーロー画像オーバーレイ (mode: card | hero)
 
 ### Utilities
 - `src/lib/types.ts` - TypeScript interfaces

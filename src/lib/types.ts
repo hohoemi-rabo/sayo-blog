@@ -16,6 +16,7 @@ export interface Post {
   published_at?: string
   updated_at: string
   is_published: boolean
+  event_ended: boolean
   created_at: string
 }
 
