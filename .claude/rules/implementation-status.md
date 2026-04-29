@@ -37,7 +37,7 @@
 - Ticket 31: IG 投稿管理 CRUD (API + 管理画面 UI, セクション選択式) ✅
 - Ticket 32: 自動下書き生成 + 記事編集画面統合 (after() + 全セクション自動生成, AutoGenerateSettings, IgPostsSection) ✅
 - Ticket 33: Graph API 直接投稿 (未着手)
-- Ticket 34: IG 取得先アカウント管理 (未着手 / Cowork 指示書 DL ボタン仕様に改訂済)
+- Ticket 34: IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン配置) ✅
 - Ticket 35: Cowork CSV 取り込み (未着手 / Bright Data 撤去・CSV+画像アップロード方式に全面改訂)
 - Ticket 36: 取得投稿管理画面 (未着手 / カルーセル画像選択 UI 追加)
 - Ticket 37: AI 記事再構成 + イベント情報抽出 (未着手 / posts に event カラム追加, 構造化抽出仕様追加)
@@ -142,3 +142,13 @@
 - `src/app/api/admin/instagram/posts/route.ts` - GET (一覧) / POST (生成)
 - `src/app/api/admin/instagram/posts/[id]/route.ts` - PATCH / DELETE
 - `src/app/api/admin/instagram/generate/route.ts` - POST 生成エイリアス
+- `src/lib/ig-action-utils.ts` - 共通 ActionResult / withRetry / friendlyDbError / isUniqueViolation
+- `src/app/(admin)/admin/instagram/sources/page.tsx` - IG 取得先アカウント管理 (force-dynamic)
+- `src/app/(admin)/admin/instagram/sources/actions.ts` - Server Actions (getIgSources / create / update / delete / getRelatedImportedCount)
+- `src/app/(admin)/admin/instagram/sources/filters.ts` - parseIgPermissionStatus / parseIgActiveFilter (同期ヘルパー)
+- `src/app/(admin)/admin/instagram/sources/_components/SourcesClient.tsx` - フィルター + テーブル + ダイアログ状態
+- `src/app/(admin)/admin/instagram/sources/_components/SourceRow.tsx` - テーブル行 (is_active インライン切替, 削除確認)
+- `src/app/(admin)/admin/instagram/sources/_components/SourceDialog.tsx` - 新規/編集ダイアログ (共通)
+- `src/app/(admin)/admin/instagram/sources/_components/CoworkPromptDownloadButton.tsx` - approved+active のみ有効、Ticket 35 のルートを download 属性で叩く
+- `src/app/api/admin/instagram/sources/route.ts` - GET (一覧+フィルタ) / POST (新規, 重複時 409)
+- `src/app/api/admin/instagram/sources/[id]/route.ts` - PATCH (更新, 重複時 409) / DELETE

@@ -164,14 +164,14 @@ src/app/(admin)/admin/instagram/sources/
 
 ## 完了条件
 
-- [ ] `GET /api/admin/instagram/sources` が permission_status / is_active / category_slug / q でフィルター可能
-- [ ] `POST /api/admin/instagram/sources` で新規登録でき、ig_username の重複は 409 エラー
-- [ ] `PATCH /api/admin/instagram/sources/[id]` で全フィールド編集可能
-- [ ] `DELETE /api/admin/instagram/sources/[id]` で紐づく取得投稿の件数を警告表示してから削除
-- [ ] `/admin/instagram/sources` で一覧が表示される
-- [ ] フィルター（許可状態 / 有効 / カテゴリ / 検索）が動作する
-- [ ] 新規登録・編集ダイアログで全項目を操作できる
-- [ ] 許可状態が 'approved' 以外のとき `is_active` トグルが無効化される
-- [ ] 「📋 Cowork 指示書 DL」ボタンが approved + active のときのみ有効になる（実体は Ticket 35 で実装）
-- [ ] ig_username 入力時に先頭 `@` が自動で除去される
-- [ ] `npm run build` が成功する
+- [×] `GET /api/admin/instagram/sources` が permission_status / is_active / category_slug / q でフィルター可能
+- [×] `POST /api/admin/instagram/sources` で新規登録でき、ig_username の重複は 409 エラー
+- [×] `PATCH /api/admin/instagram/sources/[id]` で全フィールド編集可能
+- [×] `DELETE /api/admin/instagram/sources/[id]` で紐づく取得投稿の件数を警告表示してから削除
+- [×] `/admin/instagram/sources` で一覧が表示される
+- [×] フィルター（許可状態 / 有効 / カテゴリ / 検索）が動作する
+- [×] 新規登録・編集ダイアログで全項目を操作できる
+- [×] 許可状態が 'approved' 以外のとき `is_active` トグルが無効化される
+- [×] 「📋 Cowork 指示書 DL」ボタンが approved + active のときのみ有効になる（実体は Ticket 35 で実装）
+- [×] ig_username 入力時に先頭 `@` が自動で除去される
+- [×] `npm run build` が成功する
