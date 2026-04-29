@@ -278,10 +278,12 @@ export interface IgImportedPost {
   image_urls: string[] | null
   ig_posted_at: string | null
   likes_count: number | null
+  comment_count: number | null
   ig_post_url: string | null
   status: IgImportedStatus
   generated_post_id: string | null
   stored_image_urls: string[] | null
+  selected_image_indexes: number[] | null
   created_at: string
   updated_at: string
 }

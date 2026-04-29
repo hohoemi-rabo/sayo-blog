@@ -131,6 +131,36 @@ export async function getCategoriesForSelect(): Promise<CategoryOption[]> {
   return (data ?? []) as CategoryOption[]
 }
 
+export async function getIgSourceById(id: string): Promise<IgSource | null> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('ig_sources')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (error) {
+    console.error('[getIgSourceById] error:', error)
+    return null
+  }
+  return (data as IgSource | null) ?? null
+}
+
+export async function getApprovedActiveSources(): Promise<IgSource[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('ig_sources')
+    .select('*')
+    .eq('permission_status', 'approved')
+    .eq('is_active', true)
+    .order('display_name', { ascending: true })
+
+  if (error) {
+    console.error('[getApprovedActiveSources] error:', error)
+    return []
+  }
+  return (data ?? []) as IgSource[]
+}
+
 export async function getRelatedImportedCount(
   sourceId: string
 ): Promise<number> {

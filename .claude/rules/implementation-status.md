@@ -38,7 +38,7 @@
 - Ticket 32: 自動下書き生成 + 記事編集画面統合 (after() + 全セクション自動生成, AutoGenerateSettings, IgPostsSection) ✅
 - Ticket 33: Graph API 直接投稿 (未着手)
 - Ticket 34: IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン配置) ✅
-- Ticket 35: Cowork CSV 取り込み (未着手 / Bright Data 撤去・CSV+画像アップロード方式に全面改訂)
+- Ticket 35: Cowork CSV 取り込み (CSV+画像アップロード, Server Action, Cowork 指示書配信) ✅
 - Ticket 36: 取得投稿管理画面 (未着手 / カルーセル画像選択 UI 追加)
 - Ticket 37: AI 記事再構成 + イベント情報抽出 (未着手 / posts に event カラム追加, 構造化抽出仕様追加)
 - Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
@@ -152,3 +152,14 @@
 - `src/app/(admin)/admin/instagram/sources/_components/CoworkPromptDownloadButton.tsx` - approved+active のみ有効、Ticket 35 のルートを download 属性で叩く
 - `src/app/api/admin/instagram/sources/route.ts` - GET (一覧+フィルタ) / POST (新規, 重複時 409)
 - `src/app/api/admin/instagram/sources/[id]/route.ts` - PATCH (更新, 重複時 409) / DELETE
+- `src/lib/ig-csv-parser.ts` - Cowork CSV パース + 画像名照合 + username 検証 (browser/server 両用)
+- `src/lib/ig-import-storage.ts` - 画像 Storage アップロード (ig-imported, withRetry, 10MB 制限)
+- `src/app/(admin)/admin/instagram/sources/[id]/cowork-prompt.txt/route.ts` - GET アカウント別 Cowork 指示書配信
+- `src/app/(admin)/admin/instagram/imports/sample.csv/route.ts` - GET サンプル CSV 配信 (UTF-8 BOM 付き、Excel 文字化け対策)
+- `src/app/(admin)/admin/instagram/imports/page.tsx` - /upload への暫定 redirect (Ticket 36 で一覧画面に置き換え)
+- `src/app/(admin)/admin/instagram/imports/upload/page.tsx` - 取り込み UI (force-dynamic, approved+active のみ)
+- `src/app/(admin)/admin/instagram/imports/upload/actions.ts` - uploadIgImports (CSV→画像→DB INSERT、ON CONFLICT skip、last_fetched_at 更新)
+- `src/app/(admin)/admin/instagram/imports/upload/_components/UploadClient.tsx` - 3 ステップフォーム + Drag&Drop + 検証
+- `src/app/(admin)/admin/instagram/imports/upload/_components/CsvPreview.tsx` - パース結果プレビューテーブル
+- `src/app/(admin)/admin/instagram/imports/upload/_components/ValidationSummary.tsx` - 検証結果サマリー
+- `supabase/migrations/20260429045435_add_ig_imports_columns.sql` - comment_count / selected_image_indexes 追加

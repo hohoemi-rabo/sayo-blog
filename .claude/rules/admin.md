@@ -38,8 +38,9 @@ paths:
 ## Instagram Integration Pages (Phase 3)
 
 - `/admin/instagram/posts` — IG 下書き管理 (セクション選択式生成 + CRUD)
-- `/admin/instagram/sources` — 取得先アカウント管理 (Ticket 34 で実装予定)
-- `/admin/instagram/imports` — 取得投稿管理 (Ticket 36 で実装予定)
+- `/admin/instagram/sources` — 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン)
+- `/admin/instagram/imports/upload` — Cowork CSV + 画像取り込み (3 ステップフォーム)
+- `/admin/instagram/imports` — 取得投稿一覧 (Ticket 36 未実装、現状は /upload に redirect)
 
 ### Instagram Admin Pattern
 - `'use server'` ファイルは async 関数しか export できないため、同期ヘルパー
