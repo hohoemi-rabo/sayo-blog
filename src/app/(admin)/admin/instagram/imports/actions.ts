@@ -8,6 +8,10 @@ import {
   friendlyDbError,
   withRetry,
 } from '@/lib/ig-action-utils'
+import {
+  generateArticleFromIg,
+  IgArticleValidationError,
+} from '@/lib/ig-article-generator'
 import type {
   IgImportedPostWithSource,
   IgImportedStatus,
@@ -275,15 +279,21 @@ export async function startGenerateArticle(
   const selResult = await updateSelectedImages(id, selectedIndexes)
   if (!selResult.success) return { success: false, error: selResult.error }
 
-  const statusResult = await updateImportStatus(id, 'processing')
-  if (!statusResult.success) return { success: false, error: statusResult.error }
-
-  // TODO(Ticket 37): POST /api/admin/instagram/imports/[id]/generate を呼んで
-  // AI 記事生成 → 失敗時は status='pending' にロールバック。
-  // 今は status='processing' に変更したところまで。
-
-  revalidatePath(ADMIN_PATH)
-  return { success: true, data: {} }
+  // Ticket 37: AI 記事生成本体を呼ぶ。失敗時は generator 内部で status='pending'
+  // に巻き戻すので、UI 側は単にエラーメッセージを Toast すれば良い。
+  try {
+    const result = await generateArticleFromIg(id)
+    revalidatePath(ADMIN_PATH)
+    return { success: true, data: { post_id: result.post_id } }
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : '記事生成に失敗しました'
+    if (err instanceof IgArticleValidationError) {
+      return { success: false, error: message, code: 'validation' }
+    }
+    console.error('[startGenerateArticle] error:', err)
+    return { success: false, error: friendlyDbError(message) }
+  }
 }
 
 // ------------------------------------------------------------

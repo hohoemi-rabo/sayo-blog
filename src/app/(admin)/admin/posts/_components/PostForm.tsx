@@ -16,6 +16,7 @@ import type { ImportedOrigin } from '../actions'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
+import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import type { IgPostWithRelations } from '@/lib/types'
 
 interface Category {
@@ -44,6 +45,15 @@ interface PostFormProps {
     is_published: boolean
     event_ended?: boolean
     published_at: string | null
+    is_event?: boolean
+    event_date_start?: string | null
+    event_date_end?: string | null
+    event_time_start?: string | null
+    event_time_end?: string | null
+    event_venue?: string | null
+    event_address?: string | null
+    event_fee?: string | null
+    event_url?: string | null
     post_categories?: Array<{ categories: Category }>
     post_hashtags?: Array<{ hashtags: Hashtag }>
   }
@@ -98,6 +108,17 @@ export function PostForm({
       ? new Date(initialData.published_at).toISOString().slice(0, 16)
       : ''
   )
+  const [eventInfo, setEventInfo] = useState<EventInfoState>({
+    is_event: initialData?.is_event ?? false,
+    event_date_start: initialData?.event_date_start ?? null,
+    event_date_end: initialData?.event_date_end ?? null,
+    event_time_start: initialData?.event_time_start ?? null,
+    event_time_end: initialData?.event_time_end ?? null,
+    event_venue: initialData?.event_venue ?? null,
+    event_address: initialData?.event_address ?? null,
+    event_fee: initialData?.event_fee ?? null,
+    event_url: initialData?.event_url ?? null,
+  })
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value
@@ -149,6 +170,15 @@ export function PostForm({
       published_at: publishedAt ? new Date(publishedAt).toISOString() : null,
       is_published: isPublished,
       event_ended: eventEnded,
+      is_event: eventInfo.is_event,
+      event_date_start: eventInfo.event_date_start,
+      event_date_end: eventInfo.event_date_end,
+      event_time_start: eventInfo.event_time_start,
+      event_time_end: eventInfo.event_time_end,
+      event_venue: eventInfo.event_venue,
+      event_address: eventInfo.event_address,
+      event_fee: eventInfo.event_fee,
+      event_url: eventInfo.event_url,
     }
 
     try {
@@ -187,9 +217,9 @@ export function PostForm({
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          {mode === 'edit' && initialData && categoryId && (
+          {mode === 'edit' && initialData && (
             <Link
-              href={`/${categories.find((c) => c.id === categoryId)?.slug}/${slug}`}
+              href={`/admin/posts/${initialData.id}/preview`}
               target="_blank"
             >
               <Button type="button" variant="outline" className="gap-2">
@@ -318,6 +348,9 @@ export function PostForm({
               </div>
             </div>
           </Card>
+
+          {/* Event Info (Ticket 37) */}
+          <EventInfoSection value={eventInfo} onChange={setEventInfo} />
 
           {/* Thumbnail */}
           <Card className="p-6 bg-white">

@@ -318,24 +318,24 @@ supabase/migrations/
 
 ## 完了条件
 
-- [ ] `posts` テーブルに `is_event` / `event_date_start` / `event_date_end` / `event_time_start` / `event_time_end` / `event_venue` / `event_address` / `event_fee` / `event_url` カラムが追加されている
-- [ ] `idx_posts_event_date_partial` インデックスが作成されている
-- [ ] `generateArticleFromIg(id)` が実装され、`posts` に下書き記事を INSERT する
-- [ ] `buildArticleFromIgPrompt()` がイベント情報抽出を含むプロンプトを返す
-- [ ] Gemini から JSON 形式（title / excerpt / content_html / recommended_category_slug / recommended_hashtags / event）が返る
-- [ ] イベント情報が `posts` の event_* カラムに保存される
-- [ ] 曖昧な日付（「来月」等）の場合は event_date_start = null + extraction_note 付きで保存される
-- [ ] JSON パース失敗時に 1 回リトライする
-- [ ] `selected_image_indexes` で絞り込んだ画像のみが本文 HTML に埋め込まれる
-- [ ] 1 枚目の画像が `posts.thumbnail_url` に設定される
-- [ ] 画像挿入は h2 セクションごとに分配される（h2 が 1 個なら冒頭、複数なら順次）
-- [ ] クレジット表記（display_name + @ig_username + 元 URL）が記事末尾に自動挿入される（欠けていればサーバー側で補完）
-- [ ] 推奨カテゴリが `post_categories` に INSERT される
-- [ ] 推奨ハッシュタグが `post_hashtags` に INSERT される（新規タグは hashtags に INSERT）
-- [ ] `ig_imported_posts.status='published'`, `generated_post_id=<新記事ID>` に更新される
-- [ ] 記事は `is_published=false` で作成される（必ず下書き）
-- [ ] 「記事化する」ボタン → 生成完了 → 記事編集画面にリダイレクトされる
-- [ ] 失敗時に `ig_imported_posts.status` が `pending` に戻される
-- [ ] 採用画像 0 枚 / 情報量不足の場合は 400 でエラー返却
-- [ ] 記事編集画面に EventInfoSection が追加され、イベント情報を編集できる
-- [ ] `npm run build` が成功する
+- [×] `posts` テーブルに `is_event` / `event_date_start` / `event_date_end` / `event_time_start` / `event_time_end` / `event_venue` / `event_address` / `event_fee` / `event_url` カラムが追加されている
+- [×] `idx_posts_event_date_partial` インデックスが作成されている
+- [×] `generateArticleFromIg(id)` が実装され、`posts` に下書き記事を INSERT する
+- [×] `buildArticleFromIgPrompt()` がイベント情報抽出を含むプロンプトを返す
+- [×] Gemini から JSON 形式（title / excerpt / content_html / recommended_category_slug / recommended_hashtags / event）が返る
+- [×] イベント情報が `posts` の event_* カラムに保存される
+- [×] 曖昧な日付（「来月」等）の場合は event_date_start = null + extraction_note 付きで保存される
+- [×] JSON パース失敗時に 1 回リトライする
+- [×] `selected_image_indexes` で絞り込んだ画像のみが本文 HTML に埋め込まれる
+- [×] 1 枚目の画像が `posts.thumbnail_url` に設定される
+- [×] 画像挿入は h2 セクションごとに分配される（h2 が 1 個なら冒頭、複数なら順次）
+- [×] クレジット表記（display_name + @ig_username + 元 URL）が記事末尾に自動挿入される（欠けていればサーバー側で補完）
+- [×] 推奨カテゴリが `post_categories` に INSERT される
+- [×] 推奨ハッシュタグが `post_hashtags` に INSERT される（新規タグは hashtags に INSERT）
+- [×] `ig_imported_posts.status='published'`, `generated_post_id=<新記事ID>` に更新される
+- [×] 記事は `is_published=false` で作成される（必ず下書き）
+- [×] 「記事化する」ボタン → 生成完了 → 記事編集画面にリダイレクトされる
+- [×] 失敗時に `ig_imported_posts.status` が `pending` に戻される
+- [×] 採用画像 0 枚 / 情報量不足の場合は 400 でエラー返却
+- [×] 記事編集画面に EventInfoSection が追加され、イベント情報を編集できる
+- [×] `npm run build` が成功する

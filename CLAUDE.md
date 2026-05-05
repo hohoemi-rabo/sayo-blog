@@ -129,5 +129,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-05 (Ticket 36: 取得投稿管理画面 = 一覧 + 画像選択 + status 操作 + API ルート併設)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34, 35, 36 done, 33 / 37-39 pending) / AI Chat paused
+**Updated**: 2026-05-05 (Ticket 37: AI 記事再構成 + イベント情報抽出 = Gemini で記事生成 + posts に 9 イベントカラム + EventInfoSection)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34-37 done, 33 / 38-39 pending) / AI Chat paused

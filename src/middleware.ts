@@ -3,7 +3,9 @@ import type { NextRequest } from 'next/server'
 
 /**
  * Admin authentication middleware
- * Protects all /admin/* routes except /admin/login
+ * Protects all /admin/* routes except /admin/login.
+ * Also injects x-pathname so the admin layout can vary chrome by route
+ * (e.g. hide sidebar on preview pages).
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -13,6 +15,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', pathname)
+  const passThrough = () =>
+    NextResponse.next({ request: { headers: requestHeaders } })
+
   // Allow access to login page
   if (pathname === '/admin/login') {
     // If already authenticated, redirect to dashboard
@@ -20,7 +27,7 @@ export function middleware(request: NextRequest) {
     if (authToken?.value === 'authenticated') {
       return NextResponse.redirect(new URL('/admin', request.url))
     }
-    return NextResponse.next()
+    return passThrough()
   }
 
   // Check for authentication cookie
@@ -33,7 +40,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  return NextResponse.next()
+  return passThrough()
 }
 
 export const config = {

@@ -16,6 +16,16 @@ export type PostFormData = {
   published_at: string | null
   is_published: boolean
   event_ended: boolean
+  // Event metadata (Ticket 37)
+  is_event: boolean
+  event_date_start: string | null
+  event_date_end: string | null
+  event_time_start: string | null
+  event_time_end: string | null
+  event_venue: string | null
+  event_address: string | null
+  event_fee: string | null
+  event_url: string | null
 }
 
 export async function createPost(data: PostFormData) {
@@ -33,6 +43,15 @@ export async function createPost(data: PostFormData) {
       published_at: data.published_at,
       is_published: data.is_published,
       event_ended: data.event_ended,
+      is_event: data.is_event,
+      event_date_start: data.event_date_start,
+      event_date_end: data.event_date_end,
+      event_time_start: data.event_time_start,
+      event_time_end: data.event_time_end,
+      event_venue: data.event_venue,
+      event_address: data.event_address,
+      event_fee: data.event_fee,
+      event_url: data.event_url,
       view_count: 0,
     })
     .select()
@@ -108,6 +127,15 @@ export async function updatePost(id: string, data: PostFormData) {
       published_at: data.published_at,
       is_published: data.is_published,
       event_ended: data.event_ended,
+      is_event: data.is_event,
+      event_date_start: data.event_date_start,
+      event_date_end: data.event_date_end,
+      event_time_start: data.event_time_start,
+      event_time_end: data.event_time_end,
+      event_venue: data.event_venue,
+      event_address: data.event_address,
+      event_fee: data.event_fee,
+      event_url: data.event_url,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)

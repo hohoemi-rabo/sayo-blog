@@ -17,6 +17,16 @@ export interface Post {
   updated_at: string
   is_published: boolean
   event_ended: boolean
+  // Event metadata (Ticket 37) — populated by AI extraction or manual edit
+  is_event: boolean
+  event_date_start: string | null
+  event_date_end: string | null
+  event_time_start: string | null
+  event_time_end: string | null
+  event_venue: string | null
+  event_address: string | null
+  event_fee: string | null
+  event_url: string | null
   created_at: string
 }
 
@@ -310,4 +320,27 @@ export interface IgAutoGenerateConfig {
 export interface IgAccountConfig {
   username: string
   facebook_page_connected: boolean
+}
+
+// AI 記事生成 (Ticket 37) Gemini が返す JSON のスキーマ
+export interface IgArticleEventData {
+  is_event: boolean
+  event_date_start: string | null
+  event_date_end: string | null
+  event_time_start: string | null
+  event_time_end: string | null
+  event_venue: string | null
+  event_address: string | null
+  event_fee: string | null
+  event_url: string | null
+  extraction_note: string | null // DB には保存しない、人間レビュー用メモ
+}
+
+export interface IgArticleAiOutput {
+  title: string
+  excerpt: string
+  content_html: string
+  recommended_category_slug: string
+  recommended_hashtags: string[]
+  event: IgArticleEventData
 }

@@ -40,7 +40,7 @@
 - Ticket 34: IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン配置) ✅
 - Ticket 35: Cowork CSV 取り込み (CSV+画像アップロード, Server Action, Cowork 指示書配信) ✅
 - Ticket 36: 取得投稿管理画面 (一覧 + フィルター + 画像選択 + status 操作 + API 併設) ✅
-- Ticket 37: AI 記事再構成 + イベント情報抽出 (未着手 / posts に event カラム追加, 構造化抽出仕様追加)
+- Ticket 37: AI 記事再構成 + イベント情報抽出 + クレジット (Gemini で title/excerpt/content/event 構造化抽出 + h2 への画像配分 + 記事編集画面に EventInfoSection) ✅
 - Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
 - Ticket 39: 統合テスト & ドキュメント最終化 (未着手)
 
@@ -173,3 +173,13 @@
 - `src/app/(admin)/admin/instagram/imports/upload/_components/CsvPreview.tsx` - パース結果プレビューテーブル
 - `src/app/(admin)/admin/instagram/imports/upload/_components/ValidationSummary.tsx` - 検証結果サマリー
 - `supabase/migrations/20260429045435_add_ig_imports_columns.sql` - comment_count / selected_image_indexes 追加
+
+### Phase 3B: Ticket 37 (AI 記事再構成)
+- `src/lib/slug-utils.ts` - slugifyTitle / generateUniquePostSlug (event-{date} prefix 対応 + 衝突時サフィックス)
+- `src/lib/ig-article-prompt.ts` - buildArticleFromIgPrompt (FUNE persona + JSON 出力スキーマ + イベント抽出ルール + クレジット)
+- `src/lib/ig-article-credit.ts` - buildCreditHtml / ensureCreditSection (URL 含有チェック + 末尾補完)
+- `src/lib/ig-article-images.ts` - injectImagesIntoArticle (h2 ごとに画像配分、N>M なら最後に集約)
+- `src/lib/ig-article-generator.ts` - generateArticleFromIg (Gemini 3 回リトライ + JSON parse + ハッシュタグ自動 INSERT + status=published 更新, IgArticleValidationError class)
+- `src/app/api/admin/instagram/imports/[id]/generate/route.ts` - POST + maxDuration=60
+- `src/app/(admin)/admin/posts/_components/EventInfoSection.tsx` - イベント情報編集 UI (is_event チェック + 日付/時刻/会場/料金/URL)
+- `supabase/migrations/20260505111459_add_posts_event_columns.sql` - posts に 9 イベントカラム + idx_posts_event_date_partial
