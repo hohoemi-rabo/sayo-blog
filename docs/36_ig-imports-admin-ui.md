@@ -184,21 +184,21 @@ src/app/(admin)/admin/instagram/imports/
 
 ## 完了条件
 
-- [ ] `GET /api/admin/instagram/imports` が status / source_id / q / sort でフィルター可能
-- [ ] `PATCH /api/admin/instagram/imports/[id]` で status と selected_image_indexes を変更できる
-- [ ] `DELETE /api/admin/instagram/imports/[id]` で行と関連 Storage 画像が削除される
-- [ ] `generated_post_id` がある行は削除できず警告が返る
-- [ ] `/admin/instagram/imports` でグリッド一覧が表示される
-- [ ] 右上に「📥 新規取り込み」ボタンがあり、`/admin/instagram/imports/upload` へ遷移する
-- [ ] フィルター・ソート・テキスト検索が動作する
-- [ ] ページネーション（24 件/ページ）が動作する
-- [ ] ステータス別に表示されるアクションボタンが切り替わる
-- [ ] 複数画像がある投稿で「記事化する」を押すと画像選択ダイアログが表示される
-- [ ] 画像選択 → 1 枚以上選択必須のバリデーションが動作する
-- [ ] 選択結果が selected_image_indexes として DB に保存される
-- [ ] 単一画像の投稿ではダイアログをスキップして直接記事化に進む
-- [ ] 「記事化する」ボタンで status が processing に変更される（生成 API 本体は Ticket 37）
-- [ ] 「スキップ」「未処理に戻す」が動作する
-- [ ] 複数画像がある投稿ではサムネイル枚数バッジが表示される
-- [ ] 元投稿 URL へのリンクが新規タブで開く
-- [ ] `npm run build` が成功する
+- [×] `GET /api/admin/instagram/imports` が status / source_id / q / sort でフィルター可能
+- [×] `PATCH /api/admin/instagram/imports/[id]` で status と selected_image_indexes を変更できる
+- [×] `DELETE /api/admin/instagram/imports/[id]` で行と関連 Storage 画像が削除される
+- [×] `generated_post_id` がある行は削除できず警告が返る
+- [×] `/admin/instagram/imports` でグリッド一覧が表示される
+- [×] 右上に「📥 新規取り込み」ボタンがあり、`/admin/instagram/imports/upload` へ遷移する
+- [×] フィルター・ソート・テキスト検索が動作する
+- [×] ページネーション（24 件/ページ）が動作する
+- [×] ステータス別に表示されるアクションボタンが切り替わる
+- [×] 複数画像がある投稿で「記事化する」を押すと画像選択ダイアログが表示される
+- [×] 画像選択 → 1 枚以上選択必須のバリデーションが動作する
+- [×] 選択結果が selected_image_indexes として DB に保存される
+- [×] 単一画像の投稿ではダイアログをスキップして直接記事化に進む
+- [×] 「記事化する」ボタンで status が processing に変更される（生成 API 本体は Ticket 37）
+- [×] 「スキップ」「未処理に戻す」が動作する
+- [×] 複数画像がある投稿ではサムネイル枚数バッジが表示される
+- [×] 元投稿 URL へのリンクが新規タブで開く
+- [×] `npm run build` が成功する

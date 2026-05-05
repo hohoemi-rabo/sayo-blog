@@ -70,7 +70,7 @@ src/
 /admin/ai/analytics            → AI Analytics dashboard
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
 /admin/instagram/sources       → IG 取得先アカウント管理 (Ticket 34 で実装予定)
-/admin/instagram/imports       → IG 取得投稿管理 (Ticket 36 で実装予定)
+/admin/instagram/imports       → IG 取得投稿管理 (一覧 + フィルター + 画像選択 + status 操作)
 ```
 
 **Categories** (flat): gourmet, event, spot, culture, news
@@ -129,5 +129,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-04-29 (イベント終了記事の表示対応: posts.event_ended カラム + サムネ白黒化 + 終了案内オーバーレイ)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34, 35 done, 33 / 36-39 pending) / AI Chat paused
+**Updated**: 2026-05-05 (Ticket 36: 取得投稿管理画面 = 一覧 + 画像選択 + status 操作 + API ルート併設)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34, 35, 36 done, 33 / 37-39 pending) / AI Chat paused

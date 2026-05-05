@@ -291,6 +291,7 @@ export interface IgImportedPost {
 
 export interface IgImportedPostWithSource extends IgImportedPost {
   source?: Pick<IgSource, 'ig_username' | 'display_name' | 'category_slug'>
+  post?: Pick<Post, 'id' | 'title' | 'slug'>
 }
 
 // ig_settings value shapes

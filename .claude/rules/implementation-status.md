@@ -39,7 +39,7 @@
 - Ticket 33: Graph API 直接投稿 (未着手)
 - Ticket 34: IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン配置) ✅
 - Ticket 35: Cowork CSV 取り込み (CSV+画像アップロード, Server Action, Cowork 指示書配信) ✅
-- Ticket 36: 取得投稿管理画面 (未着手 / カルーセル画像選択 UI 追加)
+- Ticket 36: 取得投稿管理画面 (一覧 + フィルター + 画像選択 + status 操作 + API 併設) ✅
 - Ticket 37: AI 記事再構成 + イベント情報抽出 (未着手 / posts に event カラム追加, 構造化抽出仕様追加)
 - Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
 - Ticket 39: 統合テスト & ドキュメント最終化 (未着手)
@@ -157,7 +157,16 @@
 - `src/lib/ig-import-storage.ts` - 画像 Storage アップロード (ig-imported, withRetry, 10MB 制限)
 - `src/app/(admin)/admin/instagram/sources/[id]/cowork-prompt.txt/route.ts` - GET アカウント別 Cowork 指示書配信
 - `src/app/(admin)/admin/instagram/imports/sample.csv/route.ts` - GET サンプル CSV 配信 (UTF-8 BOM 付き、Excel 文字化け対策)
-- `src/app/(admin)/admin/instagram/imports/page.tsx` - /upload への暫定 redirect (Ticket 36 で一覧画面に置き換え)
+- `src/app/(admin)/admin/instagram/imports/page.tsx` - 取得投稿一覧 (force-dynamic, Promise.all で imports + sources 並列取得)
+- `src/app/(admin)/admin/instagram/imports/actions.ts` - Server Actions (getIgImportedPosts / updateImportStatus / updateSelectedImages / deleteImport / startGenerateArticle)
+- `src/app/(admin)/admin/instagram/imports/filters.ts` - parseIgImportedStatus / parseIgImportedSort / parseFilters / IMPORTS_PAGE_SIZE
+- `src/app/(admin)/admin/instagram/imports/_components/ImportsClient.tsx` - フィルター + グリッド + Dialog 制御
+- `src/app/(admin)/admin/instagram/imports/_components/ImportCard.tsx` - 投稿カード (status 別ボタン, カルーセルバッジ)
+- `src/app/(admin)/admin/instagram/imports/_components/ImportImageGallery.tsx` - 全画像閲覧ダイアログ (閲覧専用)
+- `src/app/(admin)/admin/instagram/imports/_components/ImageSelectorDialog.tsx` - 記事化用の画像選択 (1 枚以上必須)
+- `src/app/(admin)/admin/instagram/imports/_components/GenerateConfirmDialog.tsx` - 記事化最終確認 (Ticket 37 で生成 API 接続予定)
+- `src/app/api/admin/instagram/imports/route.ts` - GET 一覧 (status / source_id / q / sort / page)
+- `src/app/api/admin/instagram/imports/[id]/route.ts` - PATCH (status / selected_image_indexes) / DELETE (Storage cleanup)
 - `src/app/(admin)/admin/instagram/imports/upload/page.tsx` - 取り込み UI (force-dynamic, approved+active のみ)
 - `src/app/(admin)/admin/instagram/imports/upload/actions.ts` - uploadIgImports (CSV→画像→DB INSERT、ON CONFLICT skip、last_fetched_at 更新)
 - `src/app/(admin)/admin/instagram/imports/upload/_components/UploadClient.tsx` - 3 ステップフォーム + Drag&Drop + 検証

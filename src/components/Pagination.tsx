@@ -9,11 +9,17 @@ interface PaginationProps {
   currentPage: number
   totalPages: number
   totalItems: number
+  itemsPerPage?: number
 }
 
 const SCROLL_FLAG_KEY = 'pagination-should-scroll'
 
-export default function Pagination({ currentPage, totalPages, totalItems }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  totalItems,
+  itemsPerPage = 12,
+}: PaginationProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -60,7 +66,6 @@ export default function Pagination({ currentPage, totalPages, totalItems }: Pagi
   const pages = getPaginationRange(currentPage, totalPages, 1)
 
   // Calculate item range
-  const itemsPerPage = 12
   const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 
