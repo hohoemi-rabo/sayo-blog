@@ -69,8 +69,11 @@ src/
 /admin/ai/tags                 → AI Prompt Tags management
 /admin/ai/analytics            → AI Analytics dashboard
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
-/admin/instagram/sources       → IG 取得先アカウント管理 (Ticket 34 で実装予定)
+/admin/instagram/sources       → IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL)
 /admin/instagram/imports       → IG 取得投稿管理 (一覧 + フィルター + 画像選択 + status 操作)
+/admin/instagram/imports/upload → Cowork CSV + 画像取り込み
+/admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
+/admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```
 
 **Categories** (flat): gourmet, event, spot, culture, news

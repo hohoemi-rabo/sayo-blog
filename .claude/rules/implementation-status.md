@@ -182,4 +182,7 @@
 - `src/lib/ig-article-generator.ts` - generateArticleFromIg (Gemini 3 回リトライ + JSON parse + ハッシュタグ自動 INSERT + status=published 更新, IgArticleValidationError class)
 - `src/app/api/admin/instagram/imports/[id]/generate/route.ts` - POST + maxDuration=60
 - `src/app/(admin)/admin/posts/_components/EventInfoSection.tsx` - イベント情報編集 UI (is_event チェック + 日付/時刻/会場/料金/URL)
+- `src/app/(admin)/admin/posts/[id]/preview/page.tsx` - 下書きプレビュー (is_published フィルター無視, 公開記事と同じレンダリング, 上部に下書きバナー)
+- `src/app/(admin)/admin/layout.tsx` - CHROMELESS_PATTERNS で preview 系ページの Sidebar/Header をスキップ
+- `src/middleware.ts` - x-pathname ヘッダー注入 (admin layout が pathname を判定するため)
 - `supabase/migrations/20260505111459_add_posts_event_columns.sql` - posts に 9 イベントカラム + idx_posts_event_date_partial
