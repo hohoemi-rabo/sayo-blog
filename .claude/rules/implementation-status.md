@@ -36,13 +36,20 @@
 - Ticket 30: ブログ→IG AI キャプション生成ライブラリ ✅
 - Ticket 31: IG 投稿管理 CRUD (API + 管理画面 UI, セクション選択式) ✅
 - Ticket 32: 自動下書き生成 + 記事編集画面統合 (after() + 全セクション自動生成, AutoGenerateSettings, IgPostsSection) ✅
-- Ticket 33: Graph API 直接投稿 (未着手)
-- Ticket 34: IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン配置) ✅
-- Ticket 35: Cowork CSV 取り込み (CSV+画像アップロード, Server Action, Cowork 指示書配信) ✅
-- Ticket 36: 取得投稿管理画面 (一覧 + フィルター + 画像選択 + status 操作 + API 併設) ✅
-- Ticket 37: AI 記事再構成 + イベント情報抽出 + クレジット (Gemini で title/excerpt/content/event 構造化抽出 + h2 への画像配分 + 記事編集画面に EventInfoSection) ✅
+- Ticket 33: Graph API 直接投稿 (保留 — Phase 4 後に再検討)
+- Ticket 34: IG 取得先アカウント管理 ❌ 廃止 (Ticket 40 で削除)
+- Ticket 35: Cowork CSV 取り込み ❌ 廃止 (Ticket 40 で削除)
+- Ticket 36: 取得投稿管理画面 ❌ 廃止 (Ticket 40 で削除)
+- Ticket 37: AI 記事再構成 + イベント情報抽出 + クレジット ✅ (ライブラリ `ig-article-*` は Ticket 41 で再利用)
 - Ticket 38: NextAuth.js v5 Google OAuth 移行 (未着手)
 - Ticket 39: 統合テスト & ドキュメント最終化 (未着手)
+
+### Phase 4 (情報窓口フォーム = 3 つの柱) — In Progress
+Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を寄せる「情報窓口フォーム」に置き換え。
+3 つの柱: 自由記事 (無料) / ミニ記事 (無料, SNS URL → AI 補助) / ロング記事 (有料 500円〜, 取材依頼)。
+- Ticket 40: 共通基盤 + 既存 IG 取り込み削除 (mini_inquiries/long_inquiries + inquiry-images バケット + /admin/inquiries 枠 + ヘッダー/About 導線) ✅
+- Ticket 41: ミニ記事フロー (公開フォーム /request/mini + AI たたき台生成 + Gmail SMTP 通知) (未着手)
+- Ticket 42: ロング記事 CRM (公開フォーム /request/long + 案件管理 + posts.article_type バッジ) (未着手)
 
 ## Key File Map
 
@@ -52,7 +59,7 @@
 - `src/app/(public)/[category]/page.tsx` - Category listing (React.cache + force-dynamic)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, React.cache for dedup)
 - `src/app/(public)/chat/page.tsx` - AI Chat (ChatPage: dynamic import, admin-only)
-- `src/app/(public)/about/page.tsx` - About (FUNE profile + specialties + Instagram CTA)
+- `src/app/(public)/about/page.tsx` - About (FUNE profile + specialties + 3 つの記事のかたち + 情報窓口 CTA + Instagram CTA)
 - `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
 - `src/app/(chat)/layout.tsx` - AI Chat layout (kept for future)
@@ -144,45 +151,34 @@
 - `src/app/api/admin/instagram/posts/[id]/route.ts` - PATCH / DELETE
 - `src/app/api/admin/instagram/generate/route.ts` - POST 生成エイリアス
 - `src/lib/ig-action-utils.ts` - 共通 ActionResult / withRetry / friendlyDbError / isUniqueViolation
-- `src/app/(admin)/admin/instagram/sources/page.tsx` - IG 取得先アカウント管理 (force-dynamic)
-- `src/app/(admin)/admin/instagram/sources/actions.ts` - Server Actions (getIgSources / create / update / delete / getRelatedImportedCount)
-- `src/app/(admin)/admin/instagram/sources/filters.ts` - parseIgPermissionStatus / parseIgActiveFilter (同期ヘルパー)
-- `src/app/(admin)/admin/instagram/sources/_components/SourcesClient.tsx` - フィルター + テーブル + ダイアログ状態
-- `src/app/(admin)/admin/instagram/sources/_components/SourceRow.tsx` - テーブル行 (is_active インライン切替, 削除確認)
-- `src/app/(admin)/admin/instagram/sources/_components/SourceDialog.tsx` - 新規/編集ダイアログ (共通)
-- `src/app/(admin)/admin/instagram/sources/_components/CoworkPromptDownloadButton.tsx` - approved+active のみ有効、Ticket 35 のルートを download 属性で叩く
-- `src/app/api/admin/instagram/sources/route.ts` - GET (一覧+フィルタ) / POST (新規, 重複時 409)
-- `src/app/api/admin/instagram/sources/[id]/route.ts` - PATCH (更新, 重複時 409) / DELETE
-- `src/lib/ig-csv-parser.ts` - Cowork CSV パース + 画像名照合 + username 検証 (browser/server 両用)
-- `src/lib/ig-import-storage.ts` - 画像 Storage アップロード (ig-imported, withRetry, 10MB 制限)
-- `src/app/(admin)/admin/instagram/sources/[id]/cowork-prompt.txt/route.ts` - GET アカウント別 Cowork 指示書配信
-- `src/app/(admin)/admin/instagram/imports/sample.csv/route.ts` - GET サンプル CSV 配信 (UTF-8 BOM 付き、Excel 文字化け対策)
-- `src/app/(admin)/admin/instagram/imports/page.tsx` - 取得投稿一覧 (force-dynamic, Promise.all で imports + sources 並列取得)
-- `src/app/(admin)/admin/instagram/imports/actions.ts` - Server Actions (getIgImportedPosts / updateImportStatus / updateSelectedImages / deleteImport / startGenerateArticle)
-- `src/app/(admin)/admin/instagram/imports/filters.ts` - parseIgImportedStatus / parseIgImportedSort / parseFilters / IMPORTS_PAGE_SIZE
-- `src/app/(admin)/admin/instagram/imports/_components/ImportsClient.tsx` - フィルター + グリッド + Dialog 制御
-- `src/app/(admin)/admin/instagram/imports/_components/ImportCard.tsx` - 投稿カード (status 別ボタン, カルーセルバッジ)
-- `src/app/(admin)/admin/instagram/imports/_components/ImportImageGallery.tsx` - 全画像閲覧ダイアログ (閲覧専用)
-- `src/app/(admin)/admin/instagram/imports/_components/ImageSelectorDialog.tsx` - 記事化用の画像選択 (1 枚以上必須)
-- `src/app/(admin)/admin/instagram/imports/_components/GenerateConfirmDialog.tsx` - 記事化最終確認 (Ticket 37 で生成 API 接続予定)
-- `src/app/api/admin/instagram/imports/route.ts` - GET 一覧 (status / source_id / q / sort / page)
-- `src/app/api/admin/instagram/imports/[id]/route.ts` - PATCH (status / selected_image_indexes) / DELETE (Storage cleanup)
-- `src/app/(admin)/admin/instagram/imports/upload/page.tsx` - 取り込み UI (force-dynamic, approved+active のみ)
-- `src/app/(admin)/admin/instagram/imports/upload/actions.ts` - uploadIgImports (CSV→画像→DB INSERT、ON CONFLICT skip、last_fetched_at 更新)
-- `src/app/(admin)/admin/instagram/imports/upload/_components/UploadClient.tsx` - 3 ステップフォーム + Drag&Drop + 検証
-- `src/app/(admin)/admin/instagram/imports/upload/_components/CsvPreview.tsx` - パース結果プレビューテーブル
-- `src/app/(admin)/admin/instagram/imports/upload/_components/ValidationSummary.tsx` - 検証結果サマリー
-- `supabase/migrations/20260429045435_add_ig_imports_columns.sql` - comment_count / selected_image_indexes 追加
 
-### Phase 3B: Ticket 37 (AI 記事再構成)
+> **Ticket 40 で削除**: `instagram/sources/**`, `instagram/imports/**` (upload 含む), `api/admin/instagram/sources/**`, `api/admin/instagram/imports/**`, `src/lib/ig-csv-parser.ts`, `src/lib/ig-import-storage.ts` を全削除。`ig_sources` / `ig_imported_posts` テーブルと `ig-imported` バケットも削除。
+
+### Phase 3B: Ticket 37 (AI 記事再構成) — ライブラリは Ticket 41 で再利用
 - `src/lib/slug-utils.ts` - slugifyTitle / generateUniquePostSlug (event-{date} prefix 対応 + 衝突時サフィックス)
 - `src/lib/ig-article-prompt.ts` - buildArticleFromIgPrompt (FUNE persona + JSON 出力スキーマ + イベント抽出ルール + クレジット)
 - `src/lib/ig-article-credit.ts` - buildCreditHtml / ensureCreditSection (URL 含有チェック + 末尾補完)
 - `src/lib/ig-article-images.ts` - injectImagesIntoArticle (h2 ごとに画像配分、N>M なら最後に集約)
-- `src/lib/ig-article-generator.ts` - generateArticleFromIg (Gemini 3 回リトライ + JSON parse + ハッシュタグ自動 INSERT + status=published 更新, IgArticleValidationError class)
-- `src/app/api/admin/instagram/imports/[id]/generate/route.ts` - POST + maxDuration=60
+- `src/lib/ig-article-generator.ts` - generateArticleFromIg (現在は未使用 / Ticket 41 でミニ記事生成に転用予定。`/admin/instagram/imports` への revalidatePath が残るが Ticket 41 で差し替え)
 - `src/app/(admin)/admin/posts/_components/EventInfoSection.tsx` - イベント情報編集 UI (is_event チェック + 日付/時刻/会場/料金/URL)
 - `src/app/(admin)/admin/posts/[id]/preview/page.tsx` - 下書きプレビュー (is_published フィルター無視, 公開記事と同じレンダリング, 上部に下書きバナー)
 - `src/app/(admin)/admin/layout.tsx` - CHROMELESS_PATTERNS で preview 系ページの Sidebar/Header をスキップ
 - `src/middleware.ts` - x-pathname ヘッダー注入 (admin layout が pathname を判定するため)
 - `supabase/migrations/20260505111459_add_posts_event_columns.sql` - posts に 9 イベントカラム + idx_posts_event_date_partial
+
+### Phase 4: 情報窓口フォーム (Ticket 40 = 共通基盤 + 既存 IG 削除)
+- `supabase/migrations/20260523120000_phase4_inquiries_foundation.sql` - mini_inquiries / long_inquiries + inquiry-images バケット作成、ig_sources/ig_imported_posts DROP、下書きテスト記事 2 件削除
+- `supabase/backups/20260523_phase4_ig_imports_backup.md` - 削除した IG テストデータの控え
+- `src/lib/types.ts` - MiniInquiry / LongInquiry + 各ステータス・種別型を追加
+- `src/lib/inquiries.ts` - ラベル定義 (種別/ステータス/公開希望) + 表示ヘルパー (formatMiniPublishPreference / formatClientName / formatRelativeTime)
+- `src/app/(admin)/admin/inquiries/page.tsx` - 依頼管理 (force-dynamic, タブ切替 mini/long)
+- `src/app/(admin)/admin/inquiries/actions.ts` - getInquiryCounts / getMiniInquiries / getLongInquiries
+- `src/app/(admin)/admin/inquiries/filters.ts` - parseInquiryTab + InquiryCounts 型 (同期ヘルパー)
+- `src/app/(admin)/admin/inquiries/_components/InquiriesTabs.tsx` - タブ + 件数バッジ
+- `src/app/(admin)/admin/inquiries/_components/MiniInquiriesList.tsx` - ミニ記事一覧 (枠 + 空状態, 詳細/操作は Ticket 41)
+- `src/app/(admin)/admin/inquiries/_components/LongInquiriesList.tsx` - ロング記事一覧 (枠 + 空状態, 詳細/操作は Ticket 42)
+- `src/components/admin/Sidebar.tsx` - 「情報窓口 > 依頼管理」セクション追加、旧 sources/imports リンク削除
+- `src/components/Header.tsx` - 公開ヘッダーに「情報を届ける」「取材を依頼」CTA (PC/SP)
+- `src/app/(public)/about/page.tsx` - 「3 つの記事のかたち」セクション + /request/mini, /request/long CTA
+
+> **Ticket 41/42 で作成予定**: `/request/mini`, `/request/long` 公開フォーム (現状はヘッダー/About のリンクのみ、ページ未作成のため 404)

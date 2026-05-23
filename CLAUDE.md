@@ -21,7 +21,7 @@ npm run lint        # Run ESLint
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS 3.4.17
 - **Database**: Supabase (PostgreSQL + pgvector)
-- **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `ig-imported`)
+- **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `inquiry-images`)
 - **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-2-preview)
 - **Language**: TypeScript 5
 - **React**: 19.1.0
@@ -63,15 +63,15 @@ src/
 /search?q=keyword              → Search results
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
-/about                         → About (FUNE profile + specialties + contact CTA)
+/about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
+/request/mini                  → ミニ記事の情報提供フォーム (Ticket 41 で作成予定)
+/request/long                  → 取材依頼フォーム (Ticket 42 で作成予定)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
 /admin/ai/analytics            → AI Analytics dashboard
+/admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
-/admin/instagram/sources       → IG 取得先アカウント管理 (CRUD + Cowork 指示書 DL)
-/admin/instagram/imports       → IG 取得投稿管理 (一覧 + フィルター + 画像選択 + status 操作)
-/admin/instagram/imports/upload → Cowork CSV + 画像取り込み
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```
@@ -132,5 +132,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-05 (Ticket 37: AI 記事再構成 + イベント情報抽出 = Gemini で記事生成 + posts に 9 イベントカラム + EventInfoSection)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 in progress (29-32, 34-37 done, 33 / 38-39 pending) / AI Chat paused
+**Updated**: 2026-05-23 (Ticket 40: 情報窓口フォーム共通基盤 = mini/long_inquiries テーブル + /admin/inquiries 枠 + ヘッダー/About 導線。旧 IG 取り込み (sources/imports/CSV) を廃止・削除)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム in progress (40 done, 41-42 pending) / AI Chat paused

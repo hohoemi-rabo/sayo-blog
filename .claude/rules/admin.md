@@ -38,9 +38,16 @@ paths:
 ## Instagram Integration Pages (Phase 3)
 
 - `/admin/instagram/posts` — IG 下書き管理 (セクション選択式生成 + CRUD)
-- `/admin/instagram/sources` — 取得先アカウント管理 (CRUD + Cowork 指示書 DL ボタン)
-- `/admin/instagram/imports/upload` — Cowork CSV + 画像取り込み (3 ステップフォーム)
-- `/admin/instagram/imports` — 取得投稿一覧 (フィルター + 画像選択 + status 操作 + 「🤖 記事化する」)
+
+> **Ticket 40 で削除**: `sources` / `imports` / `imports/upload` (Cowork CSV 取り込みフロー) は廃止。情報窓口フォーム (下記) に置き換え。
+
+## 情報窓口フォーム — 依頼管理 (Phase 4)
+
+- `/admin/inquiries` — 依頼管理 (force-dynamic, `?tab=mini|long` 切替 + 件数バッジ)
+  - ミニ記事 (mini_inquiries) / ロング記事 (long_inquiries) を別タブで一覧表示
+  - Ticket 40 では枠 + 一覧テーブル + 空状態まで。詳細ダイアログ / ステータス操作 / AI 記事化は Ticket 41 (ミニ) / 42 (ロング) で実装
+  - データ取得は `actions.ts` ('use server')、同期ヘルパー (parseInquiryTab / InquiryCounts 型) は `filters.ts` に分離
+  - ラベル/表示ヘルパーは `src/lib/inquiries.ts` に集約 (Server/Client 両用)
 
 ## Article Edit / Preview (Ticket 37)
 

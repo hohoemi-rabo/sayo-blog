@@ -363,41 +363,41 @@ src/lib/ig-import-storage.ts
 ## 完了条件
 
 ### DB
-- [ ] `mini_inquiries` テーブルが作成されている（10 カラム + status + admin_notes + generated_post_id）
-- [ ] `long_inquiries` テーブルが作成されている（種別別フィールド + 取材内容 + 7 つのステータス）
-- [ ] 両テーブルに RLS が有効化され、匿名 INSERT + authenticated SELECT/UPDATE/DELETE のポリシーが適用されている
-- [ ] `inquiry-images` Storage バケットが作成され、適切な Policy が適用されている
-- [ ] `ig_sources` / `ig_imported_posts` テーブルが DROP されている
-- [ ] `ig-imported` バケットが削除されている（参照記事の事前移行を含む）
+- [×] `mini_inquiries` テーブルが作成されている（10 カラム + status + admin_notes + generated_post_id）
+- [×] `long_inquiries` テーブルが作成されている（種別別フィールド + 取材内容 + 7 つのステータス）
+- [×] 両テーブルに RLS が有効化されている（authenticated 限定の ALL ポリシー。フォーム送信は Server Action から service role で書き込むため匿名 INSERT ポリシーは付けない方針に変更）
+- [×] `inquiry-images` Storage バケットが作成され、適切な Policy が適用されている
+- [×] `ig_sources` / `ig_imported_posts` テーブルが DROP されている
+- [×] `ig-imported` バケットが削除されている（参照記事の事前移行を含む）
 
 ### 削除
-- [ ] `/admin/instagram/sources/*` のページ・コンポーネントが削除されている
-- [ ] `/admin/instagram/imports/*`（`upload/` 含む）が削除されている
-- [ ] 関連 API ルート 5 つが削除されている
-- [ ] `src/lib/ig-csv-parser.ts` / `ig-import-storage.ts` が削除されている
-- [ ] Sidebar から「取得先アカウント」「取得投稿」が削除されている
+- [×] `/admin/instagram/sources/*` のページ・コンポーネントが削除されている
+- [×] `/admin/instagram/imports/*`（`upload/` 含む）が削除されている
+- [×] 関連 API ルート 5 つが削除されている
+- [×] `src/lib/ig-csv-parser.ts` / `ig-import-storage.ts` が削除されている
+- [×] Sidebar から「取得先アカウント」「取得投稿」が削除されている
 
 ### 残存確認
-- [ ] `/admin/instagram/posts` が引き続き動作する
-- [ ] `src/lib/ig-article-*.ts` が残っている（Ticket 41 で利用予定）
-- [ ] `ig_posts` / `ig_settings` テーブルが残っている
+- [×] `/admin/instagram/posts` が引き続き動作する
+- [×] `src/lib/ig-article-*.ts` が残っている（Ticket 41 で利用予定）
+- [×] `ig_posts` / `ig_settings` テーブルが残っている
 
 ### 管理画面
-- [ ] `/admin/inquiries` が表示される（タブ切替 + 空テーブル + 件数表示）
-- [ ] Sidebar に「依頼管理」が追加されている
+- [×] `/admin/inquiries` が表示される（タブ切替 + 空テーブル + 件数表示）
+- [×] Sidebar に「依頼管理」が追加されている
 
 ### 公開側
-- [ ] ヘッダー（PC/SP）に「情報を届ける」「取材を依頼する」の 2 ボタンが表示される
-- [ ] About ページに 3 つの柱の説明 + CTA ボタンが追加されている
+- [×] ヘッダー（PC/SP）に「情報を届ける」「取材を依頼する」の 2 ボタンが表示される
+- [×] About ページに 3 つの柱の説明 + CTA ボタンが追加されている
 
 ### ドキュメント
-- [ ] `CLAUDE.md` の URL 構造が更新されている
-- [ ] `.claude/rules/database.md` が更新されている
-- [ ] `.claude/rules/implementation-status.md` が更新されている
+- [×] `CLAUDE.md` の URL 構造が更新されている
+- [×] `.claude/rules/database.md` が更新されている
+- [×] `.claude/rules/implementation-status.md` が更新されている
 
 ### ビルド
-- [ ] `npm run build` が成功する
-- [ ] `npm run lint` がエラーなしで通る
+- [×] `npm run build` が成功する
+- [×] `npm run lint` がエラーなしで通る
 
 ---
 

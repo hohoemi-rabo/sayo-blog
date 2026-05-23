@@ -36,11 +36,17 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 
 ### Phase 3 Tables (Instagram Integration)
 11. **ig_posts** - post_id FK (CASCADE), caption, hashtags text[], image_url, sequence_number, status (draft/published/manual_published), instagram_media_id, instagram_published_at
-12. **ig_sources** - ig_username UNIQUE, display_name, category_slug, permission_status (not_requested/requested/approved/denied), permission_date, is_active, last_fetched_at
-13. **ig_imported_posts** - source_id FK (CASCADE), ig_post_id UNIQUE, caption, image_urls text[], status (pending/processing/published/skipped), generated_post_id FK posts (SET NULL), stored_image_urls text[]
-14. **ig_settings** - setting_key UNIQUE, setting_value jsonb (caption_config / auto_generate / instagram_account)
+12. **ig_settings** - setting_key UNIQUE, setting_value jsonb (caption_config / auto_generate / instagram_account)
 
-All Phase 3 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
+> **削除済み (Phase 4 / Ticket 40)**: `ig_sources` と `ig_imported_posts` は Cowork CSV 取り込みフロー廃止に伴い DROP。情報窓口フォーム (下記 Phase 4) に置き換え。`src/lib/ig-article-*` は Ticket 41 のミニ記事生成で再利用するため残存。
+
+### Phase 4 Tables (情報窓口フォーム)
+13. **mini_inquiries** - sns_urls text[] (最大5), inquiry_type (event/shop/group/other) + inquiry_type_other, phone (必須), email, publish_preference (anytime/by_date/in_month) + publish_target_date/month, image_urls text[] (最大2), consent, status (pending/generating/published/skipped), admin_notes, generated_post_id FK posts (SET NULL)
+14. **long_inquiries** - client_type (individual/organization/group), individual_name/organization_name/department_name/group_name, contact_person (必須), address (必須), interview_content (必須), publish_preference/interview_preference (free text), phone (必須), email, consent, status (pending/contacted/scheduled/interviewed/writing/published/cancelled), admin_notes, generated_post_id FK posts (SET NULL), scheduled_at, fee_amount (円)
+
+All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
+
+> **inquiries の書き込み方針**: 公開フォーム送信は Server Action 内で `createAdminClient()` (service role) を使い RLS をバイパスして INSERT する。匿名 INSERT ポリシーは付けない (Zod 検証 + Vercel BotID + レート制限を Server Action 側で実施予定)。
 
 ### RPC Functions
 - `increment_post_view_count(post_slug)` — SECURITY DEFINER
@@ -148,9 +154,11 @@ interface PostCardProps {
 |--------|--------|---------|
 | `thumbnails` | yes | 記事サムネイル + Tiptap 本文画像 (`/YYYY/MM/{timestamp}.{ext}`) |
 | `ig-posts` | yes | ブログ→IG 方向の投稿画像 (Phase 3A) |
-| `ig-imported` | yes | IG→ブログ方向の取得画像 (Phase 3B) |
+| `inquiry-images` | yes | 情報窓口フォーム添付画像 (Phase 4, `mini/{id}/{n}.{ext}` / `long/{id}/{n}.{ext}`) |
 
-Phase 3 buckets: SELECT 全ユーザー許可、INSERT/UPDATE/DELETE は `(select auth.role()) = 'authenticated'` 制限。
+Phase 3 / Phase 4 buckets: SELECT 全ユーザー許可、INSERT/UPDATE/DELETE は `(select auth.role()) = 'authenticated'` 制限。
+
+> **削除済み (Ticket 40)**: `ig-imported` バケットは Storage API (empty → delete) で削除。storage.objects/buckets への直接 SQL DELETE は `protect_delete` トリガーで禁止されているため、マイグレーションではなく Storage API で消す。
 
 ## MCP Setup
 
