@@ -344,3 +344,66 @@ export interface IgArticleAiOutput {
   recommended_hashtags: string[]
   event: IgArticleEventData
 }
+
+// ============================================================
+// 情報窓口フォーム (Phase 4)
+// ============================================================
+
+// --- ミニ記事依頼 (mini_inquiries) ---
+export type MiniInquiryStatus = 'pending' | 'generating' | 'published' | 'skipped'
+export type MiniInquiryType = 'event' | 'shop' | 'group' | 'other'
+export type PublishPreference = 'anytime' | 'by_date' | 'in_month'
+
+export interface MiniInquiry {
+  id: string
+  sns_urls: string[]
+  inquiry_type: MiniInquiryType
+  inquiry_type_other: string | null
+  phone: string
+  email: string | null
+  publish_preference: PublishPreference
+  publish_target_date: string | null
+  publish_target_month: string | null
+  image_urls: string[]
+  consent: boolean
+  status: MiniInquiryStatus
+  admin_notes: string | null
+  generated_post_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+// --- ロング記事依頼 / 取材依頼 (long_inquiries) ---
+export type LongInquiryStatus =
+  | 'pending'
+  | 'contacted'
+  | 'scheduled'
+  | 'interviewed'
+  | 'writing'
+  | 'published'
+  | 'cancelled'
+export type ClientType = 'individual' | 'organization' | 'group'
+
+export interface LongInquiry {
+  id: string
+  client_type: ClientType
+  individual_name: string | null
+  organization_name: string | null
+  department_name: string | null
+  group_name: string | null
+  contact_person: string
+  address: string
+  interview_content: string
+  publish_preference: string | null
+  interview_preference: string | null
+  phone: string
+  email: string | null
+  consent: boolean
+  status: LongInquiryStatus
+  admin_notes: string | null
+  generated_post_id: string | null
+  scheduled_at: string | null
+  fee_amount: number | null
+  created_at: string
+  updated_at: string
+}
