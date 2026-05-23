@@ -12,8 +12,6 @@ import {
   Tags,
   BarChart3,
   Send,
-  Users,
-  Inbox,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -27,8 +25,6 @@ const navigation = [
 
 const instagramNavigation = [
   { name: 'IG 投稿管理', href: '/admin/instagram/posts', icon: Send },
-  { name: '取得先アカウント', href: '/admin/instagram/sources', icon: Users },
-  { name: '取得投稿', href: '/admin/instagram/imports', icon: Inbox },
 ]
 
 const aiNavigation = [
