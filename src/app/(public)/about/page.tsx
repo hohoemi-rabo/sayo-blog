@@ -1,6 +1,18 @@
 import { Metadata } from 'next'
 import Image from 'next/image'
-import { Mic, UtensilsCrossed, MapPin, Search, FileEdit, Camera, Send } from 'lucide-react'
+import Link from 'next/link'
+import {
+  Mic,
+  UtensilsCrossed,
+  MapPin,
+  Search,
+  FileEdit,
+  Camera,
+  Send,
+  Sparkles,
+  MessageSquare,
+  PenLine,
+} from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/site-config'
 
 export const metadata: Metadata = {
@@ -47,6 +59,30 @@ const specialties = [
     title: '写真',
     description:
       '取材時の写真撮影も対応可能。記事を彩る魅力的な写真で、読者により強い印象を与えるコンテンツを提供します。',
+  },
+]
+
+const pillars = [
+  {
+    icon: Sparkles,
+    title: '自由記事',
+    price: '無料',
+    description:
+      '紗代が出会った人・もの・場所を、自由に綴る記事。Sayo’s Journal のいちばんの土台です。',
+  },
+  {
+    icon: MessageSquare,
+    title: 'ミニ記事',
+    price: '無料',
+    description:
+      'SNS で発信されている情報をもとに、紗代が短い紹介記事に書き起こします。「これ紹介してほしい」を気軽に。',
+  },
+  {
+    icon: PenLine,
+    title: 'ロング記事',
+    price: '500円〜',
+    description:
+      '紗代が直接取材にうかがって書く、じっくり丁寧な記事。お店・団体・活動の魅力を深くお伝えします。',
   },
 ]
 
@@ -149,6 +185,68 @@ export default function AboutPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3 つの柱 / 情報窓口 */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-playfair font-bold text-text-primary mb-3">
+              3 つの記事のかたち
+            </h2>
+            <div className="flex items-center justify-center">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary to-transparent" />
+              <div className="mx-3 w-1.5 h-1.5 rounded-full bg-primary" />
+              <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary to-transparent" />
+            </div>
+          </div>
+
+          <p className="max-w-2xl mx-auto text-center font-noto-serif-jp text-text-secondary leading-relaxed mb-10">
+            飯田下伊那は、誰かに頼ることが少し苦手な土地かもしれません。
+            でも、伝えたい想い、知ってほしいお店、来てほしいイベントがあるなら、
+            ここに書き留めてみませんか。紗代が、あなたの代わりに言葉にします。
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {pillars.map(({ icon: Icon, title, price, description }) => (
+              <div
+                key={title}
+                className="bg-white rounded-xl border border-border-decorative/60 p-6 hover:shadow-decorative transition-shadow duration-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-xs font-noto-sans-jp font-medium text-primary bg-primary/10 rounded-full px-2.5 py-1">
+                    {price}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold font-noto-sans-jp text-text-primary mb-2">
+                  {title}
+                </h3>
+                <p className="text-sm text-text-secondary font-noto-serif-jp leading-relaxed">
+                  {description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* 情報窓口 CTA */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-10">
+            <Link
+              href="/request/mini"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-primary text-primary font-noto-sans-jp font-medium hover:bg-primary/10 transition-all duration-200"
+            >
+              📩 ミニ記事の情報を届ける
+            </Link>
+            <Link
+              href="/request/long"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-noto-sans-jp font-medium hover:bg-primary-hover hover:shadow-md transition-all duration-200"
+            >
+              ✍️ 取材を依頼する
+            </Link>
           </div>
         </div>
       </section>

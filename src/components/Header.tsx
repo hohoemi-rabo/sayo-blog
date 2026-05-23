@@ -24,6 +24,11 @@ export default function Header() {
     { href: '/chat', label: 'AI Chat' },
   ]
 
+  const ctaLinks = [
+    { href: '/request/mini', label: '情報を届ける', emoji: '📩', primary: false },
+    { href: '/request/long', label: '取材を依頼', emoji: '✍️', primary: true },
+  ]
+
   return (
     <header
       className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b transition-all duration-300 animate-fade-in ${
@@ -57,8 +62,24 @@ export default function Header() {
             ))}
           </ul>
 
-          {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex items-center max-w-md">
+          {/* CTA + Search Bar (Desktop) */}
+          <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {ctaLinks.map((cta) => (
+                <Link
+                  key={cta.href}
+                  href={cta.href}
+                  className={`rounded-full px-4 py-2 text-sm font-noto-sans-jp font-medium transition-all duration-200 whitespace-nowrap ${
+                    cta.primary
+                      ? 'bg-primary text-white hover:bg-primary-hover shadow-sm'
+                      : 'border border-primary text-primary hover:bg-primary/10'
+                  }`}
+                >
+                  <span className="mr-1">{cta.emoji}</span>
+                  {cta.label}
+                </Link>
+              ))}
+            </div>
             <SearchBar />
           </div>
 
@@ -109,10 +130,34 @@ export default function Header() {
                 </li>
               ))}
 
-              {/* Mobile Search */}
+              {/* Mobile CTA buttons */}
               <li
                 className="animate-slide-in-left"
                 style={{ animationDelay: `${navLinks.length * 100}ms` }}
+              >
+                <div className="flex flex-col gap-2 pt-2">
+                  {ctaLinks.map((cta) => (
+                    <Link
+                      key={cta.href}
+                      href={cta.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`rounded-full px-4 py-2.5 text-center text-sm font-noto-sans-jp font-medium transition-all duration-200 ${
+                        cta.primary
+                          ? 'bg-primary text-white hover:bg-primary-hover'
+                          : 'border border-primary text-primary hover:bg-primary/10'
+                      }`}
+                    >
+                      <span className="mr-1">{cta.emoji}</span>
+                      {cta.label}
+                    </Link>
+                  ))}
+                </div>
+              </li>
+
+              {/* Mobile Search */}
+              <li
+                className="animate-slide-in-left"
+                style={{ animationDelay: `${(navLinks.length + 1) * 100}ms` }}
               >
                 <div className="pt-2">
                   <SearchBar />
