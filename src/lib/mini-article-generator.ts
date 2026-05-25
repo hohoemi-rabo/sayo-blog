@@ -124,6 +124,7 @@ export async function generateMiniArticle(
         is_published: false,
         is_featured: false,
         view_count: 0,
+        article_type: 'mini',
         source_urls: inquiry.sns_urls,
         is_event: ai.event.is_event,
         event_date_start: ai.event.event_date_start,

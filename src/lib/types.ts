@@ -5,6 +5,9 @@
  */
 
 // Post types
+/** 記事の出自 (Ticket 41) — free=紗代さんの自由記事 / mini=ミニ記事依頼 / long=ロング記事(取材) */
+export type ArticleType = 'free' | 'mini' | 'long'
+
 export interface Post {
   id: string
   title: string
@@ -27,6 +30,9 @@ export interface Post {
   event_address: string | null
   event_fee: string | null
   event_url: string | null
+  // 出自 (Ticket 41) — 一覧タブ切替・バッジ用
+  article_type: ArticleType
+  source_urls?: string[] | null
   created_at: string
 }
 
