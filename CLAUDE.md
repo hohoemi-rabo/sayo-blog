@@ -64,13 +64,15 @@ src/
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
-/request/mini                  → ミニ記事の情報提供フォーム (Ticket 41 で作成予定)
-/request/long                  → 取材依頼フォーム (Ticket 42 で作成予定)
+/request/mini                  → ミニ記事の情報提供フォーム (BotID + Zod + Gmail SMTP 通知)
+/request/mini/thanks           → ミニ記事 送信完了画面 (noindex)
+/request/long                  → 取材依頼フォーム (Ticket 42 で作成予定 / 現状 ComingSoon)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
 /admin/ai/analytics            → AI Analytics dashboard
-/admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ)
+/admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ + 詳細/ステータス操作)
+/admin/inquiries/[id]/generate → ミニ記事の AI 記事化 (本文貼付 + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
@@ -136,5 +138,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-23 (Ticket 40: 情報窓口フォーム共通基盤 = mini/long_inquiries テーブル + /admin/inquiries 枠 + ヘッダー/About 導線。旧 IG 取り込み (sources/imports/CSV) を廃止・削除)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム in progress (40 done, 41-42 pending) / AI Chat paused
+**Updated**: 2026-05-25 (Ticket 41: ミニ記事フロー = 公開フォーム /request/mini + BotID/Zod/レート制限 + Gmail SMTP 通知 + 管理画面 詳細/ステータス/未読バッジ + AI 記事化。`ig-article-*` は不使用化し純粋ヘルパーを `article-ai-shared.ts` に集約)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム in progress (40-41 done, 42 pending) / AI Chat paused

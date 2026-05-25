@@ -2,11 +2,12 @@
  * AI 記事再構成 (Ticket 37) — generate a blog post draft from a Cowork-imported
  * Instagram post using Gemini, including structured event metadata extraction.
  *
- * Caller flow:
- *   /admin/instagram/imports → 「🤖 記事化する」→ GenerateConfirmDialog →
- *   startGenerateArticle (server action) OR POST /api/admin/instagram/imports/[id]/generate
- *
- * Both entry points call generateArticleFromIg(importedId).
+ * ⚠️ 【不使用 / DEPRECATED】(Ticket 41)
+ * IG 取り込みフロー (Ticket 40 で sources/imports を廃止) のエントリポイントが
+ * 削除されたため、generateArticleFromIg はどこからも呼ばれていない。
+ * 純粋ヘルパー (Gemini 呼び出し / JSON 検証 / イベント正規化 / カテゴリ・タグ紐付け) は
+ * `src/lib/article-ai-shared.ts` に集約され、ミニ記事生成 (mini-article-generator.ts) が利用する。
+ * 本ファイルは参考用に残置。再び IG→ブログ取り込みが必要になったら article-ai-shared を再利用すること。
  */
 
 import { revalidatePath } from 'next/cache'
