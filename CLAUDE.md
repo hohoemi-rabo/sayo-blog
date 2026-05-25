@@ -91,6 +91,10 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=  # GA4 (optional, set when available)
 GEMINI_API_KEY=your-gemini-api-key
 GEMINI_MODEL=gemini-3-flash-preview        # default: gemini-3-flash-preview
 EMBEDDING_MODEL=gemini-embedding-2-preview # default: gemini-embedding-2-preview
+# 情報窓口フォーム メール通知 (Gmail SMTP / Nodemailer)
+GMAIL_SMTP_USER=your-gmail-address@gmail.com         # 送信元 Gmail
+GMAIL_SMTP_APP_PASSWORD=your-gmail-app-password       # Google アプリパスワード (2段階認証必須)
+INQUIRY_NOTIFY_TO=notify-destination@gmail.com        # 通知先 (紗代さんのメール)
 ```
 
 ## Conventions
