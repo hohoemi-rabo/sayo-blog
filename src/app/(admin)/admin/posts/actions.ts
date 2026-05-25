@@ -180,6 +180,14 @@ export async function updatePost(id: string, data: PostFormData) {
 export async function deletePost(id: string) {
   const supabase = createAdminClient()
 
+  // この記事が情報窓口の依頼から生成されたものか先に控える。
+  // 記事削除で generated_post_id は FK (ON DELETE SET NULL) により自動で NULL になるため、
+  // 紐づく依頼 ID をここで取得しておく。
+  const { data: linkedInquiries } = await supabase
+    .from('mini_inquiries')
+    .select('id')
+    .eq('generated_post_id', id)
+
   // Delete related data first (due to foreign key constraints)
   await supabase.from('post_categories').delete().eq('post_id', id)
   await supabase.from('post_hashtags').delete().eq('post_id', id)
@@ -190,6 +198,20 @@ export async function deletePost(id: string) {
   if (error) {
     console.error('Post delete error:', error)
     return { success: false, error: error.message }
+  }
+
+  // 記事が消えた依頼は再アクション可能なように pending へ戻す。
+  // (画像は依頼の持ち物として inquiry-images に残し、再生成に使える。
+  //  不要なら依頼ごと削除 → そのとき deleteMiniInquiry が画像も掃除する)
+  if (linkedInquiries && linkedInquiries.length > 0) {
+    await supabase
+      .from('mini_inquiries')
+      .update({ status: 'pending' })
+      .in(
+        'id',
+        linkedInquiries.map((r) => r.id)
+      )
+    revalidatePath('/admin/inquiries')
   }
 
   revalidatePath('/admin/posts')
