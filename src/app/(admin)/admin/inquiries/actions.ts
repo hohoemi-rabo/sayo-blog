@@ -121,6 +121,37 @@ export async function updateMiniInquiryNotes(
   return { ok: true }
 }
 
+/** ミニ記事依頼を削除 (紐づく画像も inquiry-images から削除) */
+export async function deleteMiniInquiry(
+  id: string
+): Promise<InquiryMutationResult> {
+  try {
+    await assertAdminAuth()
+  } catch {
+    return { ok: false, error: '認証が必要です' }
+  }
+  const supabase = createAdminClient()
+
+  // 紐づく画像 (mini/{id}/*) をベストエフォートで削除
+  try {
+    const { data: files } = await supabase.storage
+      .from('inquiry-images')
+      .list(`mini/${id}`)
+    if (files && files.length > 0) {
+      await supabase.storage
+        .from('inquiry-images')
+        .remove(files.map((f) => `mini/${id}/${f.name}`))
+    }
+  } catch (err) {
+    console.error('[deleteMiniInquiry] image cleanup failed:', err)
+  }
+
+  const { error } = await supabase.from('mini_inquiries').delete().eq('id', id)
+  if (error) return { ok: false, error: error.message }
+  revalidatePath(ADMIN_INQUIRIES_PATH)
+  return { ok: true }
+}
+
 /**
  * 記事化画面の追加画像を inquiry-images に保存して公開 URL を返す。
  * 管理は独自 cookie 認証 (Supabase auth ではない) のため client から直接

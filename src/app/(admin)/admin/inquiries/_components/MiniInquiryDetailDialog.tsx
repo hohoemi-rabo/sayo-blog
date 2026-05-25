@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ExternalLink, Sparkles } from 'lucide-react'
+import { ExternalLink, Sparkles, Trash2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
 import {
   updateMiniInquiryStatus,
   updateMiniInquiryNotes,
+  deleteMiniInquiry,
 } from '../actions'
 
 interface Props {
@@ -45,9 +46,11 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
   const { addToast } = useToast()
   const [isPending, startTransition] = useTransition()
   const [notes, setNotes] = useState('')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   useEffect(() => {
     setNotes(inquiry?.admin_notes ?? '')
+    setConfirmingDelete(false)
   }, [inquiry])
 
   if (!inquiry) return null
@@ -73,6 +76,20 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
       if (res.ok) {
         addToast('メモを保存しました', 'success')
         router.refresh()
+      } else {
+        addToast(res.error, 'error')
+      }
+    })
+  }
+
+  function handleDelete() {
+    const id = inquiry!.id
+    startTransition(async () => {
+      const res = await deleteMiniInquiry(id)
+      if (res.ok) {
+        addToast('依頼を削除しました', 'success')
+        router.refresh()
+        onClose()
       } else {
         addToast(res.error, 'error')
       }
@@ -192,41 +209,85 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
           </div>
         </div>
 
-        <DialogFooter className="flex-wrap gap-2 border-t border-border-decorative px-6 py-4">
-          {(inquiry.status === 'pending' || inquiry.status === 'generating') && (
-            <Button
-              type="button"
-              variant="primary"
-              onClick={goGenerate}
-              disabled={isPending}
-            >
-              <Sparkles className="mr-1.5 h-4 w-4" />
-              {inquiry.status === 'generating' ? '記事化を続ける' : '記事化する'}
-            </Button>
+        <DialogFooter className="flex-wrap items-center gap-2 border-t border-border-decorative px-6 py-4">
+          {confirmingDelete ? (
+            <div className="flex w-full flex-wrap items-center justify-between gap-2">
+              <span className="text-sm text-red-600">
+                この依頼を削除しますか？（添付画像も削除され、元に戻せません）
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={isPending}
+                >
+                  やめる
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="bg-red-500 hover:bg-red-600"
+                  onClick={handleDelete}
+                  disabled={isPending}
+                >
+                  {isPending ? '削除中…' : '削除する'}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                className="mr-auto text-red-500 hover:bg-red-50"
+                onClick={() => setConfirmingDelete(true)}
+                disabled={isPending}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                削除
+              </Button>
+              {(inquiry.status === 'pending' || inquiry.status === 'generating') && (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={goGenerate}
+                  disabled={isPending}
+                >
+                  <Sparkles className="mr-1.5 h-4 w-4" />
+                  {inquiry.status === 'generating' ? '記事化を続ける' : '記事化する'}
+                </Button>
+              )}
+              {inquiry.status === 'pending' && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => changeStatus('skipped')}
+                  disabled={isPending}
+                >
+                  スキップ
+                </Button>
+              )}
+              {(inquiry.status === 'skipped' || inquiry.status === 'generating') && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => changeStatus('pending')}
+                  disabled={isPending}
+                >
+                  未対応に戻す
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                disabled={isPending}
+              >
+                閉じる
+              </Button>
+            </>
           )}
-          {inquiry.status === 'pending' && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => changeStatus('skipped')}
-              disabled={isPending}
-            >
-              スキップ
-            </Button>
-          )}
-          {(inquiry.status === 'skipped' || inquiry.status === 'generating') && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => changeStatus('pending')}
-              disabled={isPending}
-            >
-              未対応に戻す
-            </Button>
-          )}
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
-            閉じる
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
