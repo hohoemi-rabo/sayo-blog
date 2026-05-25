@@ -41,6 +41,7 @@ type Post = {
   is_published: boolean
   is_featured: boolean
   event_ended: boolean
+  article_type: string
   published_at: string | null
   view_count: number
   created_at: string
@@ -54,13 +55,29 @@ interface PostListProps {
   filter: {
     category?: string
     status?: string
+    articleType?: string
   }
+  articleType: string
+  typeCounts: { free: number; mini: number; long: number }
+}
+
+const ARTICLE_TYPE_TABS: Array<{ key: 'free' | 'mini' | 'long'; label: string }> = [
+  { key: 'free', label: '自由記事' },
+  { key: 'mini', label: 'ミニ記事' },
+  { key: 'long', label: 'ロング記事' },
+]
+
+const ARTICLE_TYPE_BADGE: Record<string, { label: string; className: string }> = {
+  mini: { label: 'ミニ', className: 'bg-blue-100 text-blue-700' },
+  long: { label: 'ロング', className: 'bg-purple-100 text-purple-700' },
 }
 
 export function PostList({
   posts,
   categories,
   filter,
+  articleType,
+  typeCounts,
 }: PostListProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -126,6 +143,30 @@ export function PostList({
 
   return (
     <div className="space-y-4">
+      {/* 出自タブ (自由 / ミニ / ロング) */}
+      <div className="flex gap-1 border-b border-border-decorative">
+        {ARTICLE_TYPE_TABS.map((tab) => {
+          const isActive = tab.key === articleType
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => updateFilter('type', tab.key)}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                isActive
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {tab.label}
+              <span className="text-xs text-text-secondary">
+                {typeCounts[tab.key]}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
       {/* Filters */}
       <div className="flex gap-4 items-center">
         <div className="w-48">
@@ -223,6 +264,13 @@ export function PostList({
                       >
                         {post.title}
                       </Link>
+                      {ARTICLE_TYPE_BADGE[post.article_type] && (
+                        <span
+                          className={`ml-2 inline-flex items-center rounded px-1.5 py-0.5 align-middle text-[10px] font-medium ${ARTICLE_TYPE_BADGE[post.article_type].className}`}
+                        >
+                          {ARTICLE_TYPE_BADGE[post.article_type].label}
+                        </span>
+                      )}
                       {post.event_ended && (
                         <span
                           className="ml-2 inline-flex items-center gap-0.5 rounded bg-gray-200 px-1.5 py-0.5 align-middle text-[10px] font-medium text-gray-600"

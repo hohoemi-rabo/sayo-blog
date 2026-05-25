@@ -223,7 +223,11 @@ export async function getPost(id: string) {
   return post
 }
 
-export async function getPosts(filter?: { category?: string; status?: string }) {
+export async function getPosts(filter?: {
+  category?: string
+  status?: string
+  articleType?: string
+}) {
   const supabase = createAdminClient()
 
   let query = supabase
@@ -237,6 +241,7 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
       is_published,
       is_featured,
       event_ended,
+      article_type,
       published_at,
       view_count,
       created_at,
@@ -251,6 +256,10 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
     query = query.eq('is_published', true)
   } else if (filter?.status === 'draft') {
     query = query.eq('is_published', false)
+  }
+
+  if (filter?.articleType) {
+    query = query.eq('article_type', filter.articleType)
   }
 
   const { data: posts, error, count } = await query
@@ -272,6 +281,34 @@ export async function getPosts(filter?: { category?: string; status?: string }) 
   }
 
   return { posts: filteredPosts || [], count: count || 0 }
+}
+
+/** 一覧タブのバッジ用に出自ごとの記事件数を取得 */
+export async function getPostTypeCounts(): Promise<{
+  free: number
+  mini: number
+  long: number
+}> {
+  const supabase = createAdminClient()
+  const [free, mini, long] = await Promise.all([
+    supabase
+      .from('posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('article_type', 'free'),
+    supabase
+      .from('posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('article_type', 'mini'),
+    supabase
+      .from('posts')
+      .select('id', { count: 'exact', head: true })
+      .eq('article_type', 'long'),
+  ])
+  return {
+    free: free.count ?? 0,
+    mini: mini.count ?? 0,
+    long: long.count ?? 0,
+  }
 }
 
 export async function toggleFeatured(postId: string, currentValue: boolean) {
@@ -344,44 +381,14 @@ export interface ImportedOrigin {
 }
 
 /**
- * Look up the Instagram source post that this blog post was generated from.
- * Phase 3B populates `ig_imported_posts.generated_post_id`; for now this
- * returns null for every post that was authored manually.
+ * かつて IG 取り込み (Phase 3B) で生成した記事の出自を返していたが、
+ * Ticket 40 で ig_sources / ig_imported_posts を廃止したため常に null を返す。
+ * (記事の出自はミニ記事=article_type='mini' で判別できる。
+ *  情報窓口由来の表示が必要になったら mini_inquiries を参照して再実装する)
  */
 export async function getImportedOrigin(
-  postId: string
+  _postId: string
 ): Promise<ImportedOrigin | null> {
-  const supabase = createAdminClient()
-
-  const { data, error } = await supabase
-    .from('ig_imported_posts')
-    .select(
-      `
-      ig_post_url,
-      source:ig_sources(ig_username, display_name)
-    `
-    )
-    .eq('generated_post_id', postId)
-    .maybeSingle()
-
-  if (error) {
-    console.error('Imported origin fetch error:', error)
-    return null
-  }
-  if (!data) return null
-
-  const rawSource = (data as { source?: unknown }).source
-  let src: { ig_username?: string; display_name?: string } | undefined
-  if (Array.isArray(rawSource)) {
-    src = rawSource[0] as typeof src
-  } else if (rawSource && typeof rawSource === 'object') {
-    src = rawSource as typeof src
-  }
-  if (!src?.ig_username) return null
-
-  return {
-    ig_username: src.ig_username,
-    display_name: src.display_name ?? src.ig_username,
-    ig_post_url: (data as { ig_post_url?: string | null }).ig_post_url ?? null,
-  }
+  void _postId
+  return null
 }

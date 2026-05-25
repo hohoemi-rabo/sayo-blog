@@ -1,26 +1,35 @@
 import Link from 'next/link'
-import { getPosts, getCategories } from './actions'
+import { getPosts, getCategories, getPostTypeCounts } from './actions'
 import { PostList } from './_components/PostList'
 import { Button } from '@/components/ui/Button'
 import { Plus } from 'lucide-react'
+import type { ArticleType } from '@/lib/types'
 
 interface PageProps {
   searchParams: Promise<{
     category?: string
     status?: string
+    type?: string
   }>
+}
+
+function parseArticleType(value: string | undefined): ArticleType {
+  return value === 'mini' || value === 'long' ? value : 'free'
 }
 
 export default async function PostsPage({ searchParams }: PageProps) {
   const params = await searchParams
+  const articleType = parseArticleType(params.type)
   const filter = {
     category: params.category,
     status: params.status,
+    articleType,
   }
 
-  const [{ posts, count }, categories] = await Promise.all([
+  const [{ posts, count }, categories, typeCounts] = await Promise.all([
     getPosts(filter),
     getCategories(),
+    getPostTypeCounts(),
   ])
 
   return (
@@ -29,7 +38,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">記事一覧</h1>
           <p className="text-text-secondary mt-1">
-            全 {count} 件の記事
+            {count} 件の記事
           </p>
         </div>
         <Link href="/admin/posts/new">
@@ -44,6 +53,8 @@ export default async function PostsPage({ searchParams }: PageProps) {
         posts={posts}
         categories={categories}
         filter={filter}
+        articleType={articleType}
+        typeCounts={typeCounts}
       />
     </div>
   )
