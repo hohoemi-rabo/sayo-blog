@@ -3,6 +3,11 @@
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase'
 import { assertAdminAuth } from '@/lib/admin-auth'
+import { uploadInquiryImages, InquiryImageError } from '@/lib/inquiry-images'
+import {
+  INQUIRY_IMAGE_ACCEPT,
+  INQUIRY_IMAGE_MAX_BYTES,
+} from '@/lib/inquiry-schema'
 import type {
   MiniInquiry,
   LongInquiry,
@@ -11,6 +16,9 @@ import type {
 import type { InquiryCounts, InquiryMutationResult } from './filters'
 
 const ADMIN_INQUIRIES_PATH = '/admin/inquiries'
+
+/** 記事化画面で追加アップロードできる画像の上限 */
+const ADDITIONAL_IMAGE_MAX_COUNT = 8
 
 /** タブの件数バッジ用に未対応 / 総数をまとめて取得 */
 export async function getInquiryCounts(): Promise<InquiryCounts> {
@@ -111,4 +119,55 @@ export async function updateMiniInquiryNotes(
   if (error) return { ok: false, error: error.message }
   revalidatePath(ADMIN_INQUIRIES_PATH)
   return { ok: true }
+}
+
+/**
+ * 記事化画面の追加画像を inquiry-images に保存して公開 URL を返す。
+ * 管理は独自 cookie 認証 (Supabase auth ではない) のため client から直接
+ * バケットへ書けない → service role の Server Action 経由でアップロードする。
+ */
+export async function uploadAdditionalInquiryImages(
+  inquiryId: string,
+  formData: FormData
+): Promise<{ ok: true; urls: string[] } | { ok: false; error: string }> {
+  try {
+    await assertAdminAuth()
+  } catch {
+    return { ok: false, error: '認証が必要です' }
+  }
+
+  const files = formData
+    .getAll('images')
+    .filter((f): f is File => f instanceof File && f.size > 0)
+  if (files.length === 0) return { ok: true, urls: [] }
+  if (files.length > ADDITIONAL_IMAGE_MAX_COUNT) {
+    return {
+      ok: false,
+      error: `追加画像は一度に最大 ${ADDITIONAL_IMAGE_MAX_COUNT} 枚までです`,
+    }
+  }
+  for (const f of files) {
+    if (!INQUIRY_IMAGE_ACCEPT.includes(f.type as (typeof INQUIRY_IMAGE_ACCEPT)[number])) {
+      return { ok: false, error: '対応していない画像形式です（JPEG / PNG / WebP / HEIC のみ）' }
+    }
+    if (f.size > INQUIRY_IMAGE_MAX_BYTES) {
+      return { ok: false, error: '画像は 1 枚あたり 10MB までです' }
+    }
+  }
+
+  try {
+    const urls = await uploadInquiryImages({
+      inquiryId,
+      files,
+      // 複数回アップロードしても上書きしないよう一意なプレフィックス
+      namePrefix: `additional_${Date.now()}_`,
+    })
+    return { ok: true, urls }
+  } catch (err) {
+    if (err instanceof InquiryImageError) {
+      return { ok: false, error: err.message }
+    }
+    console.error('[uploadAdditionalInquiryImages] failed:', err)
+    return { ok: false, error: '画像のアップロードに失敗しました' }
+  }
 }
