@@ -11,11 +11,11 @@ import { LongInquiriesList } from './_components/LongInquiriesList'
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; open?: string }>
 }
 
 export default async function InquiriesPage({ searchParams }: PageProps) {
-  const { tab } = await searchParams
+  const { tab, open } = await searchParams
   const activeTab = parseInquiryTab(tab)
 
   const counts = await getInquiryCounts()
@@ -32,7 +32,7 @@ export default async function InquiriesPage({ searchParams }: PageProps) {
       <InquiriesTabs activeTab={activeTab} counts={counts} />
 
       {activeTab === 'mini' ? (
-        <MiniInquiriesList items={await getMiniInquiries()} />
+        <MiniInquiriesList items={await getMiniInquiries()} openId={open} />
       ) : (
         <LongInquiriesList items={await getLongInquiries()} />
       )}

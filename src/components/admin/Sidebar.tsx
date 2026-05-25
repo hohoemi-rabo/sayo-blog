@@ -38,7 +38,12 @@ const aiNavigation = [
   { name: 'AI Analytics', href: '/admin/ai/analytics', icon: BarChart3 },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  /** 情報窓口の未処理 (pending) 件数。0 のときバッジ非表示 */
+  inquiriesPending?: number
+}
+
+export function Sidebar({ inquiriesPending = 0 }: SidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -93,7 +98,12 @@ export function Sidebar() {
                 )}
               >
                 <item.icon className="h-5 w-5" />
-                {item.name}
+                <span className="flex-1">{item.name}</span>
+                {inquiriesPending > 0 && (
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-xs font-semibold text-white">
+                    {inquiriesPending}
+                  </span>
+                )}
               </Link>
             )
           })}

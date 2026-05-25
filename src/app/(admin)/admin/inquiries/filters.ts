@@ -15,3 +15,6 @@ export interface InquiryCounts {
   miniTotal: number
   longTotal: number
 }
+
+/** 依頼の mutation Server Action の返却型 */
+export type InquiryMutationResult = { ok: true } | { ok: false; error: string }
