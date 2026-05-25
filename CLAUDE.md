@@ -74,6 +74,7 @@ src/
 /admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ + 詳細/ステータス操作)
 /admin/inquiries/[id]/generate → ミニ記事の AI 記事化 (本文貼付 + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
+/admin/posts                   → 記事一覧 (出自タブ: 自由記事 / ミニ記事 / ロング記事)
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```

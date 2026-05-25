@@ -21,7 +21,7 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 ## Database Schema
 
 ### Core Tables
-1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, event_ended (イベント開催回終了フラグ — 公開側のサムネ/ヒーローを白黒化 + 終了案内オーバーレイ), is_event (Ticket 37: イベント記事フラグ → カード表示で日付バッジ大きく表示する将来予定), event_date_start, event_date_end (date), event_time_start, event_time_end (text 自由記述), event_venue, event_address, event_fee, event_url (text), created_at, updated_at, search_vector (tsvector, generated)
+1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, event_ended (イベント開催回終了フラグ — 公開側のサムネ/ヒーローを白黒化 + 終了案内オーバーレイ), is_event (Ticket 37: イベント記事フラグ → カード表示で日付バッジ大きく表示する将来予定), event_date_start, event_date_end (date), event_time_start, event_time_end (text 自由記述), event_venue, event_address, event_fee, event_url (text), article_type (Ticket 41: free/mini/long, default free, CHECK + idx_posts_article_type — /admin/posts のタブ切替用), source_urls (text[] NULL, Ticket 41: ミニ記事の元 SNS URL), created_at, updated_at, search_vector (tsvector, generated)
 2. **categories** - id, name, slug, description, order_num (flat structure: gourmet, event, spot, culture, news)
 3. **post_categories** - Many-to-many junction (CASCADE DELETE on both FKs)
 4. **hashtags** - id, name, slug, count (auto-updated via triggers)
