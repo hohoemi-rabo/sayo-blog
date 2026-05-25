@@ -45,9 +45,22 @@ paths:
 
 - `/admin/inquiries` — 依頼管理 (force-dynamic, `?tab=mini|long` 切替 + 件数バッジ)
   - ミニ記事 (mini_inquiries) / ロング記事 (long_inquiries) を別タブで一覧表示
-  - Ticket 40 では枠 + 一覧テーブル + 空状態まで。詳細ダイアログ / ステータス操作 / AI 記事化は Ticket 41 (ミニ) / 42 (ロング) で実装
-  - データ取得は `actions.ts` ('use server')、同期ヘルパー (parseInquiryTab / InquiryCounts 型) は `filters.ts` に分離
+  - ミニ (Ticket 41) は実装済み: フィルタ + 詳細ダイアログ (内部メモ編集 / ステータス操作 / 削除) + AI 記事化 (`/admin/inquiries/[id]/generate`)。ロング (Ticket 42) は枠のみ
+  - `?open={id}` で該当依頼の詳細ダイアログを自動オープン (メール通知リンク用)
+  - Sidebar「依頼管理」に未処理 (pending) 件数の赤バッジ (admin layout が getInquiryCounts で注入)
+  - データ取得は `actions.ts` ('use server')、同期ヘルパー (parseInquiryTab / InquiryCounts / InquiryMutationResult) は `filters.ts` に分離
   - ラベル/表示ヘルパーは `src/lib/inquiries.ts` に集約 (Server/Client 両用)
+
+### ミニ記事の画像・依頼の寿命モデル (Ticket 41 — 重要)
+
+画像 (`inquiry-images/mini/{依頼ID}/`) は **依頼 (mini_inquiries) の持ち物**。記事 (posts) は URL を参照するだけ。
+いただいた画像を不用意に失わないため、削除は 2 段階:
+
+- **記事 (post) を削除** (`deletePost`) → 画像は**残す**。FK で `generated_post_id` が NULL になり、
+  紐づく依頼を **status='pending' に戻す** (再生成可能に)。自由記事のサムネ (`thumbnails`) を消さない既存方針とも一貫。
+- **依頼を削除** (`deleteMiniInquiry`) → 行を削除 + `inquiry-images/mini/{id}/` を list→remove で掃除 (確認ダイアログ付き)。
+
+> 補足: 生成記事を削除すると依頼は pending に戻る。`generated_post_id` が後から入ると published 扱い。
 
 ## Article Edit / Preview (Ticket 37)
 

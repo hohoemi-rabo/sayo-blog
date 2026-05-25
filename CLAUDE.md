@@ -71,7 +71,7 @@ src/
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
 /admin/ai/analytics            → AI Analytics dashboard
-/admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ + 詳細/ステータス操作)
+/admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ + 詳細/ステータス操作/削除)
 /admin/inquiries/[id]/generate → ミニ記事の AI 記事化 (本文貼付 + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
 /admin/posts                   → 記事一覧 (出自タブ: 自由記事 / ミニ記事 / ロング記事)
