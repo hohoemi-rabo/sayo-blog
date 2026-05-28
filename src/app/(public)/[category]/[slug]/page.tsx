@@ -18,6 +18,7 @@ import TableOfContents from '@/components/TableOfContents'
 import ImageLightbox from '@/components/ImageLightbox'
 import ReactionBar from '@/components/ReactionBar'
 import ScrollFadeIn from '@/components/ScrollFadeIn'
+import { ArticleTypeBadge } from '@/components/ArticleTypeBadge'
 
 export const revalidate = 3600 // 1 hour ISR
 
@@ -198,6 +199,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       {/* ヒーロー部分 */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs categories={categories as Category[]} title={post.title} />
+
+        {post.article_type && post.article_type !== 'free' && (
+          <div className="mt-3">
+            <ArticleTypeBadge articleType={post.article_type} />
+          </div>
+        )}
 
         <ArticleHero
           title={post.title}

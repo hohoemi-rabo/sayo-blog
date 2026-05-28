@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
 import { triggerIgAutoGenerate } from '@/lib/ig-auto-generator'
+import type { ArticleType } from '@/lib/types'
 
 export type PostFormData = {
   title: string
@@ -26,9 +27,19 @@ export type PostFormData = {
   event_address: string | null
   event_fee: string | null
   event_url: string | null
+  // 出自 (Ticket 41/42) — 未指定なら DB 既定の 'free'
+  article_type?: ArticleType
 }
 
-export async function createPost(data: PostFormData) {
+export interface CreatePostOptions {
+  /** ロング記事依頼から作成する場合、紐付け先の inquiry id */
+  linkLongInquiryId?: string
+}
+
+export async function createPost(
+  data: PostFormData,
+  options?: CreatePostOptions
+) {
   const supabase = createAdminClient()
 
   // Insert post
@@ -52,6 +63,7 @@ export async function createPost(data: PostFormData) {
       event_address: data.event_address,
       event_fee: data.event_fee,
       event_url: data.event_url,
+      article_type: data.article_type ?? 'free',
       view_count: 0,
     })
     .select()
@@ -89,6 +101,23 @@ export async function createPost(data: PostFormData) {
 
     if (tagError) {
       console.error('Hashtag link error:', tagError)
+    }
+  }
+
+  // ロング記事依頼から作成された場合、依頼レコードに紐付け + 公開ならステータスも更新
+  if (options?.linkLongInquiryId && post?.id) {
+    const inquiryPatch: Record<string, unknown> = {
+      generated_post_id: post.id,
+    }
+    if (data.is_published) inquiryPatch.status = 'published'
+    const { error: linkErr } = await supabase
+      .from('long_inquiries')
+      .update(inquiryPatch)
+      .eq('id', options.linkLongInquiryId)
+    if (linkErr) {
+      console.error('Long inquiry link error:', linkErr)
+    } else {
+      revalidatePath('/admin/inquiries')
     }
   }
 
@@ -164,6 +193,19 @@ export async function updatePost(id: string, data: PostFormData) {
       hashtag_id: hashtagId,
     }))
     await supabase.from('post_hashtags').insert(hashtagLinks)
+  }
+
+  // false → true で公開化したとき、紐づくロング依頼を 'published' に自動更新
+  if (!wasPublished && data.is_published) {
+    const { error: inqErr } = await supabase
+      .from('long_inquiries')
+      .update({ status: 'published' })
+      .eq('generated_post_id', id)
+    if (inqErr) {
+      console.error('Long inquiry auto-publish error:', inqErr)
+    } else {
+      revalidatePath('/admin/inquiries')
+    }
   }
 
   revalidatePath('/admin/posts')

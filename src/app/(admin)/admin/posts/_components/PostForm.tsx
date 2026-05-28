@@ -13,6 +13,7 @@ import { RichTextEditor } from '@/components/admin/editor/RichTextEditor'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { createPost, updatePost, PostFormData } from '../actions'
 import type { ImportedOrigin } from '../actions'
+import type { ArticleType } from '@/lib/types'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
@@ -62,6 +63,12 @@ interface PostFormProps {
     totalIgPosts: number
     importedOrigin: ImportedOrigin | null
   }
+  /** ロング記事依頼から作成するときに紐付ける依頼 ID (Ticket 42) */
+  linkLongInquiryId?: string
+  /** 紐付けバナーに表示する依頼者ラベル */
+  linkLongInquiryLabel?: string
+  /** 作成時に強制する article_type (例: 取材依頼経由なら 'long') */
+  forcedArticleType?: ArticleType
 }
 
 function generateSlug(title: string): string {
@@ -78,6 +85,9 @@ export function PostForm({
   hashtags,
   initialData,
   igSection,
+  linkLongInquiryId,
+  linkLongInquiryLabel,
+  forcedArticleType,
 }: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -179,12 +189,16 @@ export function PostForm({
       event_address: eventInfo.event_address,
       event_fee: eventInfo.event_fee,
       event_url: eventInfo.event_url,
+      article_type: forcedArticleType,
     }
 
     try {
       const result =
         mode === 'create'
-          ? await createPost(formData)
+          ? await createPost(
+              formData,
+              linkLongInquiryId ? { linkLongInquiryId } : undefined
+            )
           : await updatePost(initialData!.id, formData)
 
       if (!result.success) {
@@ -203,6 +217,21 @@ export function PostForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 取材依頼からの作成バナー (Ticket 42) */}
+      {linkLongInquiryId && (
+        <div className="rounded-lg border border-primary/40 bg-primary/5 px-4 py-3 text-sm text-text-primary">
+          <span className="font-medium text-primary">✍️ 取材記事として作成</span>
+          {linkLongInquiryLabel && (
+            <span className="ml-2 text-text-secondary">
+              依頼 #{linkLongInquiryId.slice(0, 8)} ・ {linkLongInquiryLabel}
+            </span>
+          )}
+          <p className="mt-1 text-xs text-text-secondary">
+            保存すると、この依頼と紐付けされ <code>article_type=long</code> がセットされます。
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
