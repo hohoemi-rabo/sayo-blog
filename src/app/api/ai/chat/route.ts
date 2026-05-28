@@ -242,8 +242,10 @@ function createSSEResponse(
   return new Response(stream, {
     headers: {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
+      // SSE バッファリングを抑える (ブラウザ/プロキシでの溜め込み防止)
+      'Cache-Control': 'no-cache, no-transform',
       Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   })
 }

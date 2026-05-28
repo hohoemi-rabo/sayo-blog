@@ -36,6 +36,80 @@ export function ChatPage({ tags }: ChatPageProps) {
     sessionIdRef.current = getSessionId()
   }, [])
 
+  // ---- タイプライタ機構 (受信は streaming のまま、可視化を 1〜数文字ずつにペーシング) ----
+  const typewriterRef = useRef<{
+    assistantId: string
+    pending: string
+    done: boolean
+    timer: ReturnType<typeof setTimeout> | null
+  } | null>(null)
+
+  useEffect(
+    () => () => {
+      if (typewriterRef.current?.timer) clearTimeout(typewriterRef.current.timer)
+    },
+    []
+  )
+
+  function typewriterTick() {
+    const st = typewriterRef.current
+    if (!st) return
+    if (st.pending.length === 0) {
+      if (st.done) {
+        const id = st.assistantId
+        typewriterRef.current = null
+        setMessages((prev) =>
+          prev.map((m) => (m.id === id ? { ...m, isStreaming: false } : m))
+        )
+        setIsStreaming(false)
+        abortRef.current = null
+        return
+      }
+      st.timer = setTimeout(typewriterTick, 30)
+      return
+    }
+    // バックログが大きいほど一度に出す文字数を増やす (詰まり防止)
+    const remaining = st.pending.length
+    const charsToReveal = Math.max(1, Math.min(remaining, Math.ceil(remaining / 50)))
+    const take = st.pending.slice(0, charsToReveal)
+    st.pending = st.pending.slice(charsToReveal)
+    const id = st.assistantId
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, content: m.content + take } : m))
+    )
+    st.timer = setTimeout(typewriterTick, 15)
+  }
+
+  function startTypewriter(assistantId: string) {
+    if (typewriterRef.current?.timer) clearTimeout(typewriterRef.current.timer)
+    typewriterRef.current = {
+      assistantId,
+      pending: '',
+      done: false,
+      timer: setTimeout(typewriterTick, 0),
+    }
+  }
+
+  function appendTypewriterText(text: string) {
+    const st = typewriterRef.current
+    if (!st) return
+    st.pending += text
+    if (!st.timer) st.timer = setTimeout(typewriterTick, 0)
+  }
+
+  function markTypewriterDone() {
+    const st = typewriterRef.current
+    if (!st) return
+    st.done = true
+    if (!st.timer) st.timer = setTimeout(typewriterTick, 0)
+  }
+
+  function cancelTypewriter() {
+    const st = typewriterRef.current
+    if (st?.timer) clearTimeout(st.timer)
+    typewriterRef.current = null
+  }
+
   const hasMessages = messages.length > 0
   const isLimitReached = dailyRemaining !== null && dailyRemaining <= 0
 
@@ -67,6 +141,7 @@ export function ChatPage({ tags }: ChatPageProps) {
       setMessages((prev) => [...prev, userMsg, assistantMsg])
       setInputValue('')
       setIsStreaming(true)
+      startTypewriter(assistantId)
 
       // Build history from recent messages (exclude the new ones)
       const history = messages.slice(-10).map((m) => ({
@@ -97,13 +172,8 @@ export function ChatPage({ tags }: ChatPageProps) {
               break
             }
             case 'text':
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: m.content + (event.content as string) }
-                    : m
-                )
-              )
+              // タイプライタ経由で 1〜数文字ずつ可視化
+              appendTypewriterText(event.content as string)
               break
             case 'articles':
               setMessages((prev) =>
@@ -133,6 +203,8 @@ export function ChatPage({ tags }: ChatPageProps) {
               )
               break
             case 'error':
+              // エラー時はタイプライタを止めて即時表示
+              cancelTypewriter()
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === assistantId
@@ -145,19 +217,19 @@ export function ChatPage({ tags }: ChatPageProps) {
                     : m
                 )
               )
+              setIsStreaming(false)
+              abortRef.current = null
               break
             case 'done':
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, isStreaming: false } : m
-                )
-              )
+              // ストリーム終了 → タイプライタはバックログを吐き切ったら自分で finalize する
+              markTypewriterDone()
               break
           }
         }
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
           console.error('Chat stream error:', err)
+          cancelTypewriter()
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
@@ -171,12 +243,14 @@ export function ChatPage({ tags }: ChatPageProps) {
                 : m
             )
           )
+          setIsStreaming(false)
+          abortRef.current = null
         }
-      } finally {
-        setIsStreaming(false)
-        abortRef.current = null
+        // AbortError は handleStop 側で後始末済み
       }
     },
+    // タイプライタ系ヘルパーは ref を介すのみで安定。deps に含めない (再生成不要)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isStreaming, isLimitReached, messages]
   )
 
@@ -186,6 +260,8 @@ export function ChatPage({ tags }: ChatPageProps) {
 
   const handleStop = useCallback(() => {
     abortRef.current?.abort()
+    cancelTypewriter()
+    abortRef.current = null
     setIsStreaming(false)
     setMessages((prev) =>
       prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
