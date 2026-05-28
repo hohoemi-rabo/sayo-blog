@@ -3,6 +3,7 @@ import {
   getInquiryCounts,
   getMiniInquiries,
   getLongInquiries,
+  getLinkablePosts,
 } from './actions'
 import { InquiriesTabs } from './_components/InquiriesTabs'
 import { MiniInquiriesList } from './_components/MiniInquiriesList'
@@ -34,7 +35,11 @@ export default async function InquiriesPage({ searchParams }: PageProps) {
       {activeTab === 'mini' ? (
         <MiniInquiriesList items={await getMiniInquiries()} openId={open} />
       ) : (
-        <LongInquiriesList items={await getLongInquiries()} />
+        <LongInquiriesList
+          items={await getLongInquiries()}
+          openId={open}
+          linkablePosts={await getLinkablePosts()}
+        />
       )}
     </div>
   )
