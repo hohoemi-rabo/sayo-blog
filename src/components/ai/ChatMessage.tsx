@@ -84,7 +84,7 @@ export const ChatMessage = memo(function ChatMessage({
         {/* Bubble (mobile) / Flat (desktop) */}
         <div
           className={cn(
-            'font-noto-sans-jp text-sm leading-relaxed',
+            'font-noto-sans-jp text-base leading-relaxed',
             // Mobile: bubble style
             isUser && 'rounded-2xl rounded-tr-sm px-4 py-2.5 bg-primary text-white',
             isAssistant &&
@@ -100,9 +100,9 @@ export const ChatMessage = memo(function ChatMessage({
           {displayContent && (
             <div
               className={cn(
-                'prose prose-sm max-w-none',
+                'prose max-w-none',
                 isUser && 'prose-invert [&_*]:!text-white',
-                isAssistant && '[&_p]:my-1.5 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_h1]:mt-3 [&_h2]:mt-3 [&_h3]:mt-2'
+                isAssistant && '[&_p]:my-2 [&_ul]:my-2 [&_ol]:my-2 [&_h1]:text-lg [&_h2]:text-base [&_h3]:text-base [&_h1]:mt-3 [&_h2]:mt-3 [&_h3]:mt-2'
               )}
             >
               <ReactMarkdown>{displayContent}</ReactMarkdown>
