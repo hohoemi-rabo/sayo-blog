@@ -136,20 +136,38 @@ export const ChatMessage = memo(function ChatMessage({
               </div>
             )}
 
-            {/* Article cards */}
+            {/* Article cards (上から順に下からふわっと) */}
             {message.articles && message.articles.length > 0 && (
               <div className="mt-3 space-y-2">
-                {message.articles.map((article) => (
-                  <ChatArticleCard key={article.slug} article={article} />
+                {message.articles.map((article, i) => (
+                  <div
+                    key={article.slug}
+                    className="animate-slide-in-up"
+                    style={{
+                      animationDelay: `${i * 120}ms`,
+                      animationFillMode: 'both',
+                    }}
+                  >
+                    <ChatArticleCard article={article} />
+                  </div>
                 ))}
               </div>
             )}
 
-            {/* Spot cards */}
+            {/* Spot cards (上から順に下からふわっと) */}
             {message.spots && message.spots.length > 0 && (
               <div className="mt-3 space-y-2">
-                {message.spots.map((spot) => (
-                  <ChatSpotCard key={spot.name} spot={spot} />
+                {message.spots.map((spot, i) => (
+                  <div
+                    key={spot.name}
+                    className="animate-slide-in-up"
+                    style={{
+                      animationDelay: `${i * 120}ms`,
+                      animationFillMode: 'both',
+                    }}
+                  >
+                    <ChatSpotCard spot={spot} />
+                  </div>
                 ))}
               </div>
             )}
