@@ -44,8 +44,13 @@ function StreamingCursor() {
 
 function cleanMarkers(text: string): string {
   return text
+    // 完成したマーカーを除去
     .replace(/\[\[([^\]]+)\]\]/g, '')
     .replace(/\{\{spot:([^}]+)\}\}/g, '')
+    // ストリーミング中、まだ閉じが届いていない未完成マーカーを非表示にする
+    // (これが無いと「[[arashim」のような途中状態が一瞬見えてから消える)
+    .replace(/\[\[[^\]]*$/, '')
+    .replace(/\{\{[^}]*$/, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim()
 }
