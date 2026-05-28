@@ -65,19 +65,19 @@ export function ChatPage({ tags }: ChatPageProps) {
         abortRef.current = null
         return
       }
-      st.timer = setTimeout(typewriterTick, 40)
+      st.timer = setTimeout(typewriterTick, 60)
       return
     }
     // バックログが大きいほど一度に出す文字数を増やすが、抑えめ (ChatGPT風のゆっくり感)
     const remaining = st.pending.length
-    const charsToReveal = Math.max(1, Math.min(remaining, Math.ceil(remaining / 100)))
+    const charsToReveal = Math.max(1, Math.min(remaining, Math.ceil(remaining / 150)))
     const take = st.pending.slice(0, charsToReveal)
     st.pending = st.pending.slice(charsToReveal)
     const id = st.assistantId
     setMessages((prev) =>
       prev.map((m) => (m.id === id ? { ...m, content: m.content + take } : m))
     )
-    st.timer = setTimeout(typewriterTick, 30)
+    st.timer = setTimeout(typewriterTick, 50)
   }
 
   function startTypewriter(assistantId: string) {
