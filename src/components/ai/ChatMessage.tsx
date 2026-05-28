@@ -81,9 +81,9 @@ export const ChatMessage = memo(function ChatMessage({
       {/* Message body */}
       <div
         className={cn(
-          'max-w-[85%] lg:max-w-[70%]',
-          isUser && 'ml-auto',
-          isAssistant && 'mr-auto'
+          // User は右寄せの吹き出しなので幅を絞る、Assistant は読みやすさ優先で会話エリア幅いっぱい
+          isUser && 'max-w-[85%] lg:max-w-[70%] ml-auto',
+          isAssistant && 'w-full'
         )}
       >
         {/* Bubble (mobile) / Flat (desktop) */}
