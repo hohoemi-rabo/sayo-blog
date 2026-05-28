@@ -48,13 +48,9 @@ export default async function ChatRoute() {
       tag_type: t.tag_type,
     }))
 
-    return (
-      // ヘッダーは sticky h-16 (md:h-20) なので、dvh からその分を差し引いて
-      // チャット領域が画面ぴったりに収まるようにする (モバイル URL バー伸縮にも追従)
-      <div className="h-[calc(100dvh-4rem)] md:h-[calc(100dvh-5rem)] overflow-hidden">
-        <ChatPage tags={tags} />
-      </div>
-    )
+    // (chat) レイアウトの main が既に viewport - header の高さで overflow-hidden
+    // なので、ここでは追加の wrapper を挟まない (flex 子のネスト深さを最小化)。
+    return <ChatPage tags={tags} />
   }
 
   // 一般ユーザー: ティーザー画面

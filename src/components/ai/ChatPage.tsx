@@ -36,17 +36,6 @@ export function ChatPage({ tags }: ChatPageProps) {
     sessionIdRef.current = getSessionId()
   }, [])
 
-  // チャットページはアプリ的に全画面で動かしたいので、ボディ自身のスクロールを止める
-  // (公開レイアウトの main は min-h-screen + Footer のため、放置するとボディに不要な
-  //  スクロールバーが出て、メッセージ領域内側のスクロールと二重になる)
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prevOverflow
-    }
-  }, [])
-
   // ---- タイプライタ機構 (受信は streaming のまま、可視化を 1〜数文字ずつにペーシング) ----
   const typewriterRef = useRef<{
     assistantId: string
