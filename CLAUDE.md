@@ -32,7 +32,7 @@ npm run lint        # Run ESLint
 src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
-│   ├── (chat)/              # AI Chat page (ChatHeader, no Footer) — 開発中
+│   ├── (chat)/              # AI Chat page (公開 Header + main 専用高さ, no Footer)
 │   ├── (public)/            # Public pages (Header + Footer)
 │   │   ├── page.tsx         # Home (Hero + Pick Up 6 posts)
 │   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
@@ -140,5 +140,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-28 (Ticket 42: ロング記事フロー = 公開フォーム /request/long + 案件管理 CRM (ステータス7段階/取材日/金額/紐付け) + ArticleTypeBadge 公開記事に表示 + 新規記事作成時の依頼紐付け + 自動公開連動)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / AI Chat paused
+**Updated**: 2026-05-28 (Ticket 42: ロング記事フロー = 公開フォーム /request/long + 案件管理 CRM (ステータス7段階/取材日/金額/紐付け) + ArticleTypeBadge 公開記事に表示 + 新規記事作成時の依頼紐付け + 自動公開連動。AI Chat UI 改善: (chat) ルートグループ活性化 + flex+min-h-0 修正 + タイプライタ + カードスタガー + マーカー処理改善)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / AI Chat UI 仕上げ済み (機能は安定運用中)
