@@ -144,7 +144,7 @@ export const ChatMessage = memo(function ChatMessage({
                     key={article.slug}
                     className="animate-slide-in-up"
                     style={{
-                      animationDelay: `${i * 120}ms`,
+                      animationDelay: `${i * 200}ms`,
                       animationFillMode: 'both',
                     }}
                   >
@@ -162,7 +162,7 @@ export const ChatMessage = memo(function ChatMessage({
                     key={spot.name}
                     className="animate-slide-in-up"
                     style={{
-                      animationDelay: `${i * 120}ms`,
+                      animationDelay: `${i * 200}ms`,
                       animationFillMode: 'both',
                     }}
                   >
