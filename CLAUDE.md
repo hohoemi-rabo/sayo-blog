@@ -66,7 +66,8 @@ src/
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
 /request/mini                  → ミニ記事の情報提供フォーム (BotID + Zod + Gmail SMTP 通知)
 /request/mini/thanks           → ミニ記事 送信完了画面 (noindex)
-/request/long                  → 取材依頼フォーム (Ticket 42 で作成予定 / 現状 ComingSoon)
+/request/long                  → 取材依頼フォーム (種別ごと条件出し分け + BotID + Gmail SMTP 通知)
+/request/long/thanks           → ロング記事 送信完了画面 (noindex)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
@@ -139,5 +140,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-25 (Ticket 41: ミニ記事フロー = 公開フォーム /request/mini + BotID/Zod/レート制限 + Gmail SMTP 通知 + 管理画面 詳細/ステータス/未読バッジ + AI 記事化。`ig-article-*` は不使用化し純粋ヘルパーを `article-ai-shared.ts` に集約)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム in progress (40-41 done, 42 pending) / AI Chat paused
+**Updated**: 2026-05-28 (Ticket 42: ロング記事フロー = 公開フォーム /request/long + 案件管理 CRM (ステータス7段階/取材日/金額/紐付け) + ArticleTypeBadge 公開記事に表示 + 新規記事作成時の依頼紐付け + 自動公開連動)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / AI Chat paused

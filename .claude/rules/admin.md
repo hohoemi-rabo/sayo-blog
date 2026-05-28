@@ -45,11 +45,20 @@ paths:
 
 - `/admin/inquiries` — 依頼管理 (force-dynamic, `?tab=mini|long` 切替 + 件数バッジ)
   - ミニ記事 (mini_inquiries) / ロング記事 (long_inquiries) を別タブで一覧表示
-  - ミニ (Ticket 41) は実装済み: フィルタ + 詳細ダイアログ (内部メモ編集 / ステータス操作 / 削除) + AI 記事化 (`/admin/inquiries/[id]/generate`)。ロング (Ticket 42) は枠のみ
-  - `?open={id}` で該当依頼の詳細ダイアログを自動オープン (メール通知リンク用)
-  - Sidebar「依頼管理」に未処理 (pending) 件数の赤バッジ (admin layout が getInquiryCounts で注入)
+  - ミニ (Ticket 41): フィルタ + 詳細ダイアログ (内部メモ編集 / ステータス操作 / 削除) + AI 記事化 (`/admin/inquiries/[id]/generate`)
+  - ロング (Ticket 42): フィルタ + 詳細ダイアログ (依頼情報 + **案件管理 = 7段階ステータス / 取材日 (scheduled_at) / 金額 (fee_amount) / 既存記事との紐付け Select + 「新規記事を作成」導線**) + 内部メモ + 削除
+  - `?open={id}` で該当依頼の詳細ダイアログを自動オープン (メール通知リンク用、mini/long 両方)
+  - Sidebar「依頼管理」に未処理 (pending) 件数の赤バッジ = mini.pending + long.pending 合算 (admin layout が getInquiryCounts で注入)
   - データ取得は `actions.ts` ('use server')、同期ヘルパー (parseInquiryTab / InquiryCounts / InquiryMutationResult) は `filters.ts` に分離
   - ラベル/表示ヘルパーは `src/lib/inquiries.ts` に集約 (Server/Client 両用)
+
+### ロング記事の紐付け・自動公開連動 (Ticket 42)
+
+ロング記事は AI 生成せず、紗代さんが現地取材して書く。依頼レコード (`long_inquiries`) と post を後から紐付ける運用:
+
+- **新規作成導線**: 詳細ダイアログの「新規記事を作成」→ `/admin/posts/new?from_inquiry=long&id={inquiryId}` で取材バナー表示 + 保存時に依頼レコードへ自動紐付け + `posts.article_type='long'` がセットされる (PostForm の `linkLongInquiryId` / `forcedArticleType`)
+- **既存記事の紐付け**: 詳細ダイアログの Select で `getLinkablePosts()` (article_type IN ('free','long') かつ他依頼に未紐付け) から選んで紐付け。free → long に自動フリップ、mini 記事は紐付け不可
+- **自動公開連動**: 紐付いた post の `is_published` が false→true になると、`updatePost` 内で対応する `long_inquiries.status='published'` に自動更新 (依頼を新規作成経路で公開状態で保存した場合も同じ)
 
 ### ミニ記事の画像・依頼の寿命モデル (Ticket 41 — 重要)
 

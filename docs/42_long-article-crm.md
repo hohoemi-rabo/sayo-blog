@@ -324,45 +324,45 @@ src/app/(public)/[category]/[slug]/page.tsx                     # ArticleTypeBad
 ## 完了条件
 
 ### 公開フォーム
-- [ ] `/request/long` が表示され、寄り添うコピーが入っている
-- [ ] 種別ラジオで個人 / 組織 / 団体を選択できる
-- [ ] 種別に応じて必須項目が出し分けられる
+- [×] `/request/long` が表示され、寄り添うコピーが入っている
+- [×] 種別ラジオで個人 / 組織 / 団体を選択できる
+- [×] 種別に応じて必須項目が出し分けられる
   - 個人: 氏名
   - 組織: 貴社名（必須）+ 部署名（任意）
   - 団体: 団体名
-- [ ] 担当者名 / 住所 / 取材内容 / 電話 / 同意 が全種別で必須
-- [ ] 公開希望 / 取材希望 がフリー入力できる
-- [ ] Vercel BotID が動作する
-- [ ] 送信成功で `long_inquiries` に INSERT される
-- [ ] 紗代さんへの通知メールが届く
-- [ ] 完了画面が表示される
+- [×] 担当者名 / 住所 / 取材内容 / 電話 / 同意 が全種別で必須
+- [×] 公開希望 / 取材希望 がフリー入力できる
+- [×] Vercel BotID が動作する
+- [×] 送信成功で `long_inquiries` に INSERT される
+- [×] 紗代さんへの通知メールが届く
+- [×] 完了画面が表示される
 
 ### 管理画面（ロング記事タブ）
-- [ ] 一覧表に 8 つのカラムが表示される
-- [ ] フィルター（ステータス / 種別 / ソート）が動作する
-- [ ] 詳細ダイアログで全項目が表示される
-- [ ] ステータスを 7 段階で進められる（pending → ... → published / cancelled）
-- [ ] 取材日（scheduled_at）が入力・編集できる
-- [ ] 金額（fee_amount）が入力・編集できる
-- [ ] 内部メモ（admin_notes）が編集できる
-- [ ] 既存記事を紐付けられる（generated_post_id）
-- [ ] 「新規記事を作成」ボタンで `/admin/posts/new?from_inquiry=long&id=...` へ遷移する
-- [ ] 紐付けた記事が `is_published=true` になったら、`long_inquiries.status='published'` に自動更新される
+- [×] 一覧表に 8 つのカラムが表示される
+- [×] フィルター（ステータス / 種別 / ソート）が動作する
+- [×] 詳細ダイアログで全項目が表示される
+- [×] ステータスを 7 段階で進められる（pending → ... → published / cancelled）
+- [×] 取材日（scheduled_at）が入力・編集できる
+- [×] 金額（fee_amount）が入力・編集できる
+- [×] 内部メモ（admin_notes）が編集できる
+- [×] 既存記事を紐付けられる（generated_post_id）
+- [×] 「新規記事を作成」ボタンで `/admin/posts/new?from_inquiry=long&id=...` へ遷移する
+- [×] 紐付けた記事が `is_published=true` になったら、`long_inquiries.status='published'` に自動更新される
 
 ### 公開側
-- [ ] `posts.article_type` カラムが追加されている（free / mini / long）
-- [ ] 公開記事ページに `ArticleTypeBadge` が表示される
-- [ ] Ticket 41 のミニ記事生成時に `article_type='mini'` がセットされる（Ticket 41 側で対応）
-- [ ] ロング記事新規作成時に `article_type='long'` がセットされる
-- [ ] 既存記事は `article_type='free'` がデフォルトで適用される
+- [×] `posts.article_type` カラムが追加されている（free / mini / long）
+- [×] 公開記事ページに `ArticleTypeBadge` が表示される
+- [×] Ticket 41 のミニ記事生成時に `article_type='mini'` がセットされる（Ticket 41 側で対応）
+- [×] ロング記事新規作成時に `article_type='long'` がセットされる
+- [×] 既存記事は `article_type='free'` がデフォルトで適用される
 
 ### 共通
-- [ ] ヘッダーの「取材を依頼する」ボタンが `/request/long` にリンクする
-- [ ] Sidebar の「依頼管理」未読バッジに long の pending 件数が含まれる（41 と合算）
+- [×] ヘッダーの「取材を依頼する」ボタンが `/request/long` にリンクする
+- [×] Sidebar の「依頼管理」未読バッジに long の pending 件数が含まれる（41 と合算）
 
 ### ビルド
-- [ ] `npm run build` が成功する
-- [ ] `npm run lint` がエラーなしで通る
+- [×] `npm run build` が成功する
+- [×] `npm run lint` がエラーなしで通る
 
 ---
 
