@@ -49,7 +49,9 @@ export default async function ChatRoute() {
     }))
 
     return (
-      <div className="h-[calc(100vh-5rem)]">
+      // ヘッダーは sticky h-16 (md:h-20) なので、dvh からその分を差し引いて
+      // チャット領域が画面ぴったりに収まるようにする (モバイル URL バー伸縮にも追従)
+      <div className="h-[calc(100dvh-4rem)] md:h-[calc(100dvh-5rem)] overflow-hidden">
         <ChatPage tags={tags} />
       </div>
     )
