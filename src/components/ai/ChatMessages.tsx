@@ -59,7 +59,7 @@ export function ChatMessages({
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto px-4 pt-12 pb-4 sm:pt-16"
+      className="flex-1 min-h-0 overflow-y-auto px-4 pt-12 pb-4 sm:pt-16"
       aria-live="polite"
       aria-label="会話エリア"
     >

@@ -318,10 +318,10 @@ export function ChatPage({ tags }: ChatPageProps) {
   )
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {hasMessages ? (
         /* === Conversation layout === */
-        <div key="conversation" className="flex flex-col h-full animate-fade-in">
+        <div key="conversation" className="flex flex-col h-full min-h-0 animate-fade-in">
           <ChatMessages
             messages={messages}
             onSuggestionSelect={handleSuggestionSelect}
