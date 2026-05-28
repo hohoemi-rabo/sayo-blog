@@ -43,16 +43,23 @@ function StreamingCursor() {
 }
 
 function cleanMarkers(text: string): string {
-  return text
-    // 完成したマーカーを除去
+  // 1. 完成したマーカーを除去
+  let cleaned = text
     .replace(/\[\[([^\]]+)\]\]/g, '')
     .replace(/\{\{spot:([^}]+)\}\}/g, '')
-    // ストリーミング中、まだ閉じが届いていない未完成マーカーを非表示にする
-    // (これが無いと「[[arashim」のような途中状態が一瞬見えてから消える)
-    .replace(/\[\[[^\]]*$/, '')
-    .replace(/\{\{[^}]*$/, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+
+  // 2. ストリーミング中、末尾に「閉じ ]] がまだ届いていない [[...」が残る場合は非表示
+  //    (例: [[a / [[arashima / [[arashima]  ← 1個目の ] までで止まる瞬間も含む)
+  const lastOpenBracket = cleaned.lastIndexOf('[[')
+  if (lastOpenBracket !== -1 && !cleaned.slice(lastOpenBracket).includes(']]')) {
+    cleaned = cleaned.slice(0, lastOpenBracket)
+  }
+  const lastOpenCurly = cleaned.lastIndexOf('{{')
+  if (lastOpenCurly !== -1 && !cleaned.slice(lastOpenCurly).includes('}}')) {
+    cleaned = cleaned.slice(0, lastOpenCurly)
+  }
+
+  return cleaned.replace(/\n{3,}/g, '\n\n').trim()
 }
 
 export const ChatMessage = memo(function ChatMessage({
