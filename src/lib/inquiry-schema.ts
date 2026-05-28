@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { MiniInquiryType, PublishPreference } from '@/lib/types'
+import type { ClientType, MiniInquiryType, PublishPreference } from '@/lib/types'
 
 /**
  * 情報窓口フォーム (ミニ記事) の入力バリデーション。
@@ -133,3 +133,83 @@ export const INQUIRY_IMAGE_ACCEPT = [
   'image/heic',
   'image/heif',
 ] as const
+
+// ============================================================
+// ロング記事 (取材依頼) スキーマ — Ticket 42
+// ============================================================
+
+export const CLIENT_TYPES = [
+  'individual',
+  'organization',
+  'group',
+] as const satisfies readonly ClientType[]
+
+export const longInquirySchema = z
+  .object({
+    client_type: z.enum(CLIENT_TYPES, { error: '種別を選択してください' }),
+    individual_name: z.string().trim().max(100).nullable(),
+    organization_name: z.string().trim().max(200).nullable(),
+    department_name: z.string().trim().max(100).nullable(),
+    group_name: z.string().trim().max(200).nullable(),
+    contact_person: z
+      .string()
+      .trim()
+      .min(1, { error: '担当者名を入力してください' })
+      .max(100, { error: '100 字以内で入力してください' }),
+    address: z
+      .string()
+      .trim()
+      .min(1, { error: '住所を入力してください' })
+      .max(300, { error: '300 字以内で入力してください' }),
+    interview_content: z
+      .string()
+      .trim()
+      .min(200, { error: '取材内容は 200 字以上で詳しくお書きください' })
+      .max(2000, { error: '取材内容は 2000 字以内でお書きください' }),
+    publish_preference: z
+      .string()
+      .trim()
+      .max(100, { error: '100 字以内で入力してください' })
+      .nullable(),
+    interview_preference: z
+      .string()
+      .trim()
+      .max(100, { error: '100 字以内で入力してください' })
+      .nullable(),
+    phone: z
+      .string()
+      .trim()
+      .min(1, { error: '電話番号を入力してください' })
+      .refine(isValidJapanesePhone, {
+        error: '電話番号の形式が正しくありません（例: 0265-22-2222）',
+      }),
+    email: z
+      .union([z.email({ error: 'メールアドレスの形式が正しくありません' }), z.literal('')])
+      .nullable(),
+    consent: z.literal(true, { error: '取材・記事化への同意が必要です' }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.client_type === 'individual' && !data.individual_name?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['individual_name'],
+        message: '氏名を入力してください',
+      })
+    }
+    if (data.client_type === 'organization' && !data.organization_name?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['organization_name'],
+        message: '貴社名を入力してください',
+      })
+    }
+    if (data.client_type === 'group' && !data.group_name?.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['group_name'],
+        message: '団体名を入力してください',
+      })
+    }
+  })
+
+export type LongInquiryInput = z.infer<typeof longInquirySchema>

@@ -10,5 +10,9 @@ initBotId({
       path: '/request/mini',
       method: 'POST',
     },
+    {
+      path: '/request/long',
+      method: 'POST',
+    },
   ],
 })
