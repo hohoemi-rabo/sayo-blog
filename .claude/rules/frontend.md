@@ -35,6 +35,13 @@ paths:
 - **Body (Japanese)**: Noto Serif JP (`--font-noto-serif-jp`)
 - **UI/Navigation**: Noto Sans JP (`--font-noto-sans-jp`)
 
+## Header CTA Hierarchy (公開ヘッダー)
+
+公開ヘッダー (`Header.tsx`) の 2 つの CTA は視覚ヒエラルキーを付けている:
+- **主役「取材を依頼」** (`/request/long`): ピンク〜コーラルのグラデ `from-[#ED93B1] to-[#D85A30]` + 柔らかい glow shadow + `hover:-translate-y-0.5` で浮き上がり。白文字に `text-shadow` を足してグラデ左端でもコントラスト確保。
+- **脇役「情報を届ける」** (`/request/mini`): 枠付きゴースト (`border-primary/40` + `text-primary`)、hover で枠を濃く。主役を引き立てる。
+- 注意: `primary-hover` (#FF8FB3) は primary (#FF6B9D) より**明るい**ため、塗り CTA の hover に使うと白文字が同化する。塗りボタンの hover は `brightness-95` 等で**暗く**する。
+
 ## Component Conventions
 
 - Use `@/` path alias for imports
