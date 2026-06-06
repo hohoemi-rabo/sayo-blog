@@ -24,7 +24,7 @@ export default function LongRequestPage() {
               ✍️ 取材依頼の窓口
             </span>
             <h1 className="mt-6 font-playfair text-3xl font-bold leading-tight text-text-primary md:text-4xl">
-              紗代が現地に伺って、じっくり書きます
+              現地に伺って、じっくり書きます
             </h1>
             <div className="mx-auto mt-5 max-w-xl space-y-4 font-noto-serif-jp leading-relaxed text-text-secondary">
               <p>
