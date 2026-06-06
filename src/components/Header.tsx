@@ -71,8 +71,8 @@ export default function Header() {
                   href={cta.href}
                   className={`rounded-full px-4 py-2 text-sm font-noto-sans-jp font-medium transition-all duration-200 whitespace-nowrap ${
                     cta.primary
-                      ? 'bg-primary text-white hover:bg-primary-hover shadow-sm'
-                      : 'border border-primary text-primary hover:bg-primary/10'
+                      ? 'bg-primary text-white hover:brightness-95 shadow-sm'
+                      : 'border border-primary text-primary hover:bg-primary hover:text-white'
                   }`}
                 >
                   <span className="mr-1">{cta.emoji}</span>
@@ -143,8 +143,8 @@ export default function Header() {
                       onClick={() => setIsMenuOpen(false)}
                       className={`rounded-full px-4 py-2.5 text-center text-sm font-noto-sans-jp font-medium transition-all duration-200 ${
                         cta.primary
-                          ? 'bg-primary text-white hover:bg-primary-hover'
-                          : 'border border-primary text-primary hover:bg-primary/10'
+                          ? 'bg-primary text-white hover:brightness-95'
+                          : 'border border-primary text-primary hover:bg-primary hover:text-white'
                       }`}
                     >
                       <span className="mr-1">{cta.emoji}</span>
