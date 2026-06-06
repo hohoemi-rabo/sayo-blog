@@ -72,7 +72,7 @@ export default function Header() {
                   className={`rounded-full text-sm font-noto-sans-jp transition-all duration-200 whitespace-nowrap ${
                     cta.primary
                       ? 'px-5 py-2.5 font-semibold text-white bg-gradient-to-r from-[#ED93B1] to-[#D85A30] shadow-[0_4px_14px_rgba(216,90,48,0.35)] [text-shadow:0_1px_2px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(216,90,48,0.45)]'
-                      : 'px-4 py-2 font-medium text-text-secondary hover:text-primary hover:bg-primary/5'
+                      : 'px-4 py-2 font-medium text-primary border border-primary/40 hover:border-primary hover:bg-primary/5'
                   }`}
                 >
                   <span className="mr-1">{cta.emoji}</span>
