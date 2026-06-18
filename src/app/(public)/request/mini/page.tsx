@@ -32,7 +32,7 @@ export default function MiniRequestPage() {
               <p>
                 飯田下伊那の小さな出来事も、誰かに届くまで「無かったこと」になりがちです。
                 SNS で発信されている情報があれば、URL を 1〜5 件ご共有ください。
-                紗代が記事に書き留めて、Sayo&apos;s Journal で紹介します。
+                記事に書き留めて、Sayo&apos;s Journal で紹介します。
               </p>
             </div>
             <ul className="mx-auto mt-6 flex max-w-md flex-col gap-2 text-left">
