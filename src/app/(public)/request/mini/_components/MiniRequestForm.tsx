@@ -233,7 +233,7 @@ export function MiniRequestForm() {
             name="phone"
             type="tel"
             inputMode="tel"
-            placeholder="0265-22-2222"
+            placeholder="0265-00-0000"
             autoComplete="tel"
           />
           <FieldError message={fieldErrors.phone} />

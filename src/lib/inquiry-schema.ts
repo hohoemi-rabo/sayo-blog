@@ -53,7 +53,7 @@ export const miniInquirySchema = z
       .trim()
       .min(1, { error: '電話番号を入力してください' })
       .refine(isValidJapanesePhone, {
-        error: '電話番号の形式が正しくありません（例: 0265-22-2222）',
+        error: '電話番号の形式が正しくありません（例: 0265-00-0000）',
       }),
     email: z
       .union([z.email({ error: 'メールアドレスの形式が正しくありません' }), z.literal('')])
@@ -181,7 +181,7 @@ export const longInquirySchema = z
       .trim()
       .min(1, { error: '電話番号を入力してください' })
       .refine(isValidJapanesePhone, {
-        error: '電話番号の形式が正しくありません（例: 0265-22-2222）',
+        error: '電話番号の形式が正しくありません（例: 0265-00-0000）',
       }),
     email: z
       .union([z.email({ error: 'メールアドレスの形式が正しくありません' }), z.literal('')])
