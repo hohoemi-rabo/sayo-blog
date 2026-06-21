@@ -12,6 +12,7 @@
     "migrate:images": "tsx scripts/migrate-images.ts",
     "migrate:posts": "tsx scripts/migrate-posts.ts",
     "migrate:all": "npm run migrate:categories && npm run migrate:hashtags && npm run migrate:images && npm run migrate:posts",
+    "backfill:gallery": "tsx scripts/backfill-post-images.ts",
     "validate": "tsx scripts/validate-data.ts"
   },
   "dependencies": {

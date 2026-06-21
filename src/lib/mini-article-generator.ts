@@ -13,6 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
 import { generateUniquePostSlug } from '@/lib/slug-utils'
 import { buildMiniArticlePrompt } from '@/lib/mini-article-prompt'
+import { syncPostImages } from '@/lib/post-images-sync'
 import {
   ArticleAiValidationError,
   callGeminiForArticle,
@@ -149,6 +150,9 @@ export async function generateMiniArticle(
       .from('post_categories')
       .insert({ post_id: postId, category_id: categoryId })
     await linkHashtags(supabase, postId, ai.recommended_hashtags)
+
+    // 10.5 ギャラリー用に画像を同期 (createPost を経由しない直接 INSERT 経路のため明示呼び出し)
+    await syncPostImages(postId)
 
     // 11. 依頼を公開済みに + 生成記事を紐付け
     await supabase

@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
 import { triggerIgAutoGenerate } from '@/lib/ig-auto-generator'
+import { syncPostImages } from '@/lib/post-images-sync'
 import type { ArticleType } from '@/lib/types'
 
 export type PostFormData = {
@@ -121,8 +122,14 @@ export async function createPost(
     }
   }
 
+  // ギャラリー用に画像を同期 (本文 + サムネから抽出)
+  if (post?.id) {
+    await syncPostImages(post.id as string)
+  }
+
   revalidatePath('/admin/posts')
   revalidatePath('/')
+  revalidatePath('/gallery')
 
   if (data.is_published && post?.id) {
     const newPostId = post.id as string
@@ -208,9 +215,13 @@ export async function updatePost(id: string, data: PostFormData) {
     }
   }
 
+  // ギャラリー用に画像を同期 (本文/サムネ更新・公開状態変更を反映)
+  await syncPostImages(id)
+
   revalidatePath('/admin/posts')
   revalidatePath(`/admin/posts/${id}`)
   revalidatePath('/')
+  revalidatePath('/gallery')
 
   if (!wasPublished && data.is_published) {
     after(() => triggerIgAutoGenerate(id))
