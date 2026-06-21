@@ -1,3 +1,6 @@
+> ⚠️ **これは初期（Phase 1）の実装仕様書です（歴史的記録）。**
+> 現行の実装仕様は [`SPEC-FULL.md`](./SPEC-FULL.md)、進捗は [`.claude/rules/implementation-status.md`](../.claude/rules/implementation-status.md) を参照してください。
+
 # Sayo's Journal — 実装仕様書
 
 > **最終更新**: 2026-02-28

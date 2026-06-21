@@ -1,3 +1,6 @@
+> ⚠️ **これは Phase 2（AI Chat）の初期要件定義です（歴史的記録）。**
+> 現行の実装仕様は [`SPEC-FULL.md`](./SPEC-FULL.md)、進捗は [`.claude/rules/implementation-status.md`](../.claude/rules/implementation-status.md) を参照してください。
+
 # Sayo's Journal — Phase 2 要件定義書
 
 > **作成日**: 2026-02-28

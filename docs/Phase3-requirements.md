@@ -1,3 +1,7 @@
+> ⚠️ **これは Phase 3（Instagram 連携）の初期要件定義です（歴史的記録）。**
+> Phase 3B（Cowork CSV 取り込み = Ticket 34-36）は廃止され、Phase 4「情報窓口フォーム」に置き換わりました。
+> 現行の実装仕様は [`SPEC-FULL.md`](./SPEC-FULL.md)、進捗は [`.claude/rules/implementation-status.md`](../.claude/rules/implementation-status.md) を参照してください。
+
 # Sayo's Journal Phase 3 要件定義書
 
 # ブログ × Instagram 双方向連携
