@@ -8,6 +8,7 @@ import {
   FolderOpen,
   Hash,
   ImageIcon,
+  Images,
   BookOpen,
   Tags,
   BarChart3,
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'カテゴリ', href: '/admin/categories', icon: FolderOpen },
   { name: 'ハッシュタグ', href: '/admin/hashtags', icon: Hash },
   { name: 'メディア', href: '/admin/media', icon: ImageIcon },
+  { name: 'ギャラリー', href: '/admin/gallery', icon: Images },
 ]
 
 const inquiriesNavigation = [
