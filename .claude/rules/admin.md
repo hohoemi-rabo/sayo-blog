@@ -41,6 +41,16 @@ paths:
 
 > **Ticket 40 で削除**: `sources` / `imports` / `imports/upload` (Cowork CSV 取り込みフロー) は廃止。情報窓口フォーム (下記) に置き換え。
 
+## ギャラリー管理 (画像ギャラリー)
+
+- `/admin/gallery` — ギャラリー管理 (force-dynamic, `?filter=all|visible|hidden|featured`)
+  - 役割は公開ギャラリー `/gallery` の**「見せ方」だけ**を整えること。**アップロード/差し替え/削除はしない** (アップロードは記事エディタ、ファイル削除は `/admin/media` の責務)
+  - 全 `post_images` (非公開記事の画像も含む, バッジで状態表示) をグリッド表示
+  - カード操作は **表示 ON/OFF (`is_visible`)** と **ピン留め (`is_featured`)** の 2 つだけ。`GalleryAdminCard` が `useTransition` で楽観的更新し、失敗時はロールバック
+  - mutation (`toggleImageVisibility` / `toggleImageFeatured`) は `assertAdminAuth()` で保護し、`/admin/gallery` と `/gallery` を revalidate
+  - データ取得は `actions.ts` ('use server')。画像は記事保存時に `syncPostImages` で自動同期されるので、この画面で「追加」する操作は無い
+  - `.claude/rules/database.md` の post_images / `get_gallery_images` も参照
+
 ## 情報窓口フォーム — 依頼管理 (Phase 4)
 
 - `/admin/inquiries` — 依頼管理 (force-dynamic, `?tab=mini|long` 切替 + 件数バッジ)

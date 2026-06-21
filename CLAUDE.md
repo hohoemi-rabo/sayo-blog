@@ -61,6 +61,7 @@ src/
 /gourmet/                      → Category listing page
 /gourmet/[slug]/               → Article detail
 /search?q=keyword              → Search results
+/gallery                       → 写真ギャラリー (公開記事の画像を masonry 一覧 → クリックで記事直行)
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
@@ -75,6 +76,7 @@ src/
 /admin/inquiries               → 依頼管理 (ミニ/ロングのタブ切替 + 件数バッジ + 詳細/ステータス操作/削除)
 /admin/inquiries/[id]/generate → ミニ記事の AI 記事化 (本文貼付 + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
+/admin/gallery                 → ギャラリー管理 (画像の表示 ON/OFF + ピン留め, アップロード/削除はしない)
 /admin/posts                   → 記事一覧 (出自タブ: 自由記事 / ミニ記事 / ロング記事)
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
@@ -140,5 +142,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-05-28 (Ticket 42: ロング記事フロー = 公開フォーム /request/long + 案件管理 CRM (ステータス7段階/取材日/金額/紐付け) + ArticleTypeBadge 公開記事に表示 + 新規記事作成時の依頼紐付け + 自動公開連動。AI Chat UI 改善: (chat) ルートグループ活性化 + flex+min-h-0 修正 + タイプライタ + カードスタガー + マーカー処理改善)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / AI Chat UI 仕上げ済み (機能は安定運用中)
+**Updated**: 2026-06-21 (画像ギャラリー機能: 公開 /gallery (masonry → 記事直行) + 管理 /admin/gallery (表示 ON/OFF + ピン留め) + post_images テーブル/RPC + 記事保存時の自動同期 + 既存記事 backfill。仕様は `docs/REQUIREMENTS-gallery.md`)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / AI Chat UI 仕上げ済み (機能は安定運用中)

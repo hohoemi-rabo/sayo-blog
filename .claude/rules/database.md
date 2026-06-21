@@ -44,6 +44,12 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 13. **mini_inquiries** - sns_urls text[] (最大5), inquiry_type (event/shop/group/other) + inquiry_type_other, phone (必須), email, publish_preference (anytime/by_date/in_month) + publish_target_date/month, image_urls text[] (最大2), consent, status (pending/generating/published/skipped), admin_notes, generated_post_id FK posts (SET NULL)
 14. **long_inquiries** - client_type (individual/organization/group), individual_name/organization_name/department_name/group_name, contact_person (必須), address (必須), interview_content (必須), publish_preference/interview_preference (free text), phone (必須), email, consent, status (pending/contacted/scheduled/interviewed/writing/published/cancelled), admin_notes, generated_post_id FK posts (SET NULL), scheduled_at, fee_amount (円)
 
+### Gallery Table (画像ギャラリー)
+15. **post_images** - post_id FK posts (CASCADE), image_url, caption (figcaption), alt, position (記事内出現順, サムネは -1), is_thumbnail, is_visible (公開ギャラリー表示 ON/OFF, default true), is_featured (ピン留め優先表示), **post_is_published / post_published_at (非正規化: 記事の公開状態・公開日時)**, UNIQUE(post_id, image_url)
+    - 本文 HTML + サムネから抽出 (`extractPostImages`) し `syncPostImages` が delete→insert で同期 (冪等)。同期は**アプリ層 (Server Action) 限定**、DB トリガで HTML パースはしない。
+    - 公開状態を非正規化するのは、ギャラリー取得を posts 結合なしでフラットに済ませ部分インデックスを効かせるため (既存 `idx_posts_*_partial` と同じ思想)。
+    - RLS: 匿名 SELECT は `post_is_published = true AND is_visible = true` のみ / authenticated は ALL。公開 RPC でも WHERE 固定し二重で担保。
+
 All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
 
 > **inquiries の書き込み方針**: 公開フォーム送信は Server Action 内で `createAdminClient()` (service role) を使い RLS をバイパスして INSERT する。匿名 INSERT ポリシーは付けない (Zod 検証 + Vercel BotID + レート制限を Server Action 側で実施予定)。
@@ -61,10 +67,11 @@ All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no ano
 - `get_monthly_usage_stats()` — SECURITY DEFINER, STABLE
 - `get_daily_usage_breakdown()` — SECURITY DEFINER, STABLE
 - `get_top_queries(p_limit)` — SECURITY DEFINER, STABLE
+- `get_gallery_images(p_limit, p_offset)` — SECURITY DEFINER, STABLE。post_images ⨝ posts ⨝ 主カテゴリ (LATERAL, order_num 最小)。公開済み & 表示ON を WHERE 固定し、画像URL/caption/alt/is_featured + リンク用 slug/category_slug/title を返す。並び: `is_featured DESC, post_published_at DESC NULLS LAST, position ASC`
 
 ## RLS (Row Level Security)
 
-All 10 tables have RLS enabled.
+All 15 tables have RLS enabled.
 
 ### RLS Performance Rule
 **ALWAYS** wrap `auth.role()` / `auth.uid()` in a SELECT subquery to prevent per-row re-evaluation:
@@ -94,6 +101,8 @@ idx_posts_published_at_partial ON posts (published_at DESC) WHERE is_published =
 idx_posts_view_count_partial   ON posts (view_count DESC) WHERE is_published = true
 idx_posts_slug_partial         ON posts (slug) WHERE is_published = true
 idx_posts_event_date_partial   ON posts (event_date_start) WHERE is_event = true  -- Ticket 37
+idx_post_images_gallery_partial ON post_images (is_featured DESC, post_published_at DESC, position ASC) WHERE post_is_published AND is_visible  -- 公開ギャラリー
+idx_post_images_post_id        ON post_images (post_id)  -- FK 用
 ```
 
 ### Full-Text Search Indexes (GIN)

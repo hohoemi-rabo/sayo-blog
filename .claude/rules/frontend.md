@@ -137,3 +137,14 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - 一覧用の `<Image>` には条件付きで `grayscale` クラスを当てる
 - 管理画面の記事一覧 `PostList.tsx` でも同フラグでサムネ白黒 + タイトル右に「📅 終了」ラベル
 - フラグ自体は admin の記事編集「公開設定」カード内のチェックボックスで切替
+
+## Photo Gallery (/gallery)
+
+公開記事の画像を一覧し、クリックで該当記事へ直行する写真ファースト導線。仕様正本は `docs/REQUIREMENTS-gallery.md`。
+
+- **レイアウト**: CSS columns ベースの masonry (`columns-2 sm:columns-3 lg:columns-4`)。各タイルは `break-inside-avoid` で列跨ぎを防ぐ。framer-motion 不使用の既存方針通り、ライブラリは入れない。
+- **タイル** (`GalleryTile.tsx`): `<Link>` で記事へ直行 (**ライトボックスは作らない**)。ホバーで scale + 下からタイトル/キャプションのオーバーレイ。ピン留め画像は左上に「★ Pick」バッジ。
+- **画像**: `next/image` (`width/height` は暫定値 + `h-auto w-full`、`loading="lazy"`)。width/height の実寸取得による CLS 最適化は MVP では割り切り (masonry なので多少のシフトは許容)。
+- **追加読込**: 「もっと見る」ボタン (既存 `InfinitePostGrid` 踏襲)。`/api/gallery?offset=&limit=` が RPC をラップ。
+- **フォーカスリング**: タイルは `focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2`。ブラウザ標準 outline を消してサイト色のリングに置換 (キーボード操作時のみ表示, アクセシビリティ用なので残す)。
+- **導線**: ヘッダー/フッターのナビに「ギャラリー」。SEO は index 許可 + ImageGallery JSON-LD + sitemap 掲載。
