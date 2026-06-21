@@ -24,6 +24,7 @@ const socialLinks = [
 const siteLinks = [
   { href: '/', label: 'ホーム' },
   { href: '/blog', label: 'ブログ' },
+  { href: '/gallery', label: 'ギャラリー' },
   { href: '/about', label: 'About' },
   { href: '/privacy', label: 'Privacy Policy' },
 ]

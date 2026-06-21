@@ -20,6 +20,7 @@ export default function Header() {
   const navLinks = [
     { href: '/', label: 'ホーム' },
     { href: '/blog', label: 'ブログ' },
+    { href: '/gallery', label: 'ギャラリー' },
     { href: '/about', label: 'About' },
     { href: '/chat', label: 'AI Chat' },
   ]

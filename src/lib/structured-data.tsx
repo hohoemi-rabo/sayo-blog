@@ -88,6 +88,30 @@ export function generateWebSiteSchema() {
 }
 
 /**
+ * Generate ImageGallery JSON-LD schema for the /gallery page.
+ * Each image links back to the article it belongs to (contentUrl = article URL),
+ * since clicking a tile goes straight to the article (no per-image page).
+ */
+export function generateImageGallerySchema(
+  images: Array<{ url: string; contentUrl: string; name: string; caption?: string | null }>
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: `ギャラリー | ${SITE_CONFIG.name}`,
+    url: `${SITE_CONFIG.url}/gallery`,
+    inLanguage: 'ja',
+    associatedMedia: images.map((img) => ({
+      '@type': 'ImageObject',
+      contentUrl: img.url,
+      url: img.contentUrl,
+      name: img.name,
+      ...(img.caption ? { caption: img.caption } : {}),
+    })),
+  }
+}
+
+/**
  * Helper component to inject JSON-LD into page head
  */
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
