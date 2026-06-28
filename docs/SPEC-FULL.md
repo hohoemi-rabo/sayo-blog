@@ -195,7 +195,6 @@ Button, Card, Badge, Input, Textarea, Label, Select, Checkbox, Dialog, Table, To
 | `/api/search/suggest` | GET | なし | 検索サジェスト (記事5件 + タグ5件) |
 | `/api/reactions` | GET/POST/DELETE | なし (RPC) | リアクション取得/追加/削除 |
 | `/api/ai/tags` | GET | なし | アクティブなプロンプトタグ (上位12件) |
-| `/api/keepalive` | GET | トークン | ヘルスチェック |
 
 > 情報窓口フォームの送信は API ルートではなく **Server Actions** (`submitMiniInquiry` / `submitLongInquiry`) で処理する。
 

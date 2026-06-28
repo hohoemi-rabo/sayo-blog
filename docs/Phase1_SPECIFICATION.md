@@ -92,7 +92,6 @@ src/
 │       ├── posts/[slug]/view/route.ts # PV カウント
 │       ├── search/suggest/route.ts   # サジェスト
 │       ├── reactions/route.ts        # リアクション
-│       ├── keepalive/route.ts        # ヘルスチェック
 │       └── admin/                    # 管理 API
 ├── components/
 │   ├── ui/                           # shadcn/ui ベース
@@ -449,10 +448,6 @@ PV カウントのインクリメント。RPC `increment_post_view_count` を呼
 { "post_id": "uuid", "reaction_type": "light" }
 ```
 
-### `GET /api/keepalive?token=xxx`
-
-ヘルスチェック。`KEEPALIVE_TOKEN` と照合。
-
 ### `POST /api/admin/login`
 
 管理者ログイン。Cookie を発行。
@@ -767,4 +762,3 @@ Sitemap: {SITE_URL}/sitemap.xml
 | 変数名 | 説明 |
 |--------|------|
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 測定 ID |
-| `KEEPALIVE_TOKEN` | ヘルスチェック API トークン |
