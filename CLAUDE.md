@@ -93,6 +93,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=https://www.sayo-kotoba.com
 ADMIN_PASSWORD=your-secure-admin-password
+CRON_SECRET=your-random-secret  # Vercel Cron keepalive 認証用 (openssl rand -hex 32)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=  # GA4 (optional, set when available)
 GEMINI_API_KEY=your-gemini-api-key
 GEMINI_MODEL=gemini-3-flash-preview        # default: gemini-3-flash-preview
