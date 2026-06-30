@@ -13,12 +13,15 @@ export async function GET(request: NextRequest) {
     60,
     Math.max(1, parseInt(searchParams.get('limit') || String(GALLERY_PAGE_SIZE), 10) || GALLERY_PAGE_SIZE)
   )
+  // 初回ページ (SSR) と同じシードを渡してもらい、同じランダム並びでページングする
+  const seed = searchParams.get('seed') || ''
 
   const supabase = createClient()
   // 1 件多めに取って hasMore を判定
   const { data, error } = await supabase.rpc('get_gallery_images', {
     p_limit: limit + 1,
     p_offset: offset,
+    p_seed: seed,
   })
 
   if (error) {

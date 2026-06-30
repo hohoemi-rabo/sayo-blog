@@ -67,7 +67,7 @@ All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no ano
 - `get_monthly_usage_stats()` — SECURITY DEFINER, STABLE
 - `get_daily_usage_breakdown()` — SECURITY DEFINER, STABLE
 - `get_top_queries(p_limit)` — SECURITY DEFINER, STABLE
-- `get_gallery_images(p_limit, p_offset)` — SECURITY DEFINER, STABLE。post_images ⨝ posts ⨝ 主カテゴリ (LATERAL, order_num 最小)。公開済み & 表示ON を WHERE 固定し、画像URL/caption/alt/is_featured + リンク用 slug/category_slug/title を返す。並び: `is_featured DESC, post_published_at DESC NULLS LAST, position ASC`
+- `get_gallery_images(p_limit, p_offset, p_seed)` — SECURITY DEFINER, STABLE。post_images ⨝ posts ⨝ 主カテゴリ (LATERAL, order_num 最小)。公開済み & 表示ON を WHERE 固定し、画像URL/caption/alt/is_featured + リンク用 slug/category_slug/title を返す。並び: `is_featured DESC, md5(pi.id::text || p_seed), pi.id`（ピン留め → シード付きランダム → タイブレーク）。`p_seed text DEFAULT ''` で旧2引数呼び出しも後方互換。/gallery は force-dynamic で訪問ごとにシードを生成し、初回ページと /api/gallery で共有してページングを安定させつつリロードのたびに並びを変える (migration `20260630120000_gallery_random_order.sql`)
 
 ## RLS (Row Level Security)
 

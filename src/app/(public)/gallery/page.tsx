@@ -5,12 +5,15 @@ import {
   GALLERY_PAGE_SIZE,
   galleryImageAlt,
   galleryImageHref,
+  generateGallerySeed,
   type GalleryImage,
 } from '@/lib/gallery'
 import { generateImageGallerySchema, JsonLd } from '@/lib/structured-data'
 import InfiniteImageGrid from './_components/InfiniteImageGrid'
 
-export const revalidate = 600 // 10 分 ISR
+// 訪問のたびに並びをランダムにするため、リクエストごとにシードを生成する。
+// そのため ISR ではなく動的レンダリング。画像 1 クエリのみで軽量。
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: `ギャラリー | ${SITE_CONFIG.name}`,
@@ -29,10 +32,13 @@ export const metadata: Metadata = {
 
 export default async function GalleryPage() {
   const supabase = createClient()
+  // この訪問のランダム並びを固定するシード。初回ページと「もっと見る」で共有する。
+  const seed = generateGallerySeed()
   // 1 件多めに取って hasMore を判定
   const { data, error } = await supabase.rpc('get_gallery_images', {
     p_limit: GALLERY_PAGE_SIZE + 1,
     p_offset: 0,
+    p_seed: seed,
   })
 
   if (error) {
@@ -64,7 +70,11 @@ export default async function GalleryPage() {
         </p>
       </header>
 
-      <InfiniteImageGrid initialImages={initialImages} initialHasMore={hasMore} />
+      <InfiniteImageGrid
+        initialImages={initialImages}
+        initialHasMore={hasMore}
+        seed={seed}
+      />
     </div>
   )
 }

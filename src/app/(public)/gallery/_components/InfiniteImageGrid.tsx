@@ -8,6 +8,8 @@ import GalleryTile from './GalleryTile'
 interface InfiniteImageGridProps {
   initialImages: GalleryImage[]
   initialHasMore: boolean
+  /** この訪問のランダム並びを固定するシード。初回ページと同じ並びで追加読込するため必須。 */
+  seed: string
 }
 
 /**
@@ -17,6 +19,7 @@ interface InfiniteImageGridProps {
 export default function InfiniteImageGrid({
   initialImages,
   initialHasMore,
+  seed,
 }: InfiniteImageGridProps) {
   const [images, setImages] = useState<GalleryImage[]>(initialImages)
   const [hasMore, setHasMore] = useState(initialHasMore)
@@ -30,6 +33,7 @@ export default function InfiniteImageGrid({
       const params = new URLSearchParams({
         offset: String(images.length),
         limit: String(GALLERY_PAGE_SIZE),
+        seed,
       })
       const res = await fetch(`/api/gallery?${params.toString()}`)
       const data = await res.json()
@@ -45,7 +49,7 @@ export default function InfiniteImageGrid({
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, hasMore, images.length])
+  }, [isLoading, hasMore, images.length, seed])
 
   if (images.length === 0) {
     return (

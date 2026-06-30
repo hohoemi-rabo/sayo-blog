@@ -145,6 +145,7 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - **レイアウト**: CSS columns ベースの masonry (`columns-2 sm:columns-3 lg:columns-4`)。各タイルは `break-inside-avoid` で列跨ぎを防ぐ。framer-motion 不使用の既存方針通り、ライブラリは入れない。
 - **タイル** (`GalleryTile.tsx`): `<Link>` で記事へ直行 (**ライトボックスは作らない**)。ホバーで scale + 下からタイトル/キャプションのオーバーレイ。ピン留め画像は左上に「★ Pick」バッジ。
 - **画像**: `next/image` (`width/height` は暫定値 + `h-auto w-full`、`loading="lazy"`)。width/height の実寸取得による CLS 最適化は MVP では割り切り (masonry なので多少のシフトは許容)。
-- **追加読込**: 「もっと見る」ボタン (既存 `InfinitePostGrid` 踏襲)。`/api/gallery?offset=&limit=` が RPC をラップ。
+- **追加読込**: 「もっと見る」ボタン (既存 `InfinitePostGrid` 踏襲)。`/api/gallery?offset=&limit=&seed=` が RPC をラップ。
+- **並び順 (ランダム)**: ピン留め → シード付きランダム。`page.tsx` は force-dynamic で訪問ごとに `generateGallerySeed()` を生成し、初回 SSR と「もっと見る」で同じ seed を共有する。これでページングが安定 (重複・欠落なし) しつつリロードのたびに並びが変わる。素の `ORDER BY random()` は offset ページングで重複/欠落するため使わない。RPC 側は `md5(画像id || seed)` の決定的順序 (migration `20260630120000`)。
 - **フォーカスリング**: タイルは `focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2`。ブラウザ標準 outline を消してサイト色のリングに置換 (キーボード操作時のみ表示, アクセシビリティ用なので残す)。
 - **導線**: ヘッダー/フッターのナビに「ギャラリー」。SEO は index 許可 + ImageGallery JSON-LD + sitemap 掲載。
