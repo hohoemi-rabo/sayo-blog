@@ -146,5 +146,4 @@ Context-specific rules are loaded based on file paths being worked on:
 
 **Created**: 2025-11-13
 **Updated**: 2026-07-04 (記事クラフト機能 Ticket 43: チラシ画像/PDF (Gemini vision) やメモから、紗代さんの文体を保った記事下書きを生成。文体プロファイル `docs/writing-style-profile.md` (96記事精読) + 題材が近い自由記事の自動お手本選定のハイブリッド。/admin/posts 新規作成 → 3枚カード選択 → /admin/posts/craft。仕様は `docs/43_craft-from-flyer-memo.md`)
-**Updated (prev)**: 2026-06-21 (画像ギャラリー機能: 公開 /gallery (masonry → 記事直行) + 管理 /admin/gallery (表示 ON/OFF + ピン留め) + post_images テーブル/RPC + 記事保存時の自動同期 + 既存記事 backfill。仕様は `docs/REQUIREMENTS-gallery.md`)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / AI Chat UI 仕上げ済み (機能は安定運用中)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI Chat UI 仕上げ済み (機能は安定運用中)
