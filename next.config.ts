@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // 記事クラフト生成 (チラシ/メモ→記事) は runtime に文体プロファイルの md を fs 読みするため、
+  // Vercel の関数バンドルに docs/writing-style-profile.md を同梱させる。
+  outputFileTracingIncludes: {
+    '/api/admin/posts/craft': ['./docs/writing-style-profile.md'],
+  },
   experimental: {
     serverActions: {
       // 情報窓口フォーム (/request/mini) の添付画像を 10MB × 最大 2 枚、

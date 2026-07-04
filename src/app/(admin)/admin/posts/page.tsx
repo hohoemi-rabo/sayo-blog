@@ -41,7 +41,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
             {count} 件の記事
           </p>
         </div>
-        <Link href="/admin/posts/new">
+        <Link href="/admin/posts/create">
           <Button className="gap-2">
             <Plus className="h-4 w-4" />
             新規作成

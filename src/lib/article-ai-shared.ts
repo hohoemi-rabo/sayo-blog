@@ -10,6 +10,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Part } from '@google/generative-ai'
 import { getGenerativeModel } from '@/lib/gemini'
 import { sleep } from '@/lib/knowledge-generator'
 import { slugifyTitle } from '@/lib/slug-utils'
@@ -31,19 +32,26 @@ export class ArticleAiValidationError extends Error {
 // Gemini call + JSON parse
 // ------------------------------------------------------------
 
-/** プロンプトを Gemini に投げ、JSON をパース・検証して返す (3 回リトライ + 指数バックオフ) */
-export async function callGeminiForArticle(
-  prompt: string,
+/** Gemini に渡すリクエスト (テキストのみ / マルチモーダル parts のいずれか) */
+export type GeminiRequest = string | Array<string | Part>
+
+/**
+ * Gemini を呼び、応答テキストを parse コールバックで検証して返す共通ループ
+ * (3 回リトライ + 指数バックオフ)。パース失敗も再試行対象。
+ * テキストプロンプトでも画像込みの Part[] でも使える。
+ */
+export async function callGeminiParsed<T>(
+  request: GeminiRequest,
+  parse: (raw: string) => T,
   logTag = 'article-ai'
-): Promise<IgArticleAiOutput> {
+): Promise<T> {
   const model = getGenerativeModel()
   let lastError: unknown
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const result = await model.generateContent(prompt)
-      const text = result.response.text()
-      return parseAndValidate(text)
+      const result = await model.generateContent(request)
+      return parse(result.response.text())
     } catch (err) {
       lastError = err
       console.warn(
@@ -63,21 +71,39 @@ export async function callGeminiForArticle(
   )
 }
 
-export function parseAndValidate(raw: string): IgArticleAiOutput {
+/** テキストプロンプトを Gemini に投げ、記事 JSON をパース・検証して返す */
+export async function callGeminiForArticle(
+  prompt: string,
+  logTag = 'article-ai'
+): Promise<IgArticleAiOutput> {
+  return callGeminiParsed(prompt, parseAndValidate, logTag)
+}
+
+/** 画像込みの Part[] を Gemini に投げ、記事 JSON をパース・検証して返す (vision) */
+export async function callGeminiForArticleParts(
+  parts: Array<string | Part>,
+  logTag = 'article-ai'
+): Promise<IgArticleAiOutput> {
+  return callGeminiParsed(parts, parseAndValidate, logTag)
+}
+
+/** Gemini が指示を無視して付けたマークダウンフェンスを剥がして JSON をパースする */
+export function parseJsonLoose(raw: string): unknown {
   let jsonStr = raw.trim()
-  // Strip markdown fences if Gemini included them despite instructions.
   if (jsonStr.startsWith('```')) {
     jsonStr = jsonStr.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '')
   }
-
-  let parsed: unknown
   try {
-    parsed = JSON.parse(jsonStr)
+    return JSON.parse(jsonStr)
   } catch (err) {
     throw new Error(
       `JSON パースに失敗しました: ${err instanceof Error ? err.message : 'unknown'}`
     )
   }
+}
+
+export function parseAndValidate(raw: string): IgArticleAiOutput {
+  const parsed = parseJsonLoose(raw)
 
   if (!parsed || typeof parsed !== 'object') {
     throw new Error('AI 出力がオブジェクトではありません')
