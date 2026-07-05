@@ -145,5 +145,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-07-04 (記事クラフト機能 Ticket 43: チラシ画像/PDF (Gemini vision) やメモから、紗代さんの文体を保った記事下書きを生成。文体プロファイル `docs/writing-style-profile.md` (96記事精読) + 題材が近い自由記事の自動お手本選定のハイブリッド。/admin/posts 新規作成 → 3枚カード選択 → /admin/posts/craft。仕様は `docs/43_craft-from-flyer-memo.md`)
-**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI Chat UI 仕上げ済み (機能は安定運用中)
+**Updated**: 2026-07-05 (AI 3段階要約: 長文記事に「さくっと/ほどよく/じっくり」の要約を Gemini で生成。記事詳細の本文上部に CSS スライダーで切替表示、管理は記事編集の `SummarySection` で一括/個別生成+手直し。posts に summary_short/medium/long 追加。仕様は `docs/ai-summary-feature.md`)
+**Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI 3段階要約 complete / AI Chat UI 仕上げ済み (機能は安定運用中)

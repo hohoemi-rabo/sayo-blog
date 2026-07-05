@@ -5,6 +5,13 @@ import { revalidatePath } from 'next/cache'
 import { after } from 'next/server'
 import { triggerIgAutoGenerate } from '@/lib/ig-auto-generator'
 import { syncPostImages } from '@/lib/post-images-sync'
+import { assertAdminAuth } from '@/lib/admin-auth'
+import {
+  generateSummaries,
+  generateSingleSummary,
+  type SummaryLevel,
+  type Summaries,
+} from '@/lib/summary-generator'
 import type { ArticleType } from '@/lib/types'
 
 export type PostFormData = {
@@ -30,6 +37,10 @@ export type PostFormData = {
   event_url: string | null
   // 出自 (Ticket 41/42) — 未指定なら DB 既定の 'free'
   article_type?: ArticleType
+  // AI 3段階要約 — 未生成は null
+  summary_short?: string | null
+  summary_medium?: string | null
+  summary_long?: string | null
 }
 
 export interface CreatePostOptions {
@@ -65,6 +76,9 @@ export async function createPost(
       event_fee: data.event_fee,
       event_url: data.event_url,
       article_type: data.article_type ?? 'free',
+      summary_short: data.summary_short ?? null,
+      summary_medium: data.summary_medium ?? null,
+      summary_long: data.summary_long ?? null,
       view_count: 0,
     })
     .select()
@@ -172,6 +186,9 @@ export async function updatePost(id: string, data: PostFormData) {
       event_address: data.event_address,
       event_fee: data.event_fee,
       event_url: data.event_url,
+      summary_short: data.summary_short ?? null,
+      summary_medium: data.summary_medium ?? null,
+      summary_long: data.summary_long ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
@@ -466,4 +483,77 @@ export async function getImportedOrigin(
 ): Promise<ImportedOrigin | null> {
   void _postId
   return null
+}
+
+// ------------------------------------------------------------
+// AI 3段階要約の生成
+// ------------------------------------------------------------
+
+/** 記事本文から3段階要約を一括生成する */
+export async function generateAISummaries(
+  body: string
+): Promise<
+  | { success: true; summaries: Summaries }
+  | { success: false; error: string }
+> {
+  await assertAdminAuth()
+
+  if (!body || !body.trim()) {
+    return { success: false, error: '本文を入力してから生成してください。' }
+  }
+
+  try {
+    const summaries = await generateSummaries(body)
+    if (!summaries.short && !summaries.medium && !summaries.long) {
+      return {
+        success: false,
+        error: '要約を生成できませんでした。もう一度お試しください。',
+      }
+    }
+    return { success: true, summaries }
+  } catch (err) {
+    console.error('[generateAISummaries] failed:', err)
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : '要約の生成に失敗しました。時間をおいて再度お試しください。',
+    }
+  }
+}
+
+/** 記事本文から指定レベル1つの要約を生成する (再生成用) */
+export async function generateAISingleSummary(
+  body: string,
+  level: SummaryLevel
+): Promise<
+  | { success: true; summary: string }
+  | { success: false; error: string }
+> {
+  await assertAdminAuth()
+
+  if (!body || !body.trim()) {
+    return { success: false, error: '本文を入力してから生成してください。' }
+  }
+
+  try {
+    const summary = await generateSingleSummary(body, level)
+    if (!summary) {
+      return {
+        success: false,
+        error: '要約を生成できませんでした。もう一度お試しください。',
+      }
+    }
+    return { success: true, summary }
+  } catch (err) {
+    console.error('[generateAISingleSummary] failed:', err)
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : '要約の生成に失敗しました。時間をおいて再度お試しください。',
+    }
+  }
 }

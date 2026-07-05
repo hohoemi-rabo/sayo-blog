@@ -33,6 +33,10 @@ export interface Post {
   // 出自 (Ticket 41) — 一覧タブ切替・バッジ用
   article_type: ArticleType
   source_urls?: string[] | null
+  // AI 3段階要約 — 未生成なら null で公開側は自動非表示
+  summary_short?: string | null
+  summary_medium?: string | null
+  summary_long?: string | null
   created_at: string
 }
 

@@ -18,6 +18,7 @@ import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
+import { SummarySection, type SummaryState } from './SummarySection'
 import type { IgPostWithRelations } from '@/lib/types'
 
 interface Category {
@@ -55,6 +56,9 @@ interface PostFormProps {
     event_address?: string | null
     event_fee?: string | null
     event_url?: string | null
+    summary_short?: string | null
+    summary_medium?: string | null
+    summary_long?: string | null
     post_categories?: Array<{ categories: Category }>
     post_hashtags?: Array<{ hashtags: Hashtag }>
   }
@@ -129,6 +133,11 @@ export function PostForm({
     event_fee: initialData?.event_fee ?? null,
     event_url: initialData?.event_url ?? null,
   })
+  const [summary, setSummary] = useState<SummaryState>({
+    summary_short: initialData?.summary_short ?? null,
+    summary_medium: initialData?.summary_medium ?? null,
+    summary_long: initialData?.summary_long ?? null,
+  })
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value
@@ -189,6 +198,9 @@ export function PostForm({
       event_address: eventInfo.event_address,
       event_fee: eventInfo.event_fee,
       event_url: eventInfo.event_url,
+      summary_short: summary.summary_short,
+      summary_medium: summary.summary_medium,
+      summary_long: summary.summary_long,
       article_type: forcedArticleType,
     }
 
@@ -380,6 +392,9 @@ export function PostForm({
 
           {/* Event Info (Ticket 37) */}
           <EventInfoSection value={eventInfo} onChange={setEventInfo} />
+
+          {/* AI 3段階要約 */}
+          <SummarySection value={summary} onChange={setSummary} body={content} />
 
           {/* Thumbnail */}
           <Card className="p-6 bg-white">

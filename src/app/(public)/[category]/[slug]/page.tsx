@@ -19,6 +19,7 @@ import ImageLightbox from '@/components/ImageLightbox'
 import ReactionBar from '@/components/ReactionBar'
 import ScrollFadeIn from '@/components/ScrollFadeIn'
 import { ArticleTypeBadge } from '@/components/ArticleTypeBadge'
+import { SummarySlider } from '@/components/SummarySlider'
 
 export const revalidate = 3600 // 1 hour ISR
 
@@ -225,6 +226,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <TableOfContents headings={headings} />
           </div>
         )}
+
+        <SummarySlider
+          summaryShort={post.summary_short ?? null}
+          summaryMedium={post.summary_medium ?? null}
+          summaryLong={post.summary_long ?? null}
+        />
 
         <ArticleBody content={processedHtml} />
 
