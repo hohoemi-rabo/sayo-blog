@@ -83,7 +83,8 @@ paths:
 
 ## Article Edit / Preview (Ticket 37)
 
-- `/admin/posts/[id]` — 記事編集 (PostForm: タイトル / 本文 / 抜粋 + サイドバーに公開設定 / イベント情報 / サムネ / カテゴリ / ハッシュタグ / IG セクション)
+- `/admin/posts/[id]` — 記事編集 (PostForm: タイトル / 本文 / 抜粋 + サイドバーに公開設定 / イベント情報 / AI要約 / サムネ / カテゴリ / ハッシュタグ / IG セクション)
+  - `SummarySection` で本文から3段階要約 (さくっと/ほどよく/じっくり) を「AIで生成」(一括) / レベル別「再生成」 + textarea 手直し + 文字数カウンター。値は PostForm に lift し createPost/updatePost で保存。生成は `generateAISummaries` / `generateAISingleSummary` (assertAdminAuth 保護)。既存記事の一括生成は `npm run backfill:summaries` (冪等)
 - `/admin/posts/[id]/preview` — 下書きプレビュー (chromeless layout)
   - `is_published` フィルターを無視するので下書きでも公開記事と同じ見た目で確認できる
   - middleware で auth 必須、ヘッダー `x-pathname` を読み取って admin/layout.tsx が Sidebar + Header をスキップ
