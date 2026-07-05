@@ -5,7 +5,7 @@ import { MiniRequestForm } from './_components/MiniRequestForm'
 export const metadata: Metadata = {
   title: `ミニ記事のご相談 | ${SITE_CONFIG.name}`,
   description:
-    'SNS で発信されている情報をもとに、紗代が短い紹介記事「ミニ記事」を書く情報提供窓口。URL を 1〜5 件お寄せください。掲載は無料です。',
+    'SNS で発信されている情報をもとに、短い紹介記事「ミニ記事」を書く情報提供窓口。URL を 1〜5 件お寄せください。掲載は無料です。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/mini`,
   },

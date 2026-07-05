@@ -277,7 +277,7 @@ export function LongRequestForm() {
           {isPending ? '送信中…' : 'この内容で取材を依頼する'}
         </Button>
         <p className="mt-3 text-xs text-text-secondary">
-          送信後 3 日以内に、紗代から個別にご連絡します。取材日程・料金は内容に応じてご相談させてください。
+          送信後 3 日以内に、個別にご連絡します。取材日程・料金は内容に応じてご相談させてください。
         </p>
       </div>
     </form>

@@ -5,7 +5,7 @@ import { SITE_CONFIG } from '@/lib/site-config'
 export const metadata: Metadata = {
   title: `取材のご依頼ありがとうございます | ${SITE_CONFIG.name}`,
   description:
-    'ロング記事（取材依頼）を受け付けました。3 日以内に紗代から個別にご連絡いたします。',
+    'ロング記事（取材依頼）を受け付けました。3 日以内に個別にご連絡いたします。',
   robots: { index: false, follow: false },
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/long/thanks`,
@@ -27,7 +27,7 @@ export default function LongRequestThanksPage() {
           <div className="mx-auto mt-5 max-w-md space-y-4 font-noto-serif-jp leading-relaxed text-text-secondary">
             <p>
               3 日以内に、ご記入いただいた電話番号またはメールアドレスへ
-              紗代から個別にご連絡いたします。
+              個別にご連絡いたします。
             </p>
             <p>
               取材日程と料金は、内容に応じてご相談させてください。

@@ -5,7 +5,7 @@ import { LongRequestForm } from './_components/LongRequestForm'
 export const metadata: Metadata = {
   title: `取材のご依頼 | ${SITE_CONFIG.name}`,
   description:
-    '紗代が現地に伺って書く取材記事のご依頼窓口。お店・団体・活動の魅力を、じっくり丁寧にお届けします。取材日程と料金（500 円〜）は内容に応じて個別にご相談します。',
+    '現地に伺って書く取材記事のご依頼窓口。お店・団体・活動の魅力を、じっくり丁寧にお届けします。取材日程と料金（500 円〜）は内容に応じて個別にご相談します。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/long`,
   },
@@ -28,7 +28,7 @@ export default function LongRequestPage() {
             </h1>
             <div className="mx-auto mt-5 max-w-xl space-y-4 font-noto-serif-jp leading-relaxed text-text-secondary">
               <p>
-                「うちの活動を、紗代さんに直接取材して書いてほしい」。
+                「うちの活動を、直接取材して書いてほしい」。
                 そんなご要望にお応えする取材依頼の窓口です。
                 いただいた内容をもとに、個別にご連絡し、
                 取材日程・公開時期・料金（500 円〜）を一緒に決めさせていただきます。

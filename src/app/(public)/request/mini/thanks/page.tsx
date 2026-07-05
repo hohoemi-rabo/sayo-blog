@@ -26,7 +26,7 @@ export default function MiniRequestThanksPage() {
           <div className="mx-auto mt-5 max-w-md space-y-4 font-noto-serif-jp leading-relaxed text-text-secondary">
             <p>
               3 日以内に、ご記入いただいた電話番号またはメールアドレスへ
-              紗代からご連絡いたします。
+              ご連絡いたします。
             </p>
             <p>もしお急ぎのご相談でしたら、お電話でも承ります。</p>
           </div>

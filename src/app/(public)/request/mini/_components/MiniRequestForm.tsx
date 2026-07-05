@@ -388,7 +388,7 @@ export function MiniRequestForm() {
           {isPending ? '送信中…' : 'この内容で相談する'}
         </Button>
         <p className="mt-3 text-xs text-text-secondary">
-          送信後 3 日以内に、ご記入の連絡先へ紗代からお返事します。掲載は無料です。
+          送信後 3 日以内に、ご記入の連絡先へお返事します。掲載は無料です。
         </p>
       </div>
     </form>
