@@ -3,9 +3,11 @@ import { Metadata } from 'next'
 import FilterBar from '@/components/FilterBar'
 import InfinitePostGrid from '@/components/InfinitePostGrid'
 import PopularHashtags from '@/components/PopularHashtags'
+import PostGridSkeleton from '@/components/PostGridSkeleton'
 import { createClient } from '@/lib/supabase'
+import { fetchPublishedPosts } from '@/lib/post-queries'
 import { SITE_CONFIG } from '@/lib/site-config'
-import { Category, Hashtag, PostWithRelations } from '@/lib/types'
+import { Category, Hashtag } from '@/lib/types'
 
 interface BlogPageProps {
   searchParams: Promise<{
@@ -58,119 +60,31 @@ async function getPopularHashtags(): Promise<Hashtag[]> {
   return data || []
 }
 
-// Fetch initial posts (6 items for infinite scroll)
-async function getInitialPosts(filters: {
+// Suspense 内で posts を取得し、FilterBar より後からストリーミングする
+async function BlogPosts({
+  category,
+  hashtags,
+  hashtagsParam,
+  sort,
+}: {
   category?: string
   hashtags?: string[]
-  sort?: string
-}): Promise<{ posts: PostWithRelations[]; count: number; hasMore: boolean }> {
-  const supabase = createClient()
-  const limit = 6
+  hashtagsParam?: string
+  sort: string
+}) {
+  const { posts, hasMore } = await fetchPublishedPosts({ category, hashtags, sort })
 
-  let query = supabase
-    .from('posts')
-    .select(
-      `
-      *,
-      post_categories!inner(
-        categories!inner(id, slug, name, parent_id)
-      ),
-      post_hashtags(
-        hashtags(id, name, slug, count)
-      )
-    `,
-      { count: 'exact' }
-    )
-    .eq('is_published', true)
-
-  // Apply category filter
-  if (filters.category) {
-    query = query.eq('post_categories.categories.slug', filters.category)
-  }
-
-  // Apply sort
-  switch (filters.sort) {
-    case 'popular':
-      query = query.order('view_count', { ascending: false })
-      break
-    case 'title':
-      query = query.order('title', { ascending: true })
-      break
-    default:
-      query = query.order('published_at', { ascending: false })
-  }
-
-  // Initial load: first 6 items
-  query = query.range(0, limit - 1)
-
-  const { data, error, count } = await query
-
-  if (error) {
-    console.error('Error fetching posts:', error)
-    return { posts: [], count: 0, hasMore: false }
-  }
-
-  let posts = data || []
-  let totalCount = count || 0
-
-  // Handle hashtag filtering
-  if (filters.hashtags && filters.hashtags.length > 0) {
-    const { data: postHashtagData } = await supabase
-      .from('post_hashtags')
-      .select('post_id, hashtags!inner(slug)')
-      .in('hashtags.slug', filters.hashtags)
-
-    if (!postHashtagData || postHashtagData.length === 0) {
-      return { posts: [], count: 0, hasMore: false }
-    }
-
-    const matchingPostIds = [...new Set(postHashtagData.map((ph) => ph.post_id))]
-
-    const hashtagPostsQuery = supabase
-      .from('posts')
-      .select(
-        `
-        *,
-        post_categories!inner(
-          categories!inner(id, slug, name, parent_id)
-        ),
-        post_hashtags(
-          hashtags(id, name, slug, count)
-        )
-      `,
-        { count: 'exact' }
-      )
-      .in('id', matchingPostIds)
-      .eq('is_published', true)
-
-    if (filters.category) {
-      hashtagPostsQuery.eq('post_categories.categories.slug', filters.category)
-    }
-
-    switch (filters.sort) {
-      case 'popular':
-        hashtagPostsQuery.order('view_count', { ascending: false })
-        break
-      case 'title':
-        hashtagPostsQuery.order('title', { ascending: true })
-        break
-      default:
-        hashtagPostsQuery.order('published_at', { ascending: false })
-    }
-
-    hashtagPostsQuery.range(0, limit - 1)
-
-    const { data: hashtagPosts, count: hashtagCount } = await hashtagPostsQuery
-
-    posts = hashtagPosts || []
-    totalCount = hashtagCount || 0
-  }
-
-  return {
-    posts: posts as PostWithRelations[],
-    count: totalCount,
-    hasMore: posts.length < totalCount,
-  }
+  return (
+    <div className="py-8">
+      <InfinitePostGrid
+        initialPosts={posts}
+        initialHasMore={hasMore}
+        category={category}
+        hashtags={hashtagsParam}
+        sort={sort}
+      />
+    </div>
+  )
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
@@ -180,11 +94,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const hashtags = hashtagsParam ? hashtagsParam.split(',').filter(Boolean) : undefined
   const sort = params.sort || 'latest'
 
-  // Fetch data in parallel
-  const [categories, popularHashtags, { posts, hasMore }] = await Promise.all([
+  // FilterBar 用の軽量データのみ先に並列取得 (posts は Suspense 内でストリーミング)
+  const [categories, popularHashtags] = await Promise.all([
     getCategories(),
     getPopularHashtags(),
-    getInitialPosts({ category, hashtags, sort }),
   ])
 
   return (
@@ -195,44 +108,21 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {/* Post results with Suspense */}
         <Suspense
           key={`posts-${category || 'all'}-${hashtagsParam || 'none'}-${sort}`}
-          fallback={
-            <div className="py-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div
-                    key={i}
-                    className="bg-background border border-border-decorative rounded-xl overflow-hidden animate-pulse"
-                  >
-                    <div className="aspect-[4/3] bg-background-dark/10" />
-                    <div className="p-5 space-y-3">
-                      <div className="h-6 bg-background-dark/10 rounded w-3/4" />
-                      <div className="h-4 bg-background-dark/10 rounded w-full" />
-                      <div className="h-4 bg-background-dark/10 rounded w-5/6" />
-                      <div className="flex gap-2">
-                        <div className="h-6 bg-background-dark/10 rounded w-16" />
-                        <div className="h-6 bg-background-dark/10 rounded w-16" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          }
+          fallback={<PostGridSkeleton />}
         >
-          <div className="py-8">
-            <InfinitePostGrid
-              initialPosts={posts}
-              initialHasMore={hasMore}
-              category={category}
-              hashtags={hashtagsParam}
-              sort={sort}
-            />
-          </div>
+          <BlogPosts
+            category={category}
+            hashtags={hashtags}
+            hashtagsParam={hashtagsParam}
+            sort={sort}
+          />
         </Suspense>
 
-        {/* Popular Hashtags Cloud */}
+        {/* Popular Hashtags Cloud (async fetch — シェルをブロックしないよう Suspense) */}
         <div className="mt-12">
-          <PopularHashtags />
+          <Suspense fallback={null}>
+            <PopularHashtags />
+          </Suspense>
         </div>
       </section>
     </>

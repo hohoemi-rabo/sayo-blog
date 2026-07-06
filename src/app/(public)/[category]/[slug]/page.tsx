@@ -1,4 +1,4 @@
-import { cache } from 'react'
+import { cache, Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
@@ -253,15 +253,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         </aside>
       )}
 
-      {/* 関連記事 */}
+      {/* 関連記事 (追加クエリを伴うため Suspense で本文の描画をブロックしない) */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <ScrollFadeIn>
-          <RelatedArticles
-            postId={post.id}
-            categoryIds={categories.map((c) => c.id)}
-            hashtagSlugs={hashtags.map((h) => h.slug)}
-          />
-        </ScrollFadeIn>
+        <Suspense fallback={null}>
+          <ScrollFadeIn>
+            <RelatedArticles
+              postId={post.id}
+              categoryIds={categories.map((c) => c.id)}
+              hashtagSlugs={hashtags.map((h) => h.slug)}
+            />
+          </ScrollFadeIn>
+        </Suspense>
       </div>
     </article>
   )
