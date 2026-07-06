@@ -101,6 +101,23 @@ const [artist, albums] = await Promise.all([getArtist(), getAlbums()])
 </Suspense>
 ```
 
+**重要**: データをページ本体で `await` してから Suspense に渡すと fallback は一度も表示されない (飾りになる)。
+取得は Suspense 内の **async 子コンポーネント**で行うこと。また async Server Component は
+Suspense で包まないとシェル全体の初回描画をブロックする。
+
+**Current usage** (2026-07-07 リファクタ済み):
+- `/blog` — `BlogPosts` (Suspense 子) が posts 取得。FilterBar が先に描画され `PostGridSkeleton` → 一覧の順でストリーミング
+- `/[category]` — `CategoryPosts` 同様 (getCategory → posts の直列 waterfall も解消)
+- `/search` — `SearchResults` 同様 (ヘッダー/検索バーが先に描画)
+- `PopularHashtags` / 記事詳細の `RelatedArticles` — 独自クエリを持つ async コンポーネントなので `<Suspense fallback={null}>` で包む
+
+## Shared Posts List Query
+
+公開記事一覧のクエリは `src/lib/post-queries.ts::fetchPublishedPosts({ category, hashtags, sort, offset, limit })` に一本化済み。
+`/blog`・`/[category]`・`/api/posts` はすべてこれを使う (個別にクエリを書かない)。
+ハッシュタグ絞り込みは対象 post_id の解決を先に 1 回だけ行う設計 (絞り込み無しの結果を取って捨てる旧実装の無駄を排除)。
+一覧のスケルトンは `src/components/PostGridSkeleton.tsx` を共用。
+
 ## Route Handlers
 
 - Route Handlers are for API endpoints accessed by Client Components
