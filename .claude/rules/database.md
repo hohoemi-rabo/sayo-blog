@@ -83,10 +83,13 @@ CREATE POLICY "..." ON posts USING ((select auth.role()) = 'authenticated');
 CREATE POLICY "..." ON posts USING (auth.role() = 'authenticated');
 ```
 
-### Current Policies Pattern
-- **Public tables** (posts, categories, etc.): `SELECT` for `is_published = true` or `is_active = true`
-- **Authenticated**: `ALL` with `(select auth.role()) = 'authenticated'`
-- **reactions**: `SELECT` for anyone, mutations only via SECURITY DEFINER RPCs (no direct INSERT/UPDATE for anon)
+### Current Policies Pattern (2026-07-06 ロールスコープ化済み)
+全ポリシーは `TO` 句でロールにスコープする (migration `20260706150000_postgres_best_practices_hardening.sql`)。
+`TO` なし (= 全ロール) だと anon クエリが管理ポリシーまで毎行評価する (advisor: multiple_permissive_policies)。
+- **公開 SELECT**: `FOR SELECT TO anon USING (is_published = true)` 等 (条件は従来通り)
+- **管理系**: `FOR ALL TO authenticated USING (true) WITH CHECK (true)` — TO でスコープ済みなので qual の `auth.role()` チェックは不要。実運用は service role (RLS バイパス) で、authenticated は将来の Ticket 38 用
+- **reactions**: `SELECT TO anon`、mutations は SECURITY DEFINER RPC 経由のみ (直接 INSERT/UPDATE 不可)
+- **ai_usage_logs**: INSERT は `log_ai_usage` RPC 経由のみ (匿名 INSERT ポリシーは削除済み)
 
 ## Index Strategy
 
@@ -116,6 +119,19 @@ idx_posts_excerpt_trgm  ON posts USING gin (excerpt gin_trgm_ops)
 - Do NOT create B-tree indexes that duplicate UNIQUE constraint indexes
 - Use partial indexes with `WHERE is_published = true` for public-facing queries
 - FK columns on junction tables are indexed (post_id, category_id, hashtag_id)
+
+## RPC Function Grants & search_path (2026-07-06)
+
+migration `20260706150000_postgres_best_practices_hardening.sql` で適用:
+- **管理専用 RPC は anon/authenticated から EXECUTE 剥奪済み** (service role のみ):
+  `check_usage_limit` / `log_ai_usage` / `get_today_usage_stats` / `get_monthly_usage_stats` /
+  `get_daily_usage_breakdown` / `get_top_queries` / `list_storage_objects` / `match_articles`
+- **公開 RPC (anon キーで呼ぶ)**: `increment_post_view_count` / `increment_reaction_count` /
+  `decrement_reaction_count` / `get_gallery_images` / `search_posts` / `search_suggestions`
+- 全アプリ関数は `SET search_path = public, extensions` を固定済み (hijack 対策。
+  `extensions` は vector 演算子 `<=>` の解決に必要)。**新しい関数を作るときも必ず同様に固定する**
+- 新しい管理専用 RPC を作ったら同様に `REVOKE EXECUTE ... FROM public, anon, authenticated` +
+  `GRANT EXECUTE ... TO service_role` すること
 
 ## RPC Function Volatility
 
