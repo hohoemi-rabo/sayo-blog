@@ -3,10 +3,6 @@
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, X, ImagePlus } from 'lucide-react'
-import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
-import { Checkbox } from '@/components/ui/Checkbox'
-import { Label } from '@/components/ui/Label'
 import {
   MINI_INQUIRY_TYPE_LABELS,
   PUBLISH_PREFERENCE_LABELS,
@@ -25,7 +21,7 @@ const ACCEPT_ATTR = INQUIRY_IMAGE_ACCEPT.join(',')
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
-  return <p className="mt-1 text-sm text-red-600">{message}</p>
+  return <p className="lp-error">{message}</p>
 }
 
 function todayPlus(days: number): string {
@@ -39,7 +35,7 @@ function currentMonth(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
-export function MiniRequestForm() {
+export function MiniLpForm() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
@@ -78,7 +74,11 @@ export function MiniRequestForm() {
       for (const f of picked) {
         if (merged.length >= INQUIRY_IMAGE_MAX_COUNT) break
         if (f.size > INQUIRY_IMAGE_MAX_BYTES) continue
-        if (!INQUIRY_IMAGE_ACCEPT.includes(f.type as (typeof INQUIRY_IMAGE_ACCEPT)[number]))
+        if (
+          !INQUIRY_IMAGE_ACCEPT.includes(
+            f.type as (typeof INQUIRY_IMAGE_ACCEPT)[number]
+          )
+        )
           continue
         merged.push(f)
       }
@@ -119,7 +119,12 @@ export function MiniRequestForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-8" noValidate>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="lp-form lp-form-card"
+      noValidate
+    >
       {/* ハニーポット (人には見えない / bot 対策) */}
       <input
         type="text"
@@ -127,29 +132,42 @@ export function MiniRequestForm() {
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
-        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+        className="honeypot"
         defaultValue=""
       />
 
-      {generalError && (
-        <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {generalError}
-        </div>
-      )}
+      {generalError && <div className="lp-alert">{generalError}</div>}
+
+      {/* 伝えたいこと (本文) */}
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">
+          伝えたいこと
+          <span className="opt">（できれば / どんな内容かご自由に）</span>
+        </legend>
+        <p className="lp-hint">
+          告知・イベント・ご近所の話・失敗談など、伝えたいことを自由にお書きください。SNS の URL がある場合は下に貼っていただくだけでも大丈夫です。
+        </p>
+        <textarea
+          name="message"
+          className="lp-textarea"
+          maxLength={2000}
+          placeholder="例）◯月◯日に △△ でマルシェを開きます。地元の作り手が集まって…（2000字まで）"
+        />
+        <FieldError message={fieldErrors.message} />
+      </fieldset>
 
       {/* SNS URL */}
-      <fieldset className="space-y-3">
-        <legend className="font-noto-sans-jp text-base font-semibold text-text-primary">
-          SNS の URL <span className="text-primary">*</span>
-          <span className="ml-2 text-xs font-normal text-text-secondary">
-            （1〜5 件 / 紹介したい投稿のリンク）
-          </span>
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">
+          SNS の URL
+          <span className="opt">（任意 / 最大 5 件・紹介したい投稿のリンク）</span>
         </legend>
         {urls.map((url, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <Input
+          <div key={i} className="lp-urlrow">
+            <input
               type="url"
               inputMode="url"
+              className="lp-input"
               placeholder="https://www.instagram.com/p/..."
               value={url}
               onChange={(e) => updateUrl(i, e.target.value)}
@@ -158,7 +176,7 @@ export function MiniRequestForm() {
               <button
                 type="button"
                 onClick={() => removeUrl(i)}
-                className="shrink-0 rounded-md p-2 text-text-secondary hover:bg-background-dark/5 hover:text-primary"
+                className="lp-iconbtn"
                 aria-label="この URL を削除"
               >
                 <X className="h-4 w-4" />
@@ -167,11 +185,7 @@ export function MiniRequestForm() {
           </div>
         ))}
         {urls.length < 5 && (
-          <button
-            type="button"
-            onClick={addUrl}
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
+          <button type="button" onClick={addUrl} className="lp-addbtn">
             <Plus className="h-4 w-4" /> URL を追加（残り {5 - urls.length} 件）
           </button>
         )}
@@ -179,19 +193,15 @@ export function MiniRequestForm() {
       </fieldset>
 
       {/* 種別 */}
-      <fieldset className="space-y-3">
-        <legend className="font-noto-sans-jp text-base font-semibold text-text-primary">
-          種別 <span className="text-primary">*</span>
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">
+          種別<span className="req">*</span>
         </legend>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="lp-choicegrid cols-4">
           {MINI_INQUIRY_TYPES.map((t) => (
             <label
               key={t}
-              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
-                inquiryType === t
-                  ? 'border-primary bg-primary/10 font-medium text-primary'
-                  : 'border-border-decorative text-text-primary hover:bg-background-dark/5'
-              }`}
+              className={`lp-choice ${inquiryType === t ? 'selected' : ''}`}
             >
               <input
                 type="radio"
@@ -199,7 +209,6 @@ export function MiniRequestForm() {
                 value={t}
                 checked={inquiryType === t}
                 onChange={() => setInquiryType(t)}
-                className="sr-only"
               />
               {MINI_INQUIRY_TYPE_LABELS[t]}
             </label>
@@ -208,9 +217,10 @@ export function MiniRequestForm() {
         <FieldError message={fieldErrors.inquiry_type} />
         {inquiryType === 'other' && (
           <div>
-            <Input
+            <input
               type="text"
               name="inquiry_type_other"
+              className="lp-input"
               maxLength={100}
               placeholder="どんな内容か簡単にお書きください（100 字以内）"
             />
@@ -220,34 +230,33 @@ export function MiniRequestForm() {
       </fieldset>
 
       {/* 連絡先 */}
-      <fieldset className="space-y-4">
-        <legend className="font-noto-sans-jp text-base font-semibold text-text-primary">
-          連絡先
-        </legend>
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">連絡先</legend>
         <div>
-          <Label htmlFor="phone" className="mb-1.5 block">
-            電話番号 <span className="text-primary">*</span>
-          </Label>
-          <Input
-            id="phone"
+          <label htmlFor="lp-phone" className="lp-hint">
+            電話番号 <span className="req">*</span>
+          </label>
+          <input
+            id="lp-phone"
             name="phone"
             type="tel"
             inputMode="tel"
+            className="lp-input"
             placeholder="0265-00-0000"
             autoComplete="tel"
           />
           <FieldError message={fieldErrors.phone} />
         </div>
         <div>
-          <Label htmlFor="email" className="mb-1.5 block">
-            メールアドレス
-            <span className="ml-2 text-xs font-normal text-text-secondary">（任意）</span>
-          </Label>
-          <Input
-            id="email"
+          <label htmlFor="lp-email" className="lp-hint">
+            メールアドレス（任意）
+          </label>
+          <input
+            id="lp-email"
             name="email"
             type="email"
             inputMode="email"
+            className="lp-input"
             placeholder="sample@example.com"
             autoComplete="email"
           />
@@ -256,19 +265,15 @@ export function MiniRequestForm() {
       </fieldset>
 
       {/* 公開希望時期 */}
-      <fieldset className="space-y-3">
-        <legend className="font-noto-sans-jp text-base font-semibold text-text-primary">
-          公開希望時期 <span className="text-primary">*</span>
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">
+          公開希望時期<span className="req">*</span>
         </legend>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="lp-choicegrid cols-3">
           {PUBLISH_PREFERENCES.map((p) => (
             <label
               key={p}
-              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-colors ${
-                pref === p
-                  ? 'border-primary bg-primary/10 font-medium text-primary'
-                  : 'border-border-decorative text-text-primary hover:bg-background-dark/5'
-              }`}
+              className={`lp-choice ${pref === p ? 'selected' : ''}`}
             >
               <input
                 type="radio"
@@ -276,7 +281,6 @@ export function MiniRequestForm() {
                 value={p}
                 checked={pref === p}
                 onChange={() => setPref(p)}
-                className="sr-only"
               />
               {PUBLISH_PREFERENCE_LABELS[p]}
             </label>
@@ -285,13 +289,14 @@ export function MiniRequestForm() {
         <FieldError message={fieldErrors.publish_preference} />
         {pref === 'by_date' && (
           <div>
-            <Label htmlFor="publish_target_date" className="mb-1.5 block">
+            <label htmlFor="lp-date" className="lp-hint">
               公開希望日（この日までに）
-            </Label>
-            <Input
-              id="publish_target_date"
+            </label>
+            <input
+              id="lp-date"
               name="publish_target_date"
               type="date"
+              className="lp-input"
               min={minDate}
             />
             <FieldError message={fieldErrors.publish_target_date} />
@@ -299,13 +304,14 @@ export function MiniRequestForm() {
         )}
         {pref === 'in_month' && (
           <div>
-            <Label htmlFor="publish_target_month" className="mb-1.5 block">
+            <label htmlFor="lp-month" className="lp-hint">
               公開希望月
-            </Label>
-            <Input
-              id="publish_target_month"
+            </label>
+            <input
+              id="lp-month"
               name="publish_target_month"
               type="month"
+              className="lp-input"
               min={minMonth}
             />
             <FieldError message={fieldErrors.publish_target_month} />
@@ -314,27 +320,23 @@ export function MiniRequestForm() {
       </fieldset>
 
       {/* 画像 */}
-      <fieldset className="space-y-3">
-        <legend className="font-noto-sans-jp text-base font-semibold text-text-primary">
+      <fieldset className="lp-fieldset">
+        <legend className="lp-legend">
           画像
-          <span className="ml-2 text-xs font-normal text-text-secondary">
+          <span className="opt">
             （任意 / 最大 {INQUIRY_IMAGE_MAX_COUNT} 枚・各 10MB まで）
           </span>
         </legend>
         {previews.length > 0 && (
-          <div className="flex flex-wrap gap-3">
+          <div className="lp-thumbs">
             {previews.map((p, i) => (
-              <div
-                key={p.url}
-                className="relative h-24 w-24 overflow-hidden rounded-lg border border-border-decorative"
-              >
+              <div key={p.url} className="lp-thumb">
                 {/* プレビューは object URL のため next/image を使わない */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.url} alt={p.name} className="h-full w-full object-cover" />
+                <img src={p.url} alt={p.name} />
                 <button
                   type="button"
                   onClick={() => removeImage(i)}
-                  className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
                   aria-label="画像を削除"
                 >
                   <X className="h-3 w-3" />
@@ -344,7 +346,7 @@ export function MiniRequestForm() {
           </div>
         )}
         {images.length < INQUIRY_IMAGE_MAX_COUNT && (
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-border-decorative px-4 py-3 text-sm text-text-secondary hover:border-primary hover:text-primary">
+          <label className="lp-imgpick">
             <ImagePlus className="h-4 w-4" />
             画像を選ぶ
             <input
@@ -352,7 +354,7 @@ export function MiniRequestForm() {
               accept={ACCEPT_ATTR}
               multiple
               onChange={onPickImages}
-              className="sr-only"
+              className="honeypot"
             />
           </label>
         )}
@@ -360,34 +362,27 @@ export function MiniRequestForm() {
       </fieldset>
 
       {/* 同意 */}
-      <fieldset className="space-y-2">
-        <label className="flex items-start gap-3">
-          <span className="mt-0.5">
-            <Checkbox
-              name="consent"
-              checked={consent}
-              onCheckedChange={setConsent}
-            />
-          </span>
-          <span className="font-noto-serif-jp text-sm text-text-primary">
+      <fieldset className="lp-fieldset">
+        <label className="lp-consent">
+          <input
+            type="checkbox"
+            name="consent"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+          />
+          <span>
             提供した情報を Sayo&apos;s Journal で記事化することに同意します。
-            <span className="text-primary">*</span>
+            <span className="req">*</span>
           </span>
         </label>
         <FieldError message={fieldErrors.consent} />
       </fieldset>
 
-      <div className="pt-2">
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          disabled={isPending}
-          className="w-full sm:w-auto"
-        >
+      <div>
+        <button type="submit" className="lp-submit" disabled={isPending}>
           {isPending ? '送信中…' : 'この内容で相談する'}
-        </Button>
-        <p className="mt-3 text-xs text-text-secondary">
+        </button>
+        <p className="lp-submit-note">
           送信後 3 日以内に、ご記入の連絡先へお返事します。掲載は無料です。
         </p>
       </div>
