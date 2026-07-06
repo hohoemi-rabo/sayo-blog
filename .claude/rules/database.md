@@ -41,7 +41,7 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 > **削除済み (Phase 4 / Ticket 40)**: `ig_sources` と `ig_imported_posts` は Cowork CSV 取り込みフロー廃止に伴い DROP。情報窓口フォーム (下記 Phase 4) に置き換え。`src/lib/ig-article-*` は Ticket 41 のミニ記事生成で再利用するため残存。
 
 ### Phase 4 Tables (情報窓口フォーム)
-13. **mini_inquiries** - sns_urls text[] (最大5), inquiry_type (event/shop/group/other) + inquiry_type_other, phone (必須), email, publish_preference (anytime/by_date/in_month) + publish_target_date/month, image_urls text[] (最大2), consent, status (pending/generating/published/skipped), admin_notes, generated_post_id FK posts (SET NULL)
+13. **mini_inquiries** - sns_urls text[] (**任意/最大5** — 旧必須), message text NULL (本文「伝えたいこと」= SNS URL 任意化に伴う自由記述。Zod で URL か本文の一方必須), inquiry_type (event/shop/group/other) + inquiry_type_other, phone (必須), email, publish_preference (anytime/by_date/in_month) + publish_target_date/month, image_urls text[] (最大2), consent, status (pending/generating/published/skipped), admin_notes, generated_post_id FK posts (SET NULL)
 14. **long_inquiries** - client_type (individual/organization/group), individual_name/organization_name/department_name/group_name, contact_person (必須), address (必須), interview_content (必須), publish_preference/interview_preference (free text), phone (必須), email, consent, status (pending/contacted/scheduled/interviewed/writing/published/cancelled), admin_notes, generated_post_id FK posts (SET NULL), scheduled_at, fee_amount (円)
 
 ### Gallery Table (画像ギャラリー)

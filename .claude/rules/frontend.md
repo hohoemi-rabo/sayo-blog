@@ -138,6 +138,16 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - 管理画面の記事一覧 `PostList.tsx` でも同フラグでサムネ白黒 + タイトル右に「📅 終了」ラベル
 - フラグ自体は admin の記事編集「公開設定」カード内のチェックボックスで切替
 
+## 無料記事 LP (/request/mini) — 独自デザインシステム
+
+`/request/mini` は**サイト本体とは別のビジュアル体系**を持つ独立 LP。サイトの Poetic Psychedelic ではなく、ピンク〜コーラル〜ゴールド + 明朝のチラシ調 (`index_mini.html` プロトタイプ由来)。
+
+- **ルートグループ `(lp)`**: サイト共通 `Header`/`Footer` を使わない (`(public)` レイアウトを避けるため別グループ)。`(lp)/layout.tsx` が LP 専用フォント (Cormorant/明朝/Zen Kaku) を next/font で self-host し `.lp-root` でラップ。
+- **CSS スコープ**: 全スタイルは `src/app/(lp)/lp-mini.css` に `.lp-root` プレフィックス付きで定義。App Router のルート単位 CSS 分割により **このルートでしか読み込まれない** → 素の要素セレクタ (`h1` 等) やジェネリックなクラス (`.card`/`.btn`) を使っても他ページに漏れない。サイトのデザインシステム変数 (`#FF6B9D` 等) とは独立。
+- **フォーム**: `MiniLpForm.tsx` は LP クラスで組むが、backend は既存 `submitMiniInquiry` を再利用 (サイト UI 部品 `Input`/`Button` は使わない)。
+- 新しい独立 LP を足す場合はこの `(lp)` グループ + ルートスコープ CSS のパターンを踏襲する。
+- framer-motion 不使用の方針は LP でも同じ (CSS のみ)。
+
 ## Photo Gallery (/gallery)
 
 公開記事の画像を一覧し、クリックで該当記事へ直行する写真ファースト導線。仕様正本は `docs/REQUIREMENTS-gallery.md`。

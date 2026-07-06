@@ -33,6 +33,7 @@ src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
 │   ├── (chat)/              # AI Chat page (公開 Header + main 専用高さ, no Footer)
+│   ├── (lp)/                # 独立 LP (サイト共通 Header/Footer 不使用, 独自フォント/CSS)。現在 /request/mini
 │   ├── (public)/            # Public pages (Header + Footer)
 │   │   ├── page.tsx         # Home (Hero + Pick Up 6 posts)
 │   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
@@ -65,8 +66,8 @@ src/
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
-/request/mini                  → ミニ記事の情報提供フォーム (BotID + Zod + Gmail SMTP 通知)
-/request/mini/thanks           → ミニ記事 送信完了画面 (noindex)
+/request/mini                  → 無料記事(ミニ)LP + 情報提供フォーム。独立 LP ((lp) ルートグループ, 独自 Header/Footer)。SNS URL 任意 + 本文欄「伝えたいこと」+ BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD
+/request/mini/thanks           → ミニ記事 送信完了画面 (noindex, LP トーン)
 /request/long                  → 取材依頼フォーム (種別ごと条件出し分け + BotID + Gmail SMTP 通知)
 /request/long/thanks           → ロング記事 送信完了画面 (noindex)
 /admin/                        → Admin dashboard
@@ -145,5 +146,5 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-07-05 (AI 3段階要約: 長文記事に「さくっと/ほどよく/じっくり」の要約を Gemini で生成。記事詳細の本文上部に CSS スライダーで切替表示、管理は記事編集の `SummarySection` で一括/個別生成+手直し。posts に summary_short/medium/long 追加。仕様は `docs/ai-summary-feature.md`)
+**Updated**: 2026-07-06 (無料記事 LP: `/request/mini` を `index_mini.html` 忠実再現の独立 LP に置き換え。新 `(lp)` ルートグループ = サイト共通 Header/Footer 不使用・独自フォント(Cormorant/明朝/Zen Kaku)を next/font で self-host・CSS は `.lp-root` にスコープ。フォームは既存 `submitMiniInquiry` 再利用。あわせて **SNS URL を任意化 + 本文欄「伝えたいこと」を追加** (mini_inquiries.message / Zod で URL か本文の一方必須 / 管理画面表示)。SEO: FAQPage JSON-LD + canonical + sitemap。詳細は `.claude/rules/implementation-status.md`)
 **Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI 3段階要約 complete / AI Chat UI 仕上げ済み (機能は安定運用中)
