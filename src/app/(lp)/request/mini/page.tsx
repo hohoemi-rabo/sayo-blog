@@ -74,6 +74,13 @@ export default function MiniRequestLpPage() {
             <a href="#benefits">メリット</a>
             <a href="#flow">掲載方法</a>
             <a href="#faq">Q&amp;A</a>
+            <span className="nav-sep" aria-hidden="true" />
+            <Link href="/blog" className="nav-site">
+              ブログ
+            </Link>
+            <Link href="/gallery" className="nav-site">
+              ギャラリー
+            </Link>
           </nav>
           <div className="actions">
             <a className="pill primary" href="#contact">
