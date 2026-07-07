@@ -121,15 +121,6 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
                 ? `（${inquiry.inquiry_type_other}）`
                 : null}
             </Row>
-            <Row label="伝えたいこと">
-              {inquiry.message ? (
-                <p className="whitespace-pre-wrap break-words">
-                  {inquiry.message}
-                </p>
-              ) : (
-                <span className="text-text-secondary">なし</span>
-              )}
-            </Row>
             <Row label="SNS URL">
               {inquiry.sns_urls.length === 0 ? (
                 <span className="text-text-secondary">なし</span>

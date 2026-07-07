@@ -367,7 +367,6 @@ export type PublishPreference = 'anytime' | 'by_date' | 'in_month'
 export interface MiniInquiry {
   id: string
   sns_urls: string[]
-  message: string | null
   inquiry_type: MiniInquiryType
   inquiry_type_other: string | null
   phone: string

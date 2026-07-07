@@ -7,7 +7,7 @@ import { MiniLpForm } from './_components/MiniLpForm'
 export const metadata: Metadata = {
   title: '無料記事を掲載する',
   description:
-    '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで、あなたの言葉で送ってください。SNS の URL がなくても大丈夫です。',
+    '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで、紹介したい SNS 投稿の URL を送るだけで大丈夫です。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/mini`,
   },
@@ -342,7 +342,7 @@ export default function MiniRequestLpPage() {
           <div className="cta-box">
             <h2>まずは、あなたの情報から。</h2>
             <p>
-              告知・イベント情報・地域の話を、Sayo&apos;s Journalに送ってください。SNS の URL がなくても、伝えたいことを文章で書くだけで大丈夫です。
+              告知・イベント情報・地域の話を、Sayo&apos;s Journalに送ってください。紹介したい SNS 投稿の URL を貼るだけで大丈夫です。
             </p>
             <MiniLpForm />
           </div>

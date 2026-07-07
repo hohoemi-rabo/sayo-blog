@@ -36,21 +36,12 @@ function isIsoMonth(value: string): boolean {
   return /^\d{4}-\d{2}$/.test(value)
 }
 
-/** ミニ記事の本文 (伝えたいこと) の最大文字数 */
-export const MINI_MESSAGE_MAX = 2000
-
 export const miniInquirySchema = z
   .object({
     sns_urls: z
       .array(z.url({ error: 'URL の形式が正しくありません' }))
+      .min(1, { error: '紹介したい SNS 投稿の URL を 1 つ以上ご入力ください' })
       .max(5, { error: 'URL は最大 5 つまでです' }),
-    message: z
-      .string()
-      .trim()
-      .max(MINI_MESSAGE_MAX, {
-        error: `${MINI_MESSAGE_MAX} 字以内で入力してください`,
-      })
-      .nullable(),
     inquiry_type: z.enum(MINI_INQUIRY_TYPES, { error: '種別を選択してください' }),
     inquiry_type_other: z
       .string()
@@ -77,14 +68,6 @@ export const miniInquirySchema = z
     }),
   })
   .superRefine((data, ctx) => {
-    // URL か本文のどちらか一方は必須 (ご近所情報など URL が無いケースを許容)
-    if (data.sns_urls.length === 0 && !data.message?.trim()) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['message'],
-        message: '伝えたいこと、または SNS の URL のどちらかをご入力ください',
-      })
-    }
     // 種別「その他」のとき補足必須
     if (data.inquiry_type === 'other' && !data.inquiry_type_other?.trim()) {
       ctx.addIssue({

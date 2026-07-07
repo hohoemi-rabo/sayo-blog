@@ -66,7 +66,7 @@ src/
 /chat                          → AI Chat (admin: full chat, user: teaser)
 /privacy                       → Privacy Policy
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
-/request/mini                  → 無料記事(ミニ)LP + 情報提供フォーム。独立 LP ((lp) ルートグループ, 独自 Header/Footer)。SNS URL 任意 + 本文欄「伝えたいこと」+ BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD
+/request/mini                  → 無料記事(ミニ)LP + 情報提供フォーム。独立 LP ((lp) ルートグループ, 独自 Header/Footer)。SNS URL 必須(最大5) + BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD
 /request/mini/thanks           → ミニ記事 送信完了画面 (noindex, LP トーン)
 /request/long                  → 取材依頼フォーム (種別ごと条件出し分け + BotID + Gmail SMTP 通知)
 /request/long/thanks           → ロング記事 送信完了画面 (noindex)
@@ -146,6 +146,7 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-07-07 (①公開一覧のクエリ共通化 + ストリーミング化: posts 一覧クエリを `src/lib/post-queries.ts::fetchPublishedPosts` に集約 (/blog・/[category]・/api/posts の3重複を解消 + ハッシュタグ絞り込み時の無駄な先行クエリ削減)。blog/category/search は posts 取得を Suspense 内の async 子コンポーネントに移して実ストリーミング化、`PopularHashtags`/`RelatedArticles` も Suspense でシェル非ブロック化。②DB ハードニング: migration `20260706150000_postgres_best_practices_hardening.sql` — 管理専用 RPC の anon EXECUTE 剥奪 / ai_usage_logs 匿名 INSERT ポリシー削除 / 全関数 search_path 固定 / RLS ポリシーの TO ロールスコープ化 / FK インデックス追加。詳細は `.claude/rules/database.md`)
-**Prev**: 2026-07-06 (無料記事 LP: `/request/mini` を `index_mini.html` 忠実再現の独立 LP に置き換え。新 `(lp)` ルートグループ = サイト共通 Header/Footer 不使用・独自フォント(Cormorant/明朝/Zen Kaku)を next/font で self-host・CSS は `.lp-root` にスコープ。フォームは既存 `submitMiniInquiry` 再利用。あわせて **SNS URL を任意化 + 本文欄「伝えたいこと」を追加** (mini_inquiries.message / Zod で URL か本文の一方必須 / 管理画面表示)。SEO: FAQPage JSON-LD + canonical + sitemap。詳細は `.claude/rules/implementation-status.md`)
+**Updated**: 2026-07-07b (ミニ記事フォームの「伝えたいこと」自由記述欄を廃止。ターゲット=「SNS に投稿している人」に絞り、**SNS URL を必須(最低1件)に戻し** message カラムを DROP (migration `20260707120000_drop_mini_inquiries_message.sql`, テーブル 0 行のため無損失)。フォーム/Zod/actions/types/管理画面表示/LP コピー(「URL がなくても大丈夫」→「SNS 投稿の URL を送るだけで大丈夫」)を同期。詳細は `.claude/rules/implementation-status.md`)
+**Prev2**: 2026-07-07 (①公開一覧のクエリ共通化 + ストリーミング化: posts 一覧クエリを `src/lib/post-queries.ts::fetchPublishedPosts` に集約 (/blog・/[category]・/api/posts の3重複を解消 + ハッシュタグ絞り込み時の無駄な先行クエリ削減)。blog/category/search は posts 取得を Suspense 内の async 子コンポーネントに移して実ストリーミング化、`PopularHashtags`/`RelatedArticles` も Suspense でシェル非ブロック化。②DB ハードニング: migration `20260706150000_postgres_best_practices_hardening.sql` — 管理専用 RPC の anon EXECUTE 剥奪 / ai_usage_logs 匿名 INSERT ポリシー削除 / 全関数 search_path 固定 / RLS ポリシーの TO ロールスコープ化 / FK インデックス追加。詳細は `.claude/rules/database.md`)
+**Prev3**: 2026-07-06 (無料記事 LP: `/request/mini` を `index_mini.html` 忠実再現の独立 LP に置き換え。新 `(lp)` ルートグループ = サイト共通 Header/Footer 不使用・独自フォント(Cormorant/明朝/Zen Kaku)を next/font で self-host・CSS は `.lp-root` にスコープ。フォームは既存 `submitMiniInquiry` 再利用。SEO: FAQPage JSON-LD + canonical + sitemap。詳細は `.claude/rules/implementation-status.md`)
 **Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI 3段階要約 complete / AI Chat UI 仕上げ済み (機能は安定運用中)

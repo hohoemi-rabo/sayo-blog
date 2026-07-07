@@ -66,7 +66,6 @@ export async function submitMiniInquiry(
     .filter((v) => v !== '')
   const raw = {
     sns_urls: rawUrls,
-    message: (formData.get('message') as string)?.trim() || null,
     inquiry_type: formData.get('inquiry_type'),
     inquiry_type_other: (formData.get('inquiry_type_other') as string) || null,
     phone: formData.get('phone'),
@@ -119,7 +118,6 @@ export async function submitMiniInquiry(
   const { error: insertError } = await supabase.from('mini_inquiries').insert({
     id: inquiryId,
     sns_urls: data.sns_urls,
-    message: data.message || null,
     inquiry_type: data.inquiry_type,
     inquiry_type_other:
       data.inquiry_type === 'other' ? data.inquiry_type_other : null,
@@ -146,7 +144,6 @@ export async function submitMiniInquiry(
   // 7. 紗代さんへ通知メール (失敗しても送信成功扱い)
   const summary = [
     `種別: ${MINI_INQUIRY_TYPE_LABELS[data.inquiry_type]}`,
-    `本文: ${data.message ? `あり (${data.message.length} 字)` : 'なし'}`,
     `URL: ${data.sns_urls.length} 件`,
     `画像: ${imageUrls.length} 枚`,
     `連絡先: ${data.phone}${data.email ? ` / ${data.email}` : ''}`,

@@ -85,14 +85,6 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
             </div>
           )}
         </dl>
-        {inquiry.message && (
-          <div className="mt-3 border-t border-border-decorative/50 pt-3">
-            <p className="mb-1 text-xs text-text-secondary">伝えたいこと</p>
-            <p className="whitespace-pre-wrap break-words text-sm text-text-primary">
-              {inquiry.message}
-            </p>
-          </div>
-        )}
         {inquiry.sns_urls.length > 0 && (
           <div className="mt-3 border-t border-border-decorative/50 pt-3">
             <p className="mb-1 text-xs text-text-secondary">SNS URL</p>

@@ -138,30 +138,15 @@ export function MiniLpForm() {
 
       {generalError && <div className="lp-alert">{generalError}</div>}
 
-      {/* 伝えたいこと (本文) */}
-      <fieldset className="lp-fieldset">
-        <legend className="lp-legend">
-          伝えたいこと
-          <span className="opt">（できれば / どんな内容かご自由に）</span>
-        </legend>
-        <p className="lp-hint">
-          告知・イベント・ご近所の話・失敗談など、伝えたいことを自由にお書きください。SNS の URL がある場合は下に貼っていただくだけでも大丈夫です。
-        </p>
-        <textarea
-          name="message"
-          className="lp-textarea"
-          maxLength={2000}
-          placeholder="例）◯月◯日に △△ でマルシェを開きます。地元の作り手が集まって…（2000字まで）"
-        />
-        <FieldError message={fieldErrors.message} />
-      </fieldset>
-
       {/* SNS URL */}
       <fieldset className="lp-fieldset">
         <legend className="lp-legend">
-          SNS の URL
-          <span className="opt">（任意 / 最大 5 件・紹介したい投稿のリンク）</span>
+          SNS の URL<span className="req">*</span>
+          <span className="opt">（最大 5 件・紹介したい投稿のリンク）</span>
         </legend>
+        <p className="lp-hint">
+          告知・イベント・ご近所の話・失敗談など、紹介したい SNS 投稿のリンクを貼ってください。Instagram・X・Facebook など、どの SNS でも大丈夫です。
+        </p>
         {urls.map((url, i) => (
           <div key={i} className="lp-urlrow">
             <input
