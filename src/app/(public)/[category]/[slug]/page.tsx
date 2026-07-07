@@ -9,6 +9,7 @@ import { generateArticleSchema, generateBreadcrumbSchema, JsonLd } from '@/lib/s
 import { processArticleContent } from '@/lib/article-utils'
 import ArticleHero from '@/components/ArticleHero'
 import ArticleBody from '@/components/ArticleBody'
+import ExpandableArticleBody from '@/components/ExpandableArticleBody'
 import ArticleMeta from '@/components/ArticleMeta'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import ViewCounter from '@/components/ViewCounter'
@@ -233,7 +234,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           summaryLong={post.summary_long ?? null}
         />
 
-        <ArticleBody content={processedHtml} />
+        <ExpandableArticleBody>
+          <ArticleBody content={processedHtml} />
+        </ExpandableArticleBody>
 
         <ArticleMeta
           categories={categories as Category[]}

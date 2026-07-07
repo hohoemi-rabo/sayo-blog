@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { TocHeading } from '@/lib/article-utils'
+import { EXPAND_EVENT } from '@/components/ExpandableArticleBody'
 
 interface TableOfContentsProps {
   headings: TocHeading[]
@@ -34,12 +35,18 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
   }, [headings])
 
   const scrollToHeading = useCallback((id: string) => {
-    const element = document.getElementById(id)
-    if (element) {
+    // 本文が折りたたまれている場合に備え、先に全文展開を促す
+    // (隠れた見出しへスクロールする事故を防ぐ)
+    window.dispatchEvent(new CustomEvent(EXPAND_EVENT))
+    const doScroll = () => {
+      const element = document.getElementById(id)
+      if (!element) return
       const offset = 96
       const top = element.getBoundingClientRect().top + window.scrollY - offset
       window.scrollTo({ top, behavior: 'smooth' })
     }
+    // 展開後のレイアウト確定を待ってからスクロール位置を計算する
+    requestAnimationFrame(() => requestAnimationFrame(doScroll))
   }, [])
 
   const handleDesktopClick = useCallback(
