@@ -182,6 +182,9 @@ export function MiniLpForm() {
         <legend className="lp-legend">
           種別<span className="req">*</span>
         </legend>
+        <p className="lp-hint">
+          ご近所の話・雑談など、当てはまる種別が無ければ「その他」を選んでご自由にお書きください。
+        </p>
         <div className="lp-choicegrid cols-4">
           {MINI_INQUIRY_TYPES.map((t) => (
             <label
@@ -202,12 +205,12 @@ export function MiniLpForm() {
         <FieldError message={fieldErrors.inquiry_type} />
         {inquiryType === 'other' && (
           <div>
-            <input
-              type="text"
+            <textarea
               name="inquiry_type_other"
-              className="lp-input"
-              maxLength={100}
-              placeholder="どんな内容か簡単にお書きください（100 字以内）"
+              className="lp-textarea"
+              maxLength={200}
+              rows={3}
+              placeholder="例）ご近所で見つけた小さな出来事、雑談など（200 字以内）"
             />
             <FieldError message={fieldErrors.inquiry_type_other} />
           </div>

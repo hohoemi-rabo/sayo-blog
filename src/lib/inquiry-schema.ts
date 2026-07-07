@@ -46,7 +46,7 @@ export const miniInquirySchema = z
     inquiry_type_other: z
       .string()
       .trim()
-      .max(100, { error: '100 字以内で入力してください' })
+      .max(200, { error: '200 字以内で入力してください' })
       .nullable(),
     phone: z
       .string()
