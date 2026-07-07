@@ -100,6 +100,25 @@ export function SummarySlider({
       >
         {active.text}
       </p>
+
+      {/* 本文への橋渡し (要約があるときだけ表示 = このコンポーネント内) */}
+      <div className="mt-5 border-t border-border-decorative/60 pt-4 text-center">
+        <div
+          className="mb-2 flex items-center justify-center"
+          aria-hidden="true"
+        >
+          <span className="h-1 w-1 rounded-full bg-primary/60" />
+          <span className="mx-2 h-px w-10 bg-gradient-to-r from-transparent to-primary/50" />
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <span className="mx-2 h-px w-10 bg-gradient-to-l from-transparent to-primary/50" />
+          <span className="h-1 w-1 rounded-full bg-primary/60" />
+        </div>
+        <p className="text-sm leading-relaxed text-text-secondary">
+          この先は、写真とともに本文で。
+          <br />
+          全文を読みたい方は、このまま下へ。
+        </p>
+      </div>
     </section>
   )
 }
