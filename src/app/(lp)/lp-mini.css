@@ -1,7 +1,7 @@
 /*
- * ミニ記事 LP (/request/mini) 専用スタイル。
+ * 投稿記事 LP (/request/post、内部コード名は mini) 専用スタイル。
  * index_mini.html の <style> を忠実移植し、全体を .lp-root にスコープ。
- * このファイルは (lp)/layout.tsx でのみ import され、/request/mini* ルートにしか
+ * このファイルは (lp)/layout.tsx でのみ import され、/request/post* ルートにしか
  * 読み込まれない (App Router のルート単位 CSS 分割) ため、他ページに影響しない。
  * フォント変数 (--serif/--latin/--body) は next/font が付与する変数に接続する。
  */

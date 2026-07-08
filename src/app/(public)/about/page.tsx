@@ -72,7 +72,7 @@ const pillars = [
   },
   {
     icon: MessageSquare,
-    title: 'ミニ記事',
+    title: '投稿記事',
     price: '無料',
     description:
       'SNS で発信されている情報をもとに、紗代が短い紹介記事に書き起こします。「これ紹介してほしい」を気軽に。',
@@ -236,10 +236,10 @@ export default function AboutPage() {
           {/* 情報窓口 CTA */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-10">
             <Link
-              href="/request/mini"
+              href="/request/post"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-primary text-primary font-noto-sans-jp font-medium hover:bg-primary/10 transition-all duration-200"
             >
-              📩 ミニ記事の情報を届ける
+              📩 投稿記事の情報を届ける
             </Link>
             <Link
               href="/request/long"

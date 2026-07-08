@@ -39,7 +39,7 @@ paths:
 
 公開ヘッダー (`Header.tsx`) の 2 つの CTA は視覚ヒエラルキーを付けている:
 - **主役「取材を依頼」** (`/request/long`): ピンク〜コーラルのグラデ `from-[#ED93B1] to-[#D85A30]` + 柔らかい glow shadow + `hover:-translate-y-0.5` で浮き上がり。白文字に `text-shadow` を足してグラデ左端でもコントラスト確保。
-- **脇役「情報を届ける」** (`/request/mini`): 枠付きゴースト (`border-primary/40` + `text-primary`)、hover で枠を濃く。主役を引き立てる。
+- **脇役「情報を届ける」** (`/request/post`): 枠付きゴースト (`border-primary/40` + `text-primary`)、hover で枠を濃く。主役を引き立てる。
 - 注意: `primary-hover` (#FF8FB3) は primary (#FF6B9D) より**明るい**ため、塗り CTA の hover に使うと白文字が同化する。塗りボタンの hover は `brightness-95` 等で**暗く**する。
 
 ## Component Conventions
@@ -138,9 +138,9 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - 管理画面の記事一覧 `PostList.tsx` でも同フラグでサムネ白黒 + タイトル右に「📅 終了」ラベル
 - フラグ自体は admin の記事編集「公開設定」カード内のチェックボックスで切替
 
-## 無料記事 LP (/request/mini) — 独自デザインシステム
+## 投稿記事 LP (/request/post, 内部コード名 mini) — 独自デザインシステム
 
-`/request/mini` は**サイト本体とは別のビジュアル体系**を持つ独立 LP。サイトの Poetic Psychedelic ではなく、ピンク〜コーラル〜ゴールド + 明朝のチラシ調 (`index_mini.html` プロトタイプ由来)。
+`/request/post` (旧 /request/mini, 301 済み) は**サイト本体とは別のビジュアル体系**を持つ独立 LP。サイトの Poetic Psychedelic ではなく、ピンク〜コーラル〜ゴールド + 明朝のチラシ調 (`index_mini.html` プロトタイプ由来)。
 
 - **ルートグループ `(lp)`**: サイト共通 `Header`/`Footer` を使わない (`(public)` レイアウトを避けるため別グループ)。`(lp)/layout.tsx` が LP 専用フォント (Cormorant/明朝/Zen Kaku) を next/font で self-host し `.lp-root` でラップ。
 - **CSS スコープ**: 全スタイルは `src/app/(lp)/lp-mini.css` に `.lp-root` プレフィックス付きで定義。App Router のルート単位 CSS 分割により **このルートでしか読み込まれない** → 素の要素セレクタ (`h1` 等) やジェネリックなクラス (`.card`/`.btn`) を使っても他ページに漏れない。サイトのデザインシステム変数 (`#FF6B9D` 等) とは独立。

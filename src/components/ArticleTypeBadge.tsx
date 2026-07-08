@@ -10,7 +10,7 @@ const STYLES: Record<
   { label: string; className: string; title: string }
 > = {
   mini: {
-    label: '📩 ミニ記事',
+    label: '📩 投稿記事',
     className: 'bg-blue-50 text-blue-700 border border-blue-200',
     title: '読者から寄せられた情報をもとに紗代が書いた紹介記事です',
   },

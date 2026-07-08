@@ -9,13 +9,13 @@ export const metadata: Metadata = {
   description:
     '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで、紹介したい SNS 投稿の URL を送るだけで大丈夫です。',
   alternates: {
-    canonical: `${SITE_CONFIG.url}/request/mini`,
+    canonical: `${SITE_CONFIG.url}/request/post`,
   },
   openGraph: {
     title: `無料記事を掲載する | ${SITE_CONFIG.name}`,
     description:
       '飯田下伊那の情報を、あとから見つかる記事に。告知・イベント・ご近所の話まで、無料で掲載できます。',
-    url: `${SITE_CONFIG.url}/request/mini`,
+    url: `${SITE_CONFIG.url}/request/post`,
     type: 'website',
   },
 }

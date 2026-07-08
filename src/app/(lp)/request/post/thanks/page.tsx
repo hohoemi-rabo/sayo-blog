@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: '無料記事のご相談を受け付けました。3 日以内にご連絡いたします。',
   robots: { index: false, follow: false },
   alternates: {
-    canonical: `${SITE_CONFIG.url}/request/mini/thanks`,
+    canonical: `${SITE_CONFIG.url}/request/post/thanks`,
   },
 }
 

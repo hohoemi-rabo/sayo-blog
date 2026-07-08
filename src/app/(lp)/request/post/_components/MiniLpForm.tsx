@@ -108,7 +108,7 @@ export function MiniLpForm() {
     startTransition(async () => {
       const result = await submitMiniInquiry(fd)
       if (result.ok) {
-        router.push('/request/mini/thanks')
+        router.push('/request/post/thanks')
         return
       }
       setGeneralError(result.error)
