@@ -7,10 +7,11 @@ import { checkRateLimit } from '@/lib/rate-limit'
 import { sendInquiryNotification } from '@/lib/mailer'
 import {
   miniInquirySchema,
+  INQUIRY_ATTACHMENT_ACCEPT,
   INQUIRY_IMAGE_MAX_COUNT,
 } from '@/lib/inquiry-schema'
 import { uploadInquiryImages, InquiryImageError } from '@/lib/inquiry-images'
-import { MINI_INQUIRY_TYPE_LABELS } from '@/lib/inquiries'
+import { MINI_INQUIRY_TYPE_LABELS, isPdfAttachment } from '@/lib/inquiries'
 
 export type SubmitMiniInquiryResult =
   | { ok: true }
@@ -59,13 +60,28 @@ export async function submitMiniInquiry(
     return { ok: true }
   }
 
-  // 4. Zod 検証 (ファイル以外)
+  // 4. 添付 (チラシ・写真) を先に取り出す。
+  //    「SNS URL か 添付 のどちらか一方は必須」を Zod 内で判定するため、点数を検証に渡す。
+  const files = formData
+    .getAll('images')
+    .filter((f): f is File => f instanceof File && f.size > 0)
+  if (files.length > INQUIRY_IMAGE_MAX_COUNT) {
+    const message = `チラシ・写真は最大 ${INQUIRY_IMAGE_MAX_COUNT} 点までです`
+    return {
+      ok: false,
+      error: `${message}。`,
+      fieldErrors: { images: message },
+    }
+  }
+
+  // 5. Zod 検証 (ファイル本体以外)
   const rawUrls = formData
     .getAll('sns_urls')
     .map((v) => String(v).trim())
     .filter((v) => v !== '')
   const raw = {
     sns_urls: rawUrls,
+    attachment_count: files.length,
     inquiry_type: formData.get('inquiry_type'),
     inquiry_type_other: (formData.get('inquiry_type_other') as string) || null,
     phone: formData.get('phone'),
@@ -89,31 +105,27 @@ export async function submitMiniInquiry(
   }
   const data = parsed.data
 
-  // 5. 画像検証 + アップロード (service role)。id を先行発行して mini/{id}/ に保存。
-  const files = formData
-    .getAll('images')
-    .filter((f): f is File => f instanceof File && f.size > 0)
-  if (files.length > INQUIRY_IMAGE_MAX_COUNT) {
-    return {
-      ok: false,
-      error: `画像は最大 ${INQUIRY_IMAGE_MAX_COUNT} 枚までです。`,
-      fieldErrors: { images: `画像は最大 ${INQUIRY_IMAGE_MAX_COUNT} 枚までです` },
-    }
-  }
-
+  // 6. 添付をアップロード (service role)。id を先行発行して mini/{id}/ に保存。
   const inquiryId = crypto.randomUUID()
   let imageUrls: string[] = []
   try {
-    imageUrls = await uploadInquiryImages({ inquiryId, files })
+    imageUrls = await uploadInquiryImages({
+      inquiryId,
+      files,
+      accept: INQUIRY_ATTACHMENT_ACCEPT,
+    })
   } catch (err) {
     if (err instanceof InquiryImageError) {
       return { ok: false, error: err.message, fieldErrors: { images: err.message } }
     }
-    console.error('[submitMiniInquiry] image upload failed:', err)
-    return { ok: false, error: '画像のアップロードに失敗しました。時間をおいて再度お試しください。' }
+    console.error('[submitMiniInquiry] attachment upload failed:', err)
+    return {
+      ok: false,
+      error: 'ファイルのアップロードに失敗しました。時間をおいて再度お試しください。',
+    }
   }
 
-  // 6. mini_inquiries に INSERT
+  // 7. mini_inquiries に INSERT
   const supabase = createAdminClient()
   const { error: insertError } = await supabase.from('mini_inquiries').insert({
     id: inquiryId,
@@ -141,11 +153,12 @@ export async function submitMiniInquiry(
     }
   }
 
-  // 7. 紗代さんへ通知メール (失敗しても送信成功扱い)
+  // 8. 紗代さんへ通知メール (失敗しても送信成功扱い)
+  const pdfCount = imageUrls.filter(isPdfAttachment).length
   const summary = [
     `種別: ${MINI_INQUIRY_TYPE_LABELS[data.inquiry_type]}`,
-    `URL: ${data.sns_urls.length} 件`,
-    `画像: ${imageUrls.length} 枚`,
+    `SNS URL: ${data.sns_urls.length} 件`,
+    `添付: ${imageUrls.length} 点${pdfCount > 0 ? `（うち PDF ${pdfCount} 点）` : ''}`,
     `連絡先: ${data.phone}${data.email ? ` / ${data.email}` : ''}`,
   ].join('\n')
   await sendInquiryNotification({ type: 'mini', inquiryId, summary })

@@ -5,7 +5,9 @@ import { getMiniInquiry } from '../../actions'
 import {
   MINI_INQUIRY_TYPE_LABELS,
   formatMiniPublishPreference,
+  isPdfAttachment,
 } from '@/lib/inquiries'
+import { InquiryAttachments } from '@/components/admin/InquiryAttachments'
 import { GenerateForm } from './_components/GenerateForm'
 
 export const dynamic = 'force-dynamic'
@@ -66,21 +68,14 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
           </div>
           {inquiry.image_urls.length > 0 && (
             <div className="flex gap-2">
-              <dt className="w-20 shrink-0 text-text-secondary">添付画像</dt>
-              <dd className="flex flex-wrap gap-2">
-                {inquiry.image_urls.map((url) => (
-                  <a
-                    key={url}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block h-20 w-20 overflow-hidden rounded-lg border border-border-decorative"
-                  >
-                    {/* 管理画面内サムネのため next/image は使わない */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="h-full w-full object-cover" />
-                  </a>
-                ))}
+              <dt className="w-20 shrink-0 text-text-secondary">チラシ・写真</dt>
+              <dd>
+                <InquiryAttachments urls={inquiry.image_urls} />
+                {inquiry.image_urls.some(isPdfAttachment) && (
+                  <p className="mt-1.5 text-xs text-text-secondary">
+                    ※ PDF は記事本文には差し込まれません。中身を読んで、下の本文欄に内容を書き起こしてください。
+                  </p>
+                )}
               </dd>
             </div>
           )}

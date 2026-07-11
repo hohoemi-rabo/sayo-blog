@@ -90,6 +90,15 @@ export const LONG_INQUIRY_STATUS_LABELS: Record<LongInquiryStatus, string> = {
   cancelled: 'キャンセル',
 }
 
+/**
+ * 添付が PDF (チラシ) かどうか。
+ * 公開フォームは画像と PDF の両方を `image_urls` に混ぜて保存するため、
+ * 表示側・記事生成側はこれで振り分ける (PDF は <img> にできない)。
+ */
+export function isPdfAttachment(url: string): boolean {
+  return url.split('?')[0].toLowerCase().endsWith('.pdf')
+}
+
 /** ミニ記事の公開希望を表示用文字列に整形する */
 export function formatMiniPublishPreference(
   inquiry: Pick<

@@ -45,8 +45,13 @@ export const miniInquirySchema = z
   .object({
     sns_urls: z
       .array(z.url({ error: 'URL の形式が正しくありません' }))
-      .min(1, { error: '紹介したい SNS 投稿の URL を 1 つ以上ご入力ください' })
       .max(5, { error: 'URL は最大 5 つまでです' }),
+    /**
+     * 添付 (チラシ・写真) の点数。ファイル本体は Server Action 側で検証するが、
+     * 「SNS URL か 添付 のどちらか一方は必須」を Zod 内で判定するために点数だけ渡す。
+     * DB には保存しない。
+     */
+    attachment_count: z.coerce.number().int().min(0),
     inquiry_type: z.enum(MINI_INQUIRY_TYPES, { error: '種別を選択してください' }),
     inquiry_type_other: z
       .string()
@@ -73,6 +78,15 @@ export const miniInquirySchema = z
     }),
   })
   .superRefine((data, ctx) => {
+    // SNS 投稿の URL か、チラシ・写真の添付か、どちらか一方は必須
+    if (data.sns_urls.length === 0 && data.attachment_count === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['attachments'],
+        message:
+          'SNS 投稿の URL か、チラシ・写真のどちらかを送ってください（両方あっても大丈夫です）',
+      })
+    }
     // 種別「その他」のとき補足必須
     if (data.inquiry_type === 'other' && !data.inquiry_type_other?.trim()) {
       ctx.addIssue({
@@ -128,15 +142,28 @@ export const miniInquirySchema = z
 
 export type MiniInquiryInput = z.infer<typeof miniInquirySchema>
 
-/** 添付画像の制約 */
+/** 添付ファイルの制約 */
 export const INQUIRY_IMAGE_MAX_COUNT = 2
 export const INQUIRY_IMAGE_MAX_BYTES = 10 * 1024 * 1024 // 10MB
+
+/**
+ * 画像のみ。管理画面の「追加画像」で使う (記事本文に <img> として差し込むため PDF 不可)。
+ */
 export const INQUIRY_IMAGE_ACCEPT = [
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/heic',
   'image/heif',
+] as const
+
+/**
+ * 公開フォームの添付 (チラシ・写真)。チラシは PDF で持っている人が多いので PDF を許可する。
+ * PDF は記事本文には差し込まず、紗代さんが中身を読んで記事を書くための資料として扱う。
+ */
+export const INQUIRY_ATTACHMENT_ACCEPT = [
+  ...INQUIRY_IMAGE_ACCEPT,
+  'application/pdf',
 ] as const
 
 // ============================================================

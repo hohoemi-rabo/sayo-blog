@@ -13,6 +13,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
 import { generateUniquePostSlug } from '@/lib/slug-utils'
 import { buildMiniArticlePrompt } from '@/lib/mini-article-prompt'
+import { isPdfAttachment } from '@/lib/inquiries'
 import { syncPostImages } from '@/lib/post-images-sync'
 import {
   ArticleAiValidationError,
@@ -68,8 +69,12 @@ export async function generateMiniArticle(
     .eq('id', input.inquiryId)
 
   try {
-    // 3. 画像 (フォーム提供 + 追加) を結合
-    const imageUrls = [...(inquiry.image_urls ?? []), ...input.additionalImageUrls]
+    // 3. 画像 (フォーム提供 + 追加) を結合。
+    //    チラシ PDF は記事本文に差し込めないので除外する (紗代さんが読むための資料)。
+    const imageUrls = [
+      ...(inquiry.image_urls ?? []).filter((url) => !isPdfAttachment(url)),
+      ...input.additionalImageUrls,
+    ]
 
     // 4. 貼り付けテキストが空でないか
     const snsTexts = input.snsTexts.filter((s) => s.text.trim().length > 0)

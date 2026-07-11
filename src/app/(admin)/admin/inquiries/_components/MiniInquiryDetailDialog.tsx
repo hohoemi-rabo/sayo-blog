@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { Textarea } from '@/components/ui/Textarea'
 import { useToast } from '@/components/ui/Toast'
+import { InquiryAttachments } from '@/components/admin/InquiryAttachments'
 import type { MiniInquiry, MiniInquiryStatus } from '@/lib/types'
 import {
   MINI_INQUIRY_TYPE_LABELS,
@@ -142,26 +143,8 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
                 </ul>
               )}
             </Row>
-            <Row label="画像">
-              {inquiry.image_urls.length === 0 ? (
-                <span className="text-text-secondary">なし</span>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {inquiry.image_urls.map((url) => (
-                    <a
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block h-20 w-20 overflow-hidden rounded-lg border border-border-decorative"
-                    >
-                      {/* 管理画面内サムネのため next/image は使わない */}
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" className="h-full w-full object-cover" />
-                    </a>
-                  ))}
-                </div>
-              )}
+            <Row label="チラシ・写真">
+              <InquiryAttachments urls={inquiry.image_urls} />
             </Row>
             <Row label="連絡先">
               <div>{inquiry.phone}</div>

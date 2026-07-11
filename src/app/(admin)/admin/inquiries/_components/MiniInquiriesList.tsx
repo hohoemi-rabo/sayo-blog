@@ -119,7 +119,7 @@ export function MiniInquiriesList({ items, openId }: Props) {
                 <th className="px-4 py-3 font-medium">受付</th>
                 <th className="px-4 py-3 font-medium">種別</th>
                 <th className="px-4 py-3 font-medium">URL</th>
-                <th className="px-4 py-3 font-medium">画像</th>
+                <th className="px-4 py-3 font-medium">添付</th>
                 <th className="px-4 py-3 font-medium">連絡先</th>
                 <th className="px-4 py-3 font-medium">公開希望</th>
                 <th className="px-4 py-3 font-medium">ステータス</th>
@@ -144,7 +144,7 @@ export function MiniInquiriesList({ items, openId }: Props) {
                     {item.sns_urls.length} 件
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
-                    {item.image_urls.length} 枚
+                    {item.image_urls.length} 点
                   </td>
                   <td className="px-4 py-3 text-text-secondary">
                     <div>{item.phone}</div>
