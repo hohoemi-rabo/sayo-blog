@@ -143,6 +143,10 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 サイト本体とは**別のビジュアル体系**を持つチラシ調の独立 LP が 2 本ある。どちらも
 `index_mini.html` / `index_long.html` (紗代さんと相談したプロトタイプ) の忠実移植。
 
+> **プロトタイプ HTML はリポジトリに残していない** (移植完了後に削除)。以後は
+> `lp-post.css` / `lp-long.css` が**正本**。元ファイルを見たい場合は git 履歴から辿ること
+> (`index_long.html` は commit 4ac0d4b まで存在)。
+
 | LP | URL | CSS | スコープ | パレット |
 |----|-----|-----|---------|---------|
 | 投稿記事 (内部名 mini) | `/request/post` | `lp-post.css` | `.lp-post` | 鮮やかピンク `#e91e63` |
