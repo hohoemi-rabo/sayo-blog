@@ -151,6 +151,13 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 |----|-----|-----|---------|---------|
 | 投稿記事 (内部名 mini) | `/request/post` | `lp-post.css` | `.lp-post` | 鮮やかピンク `#e91e63` |
 | 取材記事 (内部名 long) | `/request/interview` | `lp-long.css` | `.lp-long` | くすんだローズ `#C08B8B` |
+| 切り口診断 (下位ページ) | `/request/post/guide` | ― (`lp-post.css` を共有) | `.lp-post` を継承 | 投稿記事と同じ |
+
+> **下位ページは新しいスコープを作らない**: `/request/post/guide` は `(lp)/request/post/layout.tsx` の
+> 配下なので、`.lp-post` ラッパと `lp-post.css` を**そのまま継承する**。診断固有のクラス
+> (`.dg-*` `.type-*` `.guide-link` `.lp-angle`) も `lp-post.css` に `.lp-post` プレフィックス付きで足す。
+> **親 LP の世界観の中にある補助ページは、この形にすること** (新スコープを切ると見た目が分裂し、
+> CSS も二重管理になる)。独立した売り物なら下の「新しい独立 LP」の形に従う。
 
 ### ⚠️ CSS スコープ設計 (最重要)
 
@@ -166,6 +173,8 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
   もう片方の LP と衝突する** (クライアント遷移で両方の CSS が DOM に残るケースがあるため、
   ルート単位の CSS 分割だけでは守れない)。
 - 新しい独立 LP を足すときも、この「専用スコープクラス + ルート layout で CSS を読む」形を踏襲する。
+  プロトタイプ HTML は `:root` に色変数を置いているので、**そのままコピーすると LP 間で衝突する**。
+  必ずスコープクラス側 (`.lp-xxx { --magenta: ... }`) に移し替えること。
 
 ### `lp-long.css` の注意 (プロトタイプ由来)
 
@@ -178,8 +187,15 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 
 LP のクラス (`.lp-form` `.lp-input` `.lp-choice` …) で組むが、**backend は既存 Server Action を
 そのまま再利用**する (サイト UI 部品 `Input`/`Button` は使わない)。
-- `MiniLpForm.tsx` → `submitMiniInquiry`
+- `MiniLpForm.tsx` → `submitMiniInquiry` (SNS URL / チラシ添付の「どちらか一方」+ `?angle=` の受け取り)
 - `LongLpForm.tsx` → `submitLongInquiry` (種別で必須項目を出し分け + 希望プラン選択 `.lp-plan-choice`)
+
+> **フォームは 1 商品につき 1 URL**。`/request/post/guide` に投稿フォームを置かないのは、
+> 同じフォームが 2 URL に出ると検索でカニバり、診断が迂回され、BotID/レート制限の面倒も二重になるため。
+> 診断 → `?angle=` 付きでフォームへ / フォーム → 診断へ、と**双方向のリンクで往復させる**。
+
+> `MiniLpForm` は `useSearchParams()` を使うので **`<Suspense>` で包むこと**。外すと
+> `/request/post` が静的からデフォルト動的に落ちる (ビルド出力の `○` が `ƒ` になったら疑う)。
 
 `index_long.html` にフォームは無いため、取材 LP のフォーム部品は投稿記事 LP から
 `.lp-long` パレットに合わせて移植したもの。
