@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>最大5投稿分のSNS情報を、1本のWeb記事に｜Sayo's Journal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Kaisei+Opti:wght@500;700;800&family=Nunito:wght@400;700;800;900&display=swap');
+:root{--pink:#D86C9B;--pink-deep:#B84F7C;--coral:#F0A3A3;--cream:#FFF6F0;--ivory:#FFFDF8;--gold:#D7B56D;--rose:#F7E1E8;--ink:#332B2E;--soft:#6F6066;--border:#F0DCE3;--shadow:0 20px 50px rgba(184,79,124,.12);--serif:'Kaisei Opti',serif;--sans:'Nunito',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}*{box-sizing:border-box}body{margin:0;color:var(--ink);background:linear-gradient(180deg,#fff 0%,var(--cream) 100%);font-family:var(--sans);line-height:1.75}a{color:inherit;text-decoration:none}.wrap{width:min(1120px,92vw);margin:0 auto}.header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid rgba(240,220,227,.8)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font-family:var(--serif);font-weight:800;font-size:26px;color:var(--pink-deep);letter-spacing:.02em}.navlinks{display:flex;gap:22px;align-items:center;font-weight:800;font-size:14px;color:#514349}.navlinks a:hover{color:var(--pink-deep)}.pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:10px 20px;background:linear-gradient(135deg,var(--pink),var(--coral));color:#fff;box-shadow:0 12px 28px rgba(184,79,124,.18)}.hero{position:relative;overflow:hidden;padding:108px 0 88px;background:radial-gradient(circle at 48% 18%,rgba(216,108,155,.18),transparent 32%),radial-gradient(circle at 84% 72%,rgba(215,181,109,.12),transparent 28%),linear-gradient(180deg,#fff 0%,var(--ivory) 52%,var(--cream) 100%)}.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;filter:blur(4px);pointer-events:none}.hero:before{width:170px;height:170px;left:7%;top:86px;background:rgba(240,163,163,.12)}.hero:after{width:240px;height:240px;right:5%;bottom:34px;background:rgba(216,108,155,.10)}.hero-inner{position:relative;z-index:1;text-align:center}.label{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:999px;border:1px solid rgba(215,181,109,.55);background:rgba(255,255,255,.74);color:#8B6E24;font-size:.86rem;font-weight:800;box-shadow:0 10px 24px rgba(184,79,124,.08)}.jp-hero{margin:28px 0 22px;font-family:var(--serif);font-size:clamp(40px,6vw,72px);line-height:1.35;letter-spacing:.03em;font-weight:800;color:var(--pink-deep);text-shadow:0 8px 24px rgba(184,79,124,.12)}.maincopy{margin:0 auto 16px;max-width:850px;font-family:var(--serif);font-size:clamp(22px,3vw,31px);line-height:1.65;font-weight:700;color:#4F4147}.subcopy{margin:0 auto;max-width:800px;color:var(--soft);font-size:1.04rem;line-height:1.9}.hero-actions{margin-top:34px;display:flex;justify-content:center;gap:14px;flex-wrap:wrap}.btn{display:inline-flex;justify-content:center;align-items:center;border-radius:999px;padding:14px 30px;font-weight:900;box-shadow:0 14px 34px rgba(184,79,124,.14);transition:.25s ease}.btn.main{background:linear-gradient(135deg,var(--pink-deep),var(--pink),var(--coral));color:#fff}.btn.main:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(184,79,124,.22)}.btn.gold{background:#fff;color:#8B6E24;border:2px solid rgba(215,181,109,.62)}.btn.gold:hover{background:#FFF8E8}.section{padding:94px 0}.section:nth-child(even){background:linear-gradient(180deg,#fff 0%,var(--cream) 100%)}.section-title{text-align:center;margin-bottom:46px}.eyebrow{font-family:var(--serif);font-size:24px;color:var(--gold);font-weight:800}.section-title h2{margin:8px 0 14px;font-family:var(--serif);font-size:clamp(29px,4vw,44px);line-height:1.5;color:var(--pink-deep);font-weight:800}.section-title p{margin:0 auto;max-width:780px;color:var(--soft)}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}.card{background:rgba(255,255,255,.94);border:1.5px solid rgba(216,108,155,.18);border-radius:28px;padding:30px;box-shadow:var(--shadow);transition:.25s ease}.card:hover{transform:translateY(-3px);border-color:rgba(216,108,155,.38);box-shadow:0 22px 54px rgba(184,79,124,.16)}.icon{width:56px;height:56px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,#F8DCE8,#fff);box-shadow:0 2px 8px rgba(184,79,124,.08);font-size:28px;margin-bottom:16px}.card h3{margin:0 0 10px;font-family:var(--serif);font-size:25px;color:var(--pink-deep)}.card p{margin:0;color:#5F5358;line-height:1.85}.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.step{position:relative;background:#fff;border:1.5px solid rgba(216,108,155,.18);border-radius:28px;padding:30px;box-shadow:var(--shadow)}.num{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--pink-deep),var(--pink));color:#fff;font-weight:900;margin-bottom:16px}.step b{display:block;font-family:var(--serif);color:var(--pink-deep);font-size:24px;margin-bottom:8px}.step p{margin:0;color:#5F5358}.example-box{background:radial-gradient(circle at 92% 12%,rgba(216,108,155,.12),transparent 30%),linear-gradient(135deg,#fff,var(--cream));border:1.5px solid rgba(216,108,155,.18);border-radius:36px;padding:48px;box-shadow:var(--shadow)}.example-title{display:flex;align-items:center;gap:14px;margin-bottom:22px}.example-title span{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#F8DCE8,#fff);font-size:28px}.example-title h3{margin:0;font-family:var(--serif);font-size:clamp(26px,3.2vw,38px);color:var(--pink-deep)}.post-list{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:28px}.post{background:#fff;border:1px solid var(--border);border-radius:22px;padding:18px;min-height:150px}.post small{display:inline-block;color:var(--gold);font-weight:900;margin-bottom:8px}.post b{display:block;color:#4F4147;line-height:1.55}.post p{font-size:.9rem;color:var(--soft);line-height:1.7;margin:8px 0 0}.transform{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:16px;align-items:stretch}.transform .box{background:#fff;border:1.5px solid rgba(216,108,155,.18);border-radius:26px;padding:26px;box-shadow:var(--shadow)}.transform .arrow{display:grid;place-items:center;color:var(--pink-deep);font-weight:900;font-size:28px}.transform b{display:block;font-family:var(--serif);font-size:23px;color:var(--pink-deep);margin-bottom:8px}.transform p{margin:0;color:#5F5358}.note{margin-top:26px;background:#fff;border:1px dashed rgba(184,79,124,.35);border-radius:18px;padding:18px 22px;color:var(--soft);font-size:.95rem}.banner{text-align:center;padding:48px;border-radius:36px;color:#fff;background:radial-gradient(circle at 10% 12%,rgba(255,255,255,.2),transparent 28%),linear-gradient(135deg,var(--pink-deep),var(--pink),var(--coral));box-shadow:0 26px 66px rgba(184,79,124,.24)}.banner h2{margin:0 0 12px;font-family:var(--serif);font-size:clamp(28px,4vw,42px)}.banner p{margin:0 auto;max-width:760px;color:rgba(255,255,255,.92)}.faqwrap{display:grid;gap:14px;max-width:900px;margin:0 auto}.faq{background:#fff;border:1.5px solid rgba(216,108,155,.18);border-radius:20px;box-shadow:0 12px 28px rgba(184,79,124,.08);overflow:hidden}.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 24px;font-weight:900;color:var(--pink-deep)}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";color:var(--pink);font-size:26px}.faq[open] summary:after{content:"−"}.answer{padding:0 24px 22px;color:#5F5358}.answer p{margin:0}.cta{padding:88px 0;background:linear-gradient(180deg,#fff,var(--cream))}.cta-box{text-align:center;background:#fff;border:1.5px solid rgba(216,108,155,.18);border-radius:40px;padding:54px;box-shadow:var(--shadow)}.cta-box h2{margin:0 0 14px;font-family:var(--serif);font-size:clamp(30px,4vw,44px);color:var(--pink-deep)}.cta-box p{margin:0 auto 28px;max-width:760px;color:var(--soft)}.footer{background:#332B2E;color:#F5EAF0;text-align:center;padding:44px 0}.fbrand{font-family:var(--serif);color:#F0A3C2;font-size:28px;font-weight:800;margin-bottom:6px}.footer p{margin:0;color:#D8CAD0;font-size:.9rem}a:focus,summary:focus,.btn:focus{outline:3px solid var(--coral);outline-offset:3px}@media(max-width:980px){.nav{height:auto;padding:14px 0;align-items:flex-start}.navlinks{display:none}.hero{padding:78px 0 64px}.section{padding:70px 0}.grid3,.grid2,.flow,.post-list{grid-template-columns:1fr}.transform{grid-template-columns:1fr}.transform .arrow{transform:rotate(90deg);padding:2px}.example-box,.cta-box,.banner{padding:34px 22px;border-radius:28px}.btn{padding:16px 32px;font-size:17px}}
+
+/* readability tune requested */
+/* 本文の行間・文字色 */
+body {
+  line-height: 1.9;
+}
+p,
+li,
+.answer,
+.card p,
+.feature p,
+.step p,
+.post p,
+.transform p,
+.note,
+.subcopy,
+.section-title p,
+.cta-box p,
+.banner p {
+  color: #3D3538;
+  line-height: 1.9;
+}
+
+/* サブコピーや補足の読みやすさ */
+.subcopy {
+  line-height: 1.95;
+}
+.card p,
+.feature p {
+  color: #3D3538;
+  line-height: 1.9;
+}
+
+/* カード内の余白 */
+.card {
+  padding: 38px;
+}
+.step {
+  padding: 38px;
+}
+.transform .box {
+  padding: 34px;
+}
+
+/* 見出しと本文の間隔 */
+.card h3 {
+  margin-bottom: 16px;
+}
+.step b,
+.transform b {
+  margin-bottom: 14px;
+}
+
+/* 投稿カードの余白・本文 */
+.post {
+  padding: 22px;
+}
+.post p {
+  color: #3D3538;
+  line-height: 1.85;
+}
+
+/* FAQ回答の安定 */
+.answer {
+  font-size: 16px;
+  line-height: 1.9;
+}
+.answer p {
+  font-size: 16px;
+  color: #3D3538;
+  line-height: 1.9;
+}
+
+/* タブレット時の投稿カード折り返し */
+@media (max-width: 1200px) {
+  .post-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* やや小さめタブレット */
+@media (max-width: 820px) {
+  .post-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* モバイルは1列 */
+@media (max-width: 560px) {
+  .post-list {
+    grid-template-columns: 1fr;
+  }
+  .card,
+  .step,
+  .transform .box {
+    padding: 32px;
+  }
+}
+
+
+/* v3 examples: multiple use cases */
+.example-stack{
+  display:grid;
+  gap:30px;
+}
+.example-box.compact{
+  padding:42px;
+}
+.example-box.compact .post-list{
+  margin-top:24px;
+}
+@media (max-width: 1200px){
+  .example-box.compact .post-list,
+  .example-box .post-list{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+@media (max-width: 820px){
+  .example-box.compact .post-list,
+  .example-box .post-list{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+@media (max-width: 560px){
+  .example-box.compact .post-list,
+  .example-box .post-list{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* v4 policy section */
+#policy{
+  background:
+    radial-gradient(circle at 90% 12%,rgba(216,108,155,.10),transparent 30%),
+    linear-gradient(180deg,#FFFFFF 0%,var(--cream) 100%);
+}
+.policy-box{
+  background:
+    radial-gradient(circle at 8% 12%,rgba(240,163,163,.12),transparent 32%),
+    linear-gradient(135deg,#fff,var(--cream));
+  border:1.5px solid rgba(216,108,155,.18);
+  border-radius:36px;
+  padding:48px;
+  box-shadow:var(--shadow);
+}
+.policy-box h2{
+  margin:8px 0 18px;
+  font-family:var(--serif);
+  font-size:clamp(29px,4vw,44px);
+  line-height:1.5;
+  color:var(--pink-deep);
+  font-weight:800;
+}
+.policy-box p{
+  max-width:860px;
+  color:#3D3538;
+  line-height:1.9;
+  margin:0 0 12px;
+}
+.policy-points{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-top:28px;
+}
+.policy-points div{
+  background:#fff;
+  border:1.5px solid rgba(216,108,155,.18);
+  border-radius:24px;
+  padding:24px;
+}
+.policy-points b{
+  display:block;
+  color:var(--pink-deep);
+  font-family:var(--serif);
+  font-size:20px;
+  margin-bottom:8px;
+}
+.policy-points span{
+  display:block;
+  color:#3D3538;
+  line-height:1.8;
+  font-size:.95rem;
+}
+@media(max-width:980px){
+  .policy-box{padding:34px 22px}
+  .policy-points{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+<header class="header"><div class="wrap nav"><a class="brand" href="#">Sayo’s Journal</a><nav class="navlinks"><a href="#send">送る情報</a><a href="#flow">流れ</a><a href="#example">飲食店の例</a><a href="#reuse">再発信</a><a class="pill" href="#contact">情報を送る</a></nav></div></header>
+<main>
+<section class="hero"><div class="wrap hero-inner"><span class="label">無料記事の使い方</span><h1 class="jp-hero">最大5投稿分のSNS情報を、<br>1本のWeb記事に。</h1><p class="maincopy">SNSに少しずつ投稿していた情報を、あとから見つかる記事として残せます。</p><p class="subcopy">お店の特徴、営業日、店主の人柄、基本情報。1投稿分の小さなお知らせから、最大5投稿分のまとまった情報まで、フォームから送っていただいた内容をSayo’s Journalで要約・整理し、Web記事として掲載します。掲載後は、ほかの記事情報とあわせてSNSや特集で紹介することがあります。</p><div class="hero-actions"><a class="btn main" href="#contact">まずは情報を送る</a><a class="btn gold" href="#flow">流れを見る</a></div></div></section>
+<section class="section" id="send"><div class="wrap"><div class="section-title"><div class="eyebrow">What to Send</div><h2>最大5投稿分の情報を、フォームから。</h2><p>完璧な文章でなくて大丈夫です。投稿のメモ、箇条書き、写真、チラシ、SNSリンクなどをもとに、読みやすく整理します。</p></div><div class="grid3"><div class="card"><div class="icon">🏠</div><h3>基本情報</h3><p>店名・団体名、住所、営業時間、営業日、連絡先、駐車場、予約方法など。</p></div><div class="card"><div class="icon">✨</div><h3>特徴・こだわり</h3><p>何をしている場所なのか、どんな人に来てほしいのか、雰囲気や大切にしていること。</p></div><div class="card"><div class="icon">👤</div><h3>人柄・背景</h3><p>店主・代表者・スタッフの人柄、始めたきっかけ、活動の背景、ちょっとしたエピソード。</p></div></div></div></section>
+<section class="section" id="flow"><div class="wrap"><div class="section-title"><div class="eyebrow">Simple Flow</div><h2>送る、まとまる、もう一度届く。</h2><p>無料記事は、地域の情報をSayo’s Journalに集める入口です。SNSで流れた情報を、Web記事として残し、必要に応じて届け直します。</p></div><div class="flow"><div class="step"><div class="num">1</div><b>フォームから送る</b><p>最大5投稿分のSNS情報、写真、チラシ、SNSリンクなどを送ります。</p></div><div class="step"><div class="num">2</div><b>Web記事にまとまる</b><p>送られた内容をもとに、要約・整理した無料記事を作成し、公開します。</p></div><div class="step"><div class="num">3</div><b>SNSでも再発信</b><p>公開後に掲載URLをお知らせします。ほかの記事情報とあわせて、Sayo’s JournalのSNSや特集で紹介することがあります。</p></div></div></div></section>
+<section class="section" id="example">
+  <div class="wrap">
+    <div class="section-title">
+      <div class="eyebrow">Examples</div>
+      <h2>たとえば、こんな情報を記事にできます。</h2>
+      <p>最大5投稿分までまとめられます。もちろん、1投稿分の小さなお知らせを1本の記事にする使い方でも大丈夫です。</p>
+    </div>
+
+    <div class="example-stack">
+      <div class="example-box">
+        <div class="example-title">
+          <span>🍽️</span>
+          <h3>飲食店さんなら。</h3>
+        </div>
+        <p>ランチ、夜営業、メニュー、店主のこと、営業日のお知らせが別々の投稿になりがちです。それらをまとめて「初めて見る人にも分かる紹介記事」に整えます。</p>
+        <div class="post-list">
+          <div class="post"><small>投稿 1</small><b>お店の特徴</b><p>どんな料理、どんな雰囲気、どんな人におすすめか。</p></div>
+          <div class="post"><small>投稿 2</small><b>営業日・時間</b><p>定休日、ランチ、夜営業、予約の有無など。</p></div>
+          <div class="post"><small>投稿 3</small><b>昼と夜の使い方</b><p>ひとりランチ、家族利用、宴会、仕事帰りなど。</p></div>
+          <div class="post"><small>投稿 4</small><b>店主の人柄</b><p>始めたきっかけ、こだわり、ちょっとしたエピソード。</p></div>
+          <div class="post"><small>投稿 5</small><b>基本情報</b><p>住所、駐車場、支払い方法、問い合わせ先など。</p></div>
+        </div>
+      </div>
+
+      <div class="example-box compact">
+        <div class="example-title">
+          <span>☀️</span>
+          <h3>朝活ルーティーンなら。</h3>
+        </div>
+        <p>教室・サロン・お店の雰囲気を伝えたいときは、日々のルーティーンも記事になります。「どんな朝を過ごせる場所なのか」が伝わると、初めての人もイメージしやすくなります。</p>
+        <div class="post-list">
+          <div class="post"><small>投稿 1</small><b>朝の過ごし方</b><p>開店前、準備、空間づくり、朝の雰囲気。</p></div>
+          <div class="post"><small>投稿 2</small><b>おすすめ利用</b><p>出勤前、家事のあと、ひとり時間、親子利用など。</p></div>
+          <div class="post"><small>投稿 3</small><b>メニュー・体験</b><p>朝限定メニュー、体験内容、持ち物、所要時間。</p></div>
+          <div class="post"><small>投稿 4</small><b>人柄・想い</b><p>なぜ朝の時間を大切にしているのか。</p></div>
+          <div class="post"><small>投稿 5</small><b>利用案内</b><p>営業日、予約、料金、場所、問い合わせ先。</p></div>
+        </div>
+      </div>
+
+      <div class="example-box compact">
+        <div class="example-title">
+          <span>🌿</span>
+          <h3>市民活動・イベントなら。</h3>
+        </div>
+        <p>活動紹介、参加募集、イベント告知、活動報告も、まとめることで「どんな団体なのか」「どう参加できるのか」が伝わりやすくなります。</p>
+        <div class="post-list">
+          <div class="post"><small>投稿 1</small><b>活動内容</b><p>何をしている団体・イベントなのか。</p></div>
+          <div class="post"><small>投稿 2</small><b>参加方法</b><p>対象者、申込、参加費、持ち物など。</p></div>
+          <div class="post"><small>投稿 3</small><b>開催情報</b><p>日時、場所、駐車場、雨天時の対応など。</p></div>
+          <div class="post"><small>投稿 4</small><b>主催者の想い</b><p>始めたきっかけ、大切にしていること。</p></div>
+          <div class="post"><small>投稿 5</small><b>これまでの様子</b><p>過去の活動写真、参加者の声、実績など。</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="transform"><div class="wrap"><div class="section-title"><div class="eyebrow">Transform</div><h2>バラバラの投稿を、探しやすい情報へ。</h2><p>1投稿分でも、最大5投稿分でも大丈夫。必要な情報をまとめると「その場所や活動を知るための記事」になります。</p></div><div class="transform"><div class="box"><b>Instagram投稿</b><p>日々の投稿、営業日のお知らせ、写真、イベント告知、活動報告。1投稿分から最大5投稿分まで。</p></div><div class="arrow">→</div><div class="box"><b>Web記事</b><p>初めて見る人にも分かるように、要約・整理して残します。</p></div><div class="arrow">→</div><div class="box"><b>SNS・特集</b><p>ほかの情報とあわせて、まとめ投稿や特集で届け直します。</p></div></div><div class="note">※SNSや特集での紹介は、内容や時期に応じて行います。必ず再発信を保証するものではありません。写真や文章の使用範囲は、投稿フォームで確認します。</div></div></section>
+<section class="section"><div class="wrap"><div class="banner"><h2>投稿のままで、終わらせない。</h2><p>SNSは今の人に届きやすい。Web記事は、あとから探す人に届きやすい。Sayo’s Journalは、そのあいだをつなぐ場所です。</p></div></div></section>
+<section class="section" id="groups"><div class="wrap"><div class="section-title"><div class="eyebrow">For Who</div><h2>お店だけでなく、団体・イベントにも。</h2><p>地域に関係する情報であれば、飲食店・小売店・教室・市民活動団体・イベント告知などにも使えます。</p></div><div class="grid2"><div class="card"><div class="icon">🌿</div><h3>市民活動団体の場合</h3><p>活動内容、開催日、参加方法、これまでの実績、代表者の想い、募集していることなどを送れます。</p></div><div class="card"><div class="icon">🎪</div><h3>イベントの場合</h3><p>日時、場所、対象者、参加費、申込方法、主催者の紹介、当日の見どころなどをまとめられます。</p></div></div></div></section>
+<section class="section" id="faq"><div class="wrap"><div class="section-title"><div class="eyebrow">FAQ</div><h2>よくある質問</h2></div><div class="faqwrap"><details class="faq"><summary>文章がまとまっていなくても送れますか？</summary><div class="answer"><p>はい。箇条書き、メモ、SNSリンク、チラシの内容などでも大丈夫です。掲載に必要な情報を確認しながら整理します。</p></div></details><details class="faq"><summary>写真は必要ですか？</summary><div class="answer"><p>あると記事にしやすくなります。お店・活動・商品・イベントの様子が分かる写真があれば、フォームから送ってください。</p></div></details><details class="faq"><summary>必ず掲載されますか？</summary><div class="answer"><p>内容を確認したうえで掲載します。地域との関係が薄いもの、公序良俗に反するもの、事実確認が難しいものなどは掲載できない場合があります。</p></div></details><details class="faq"><summary>SNSでも必ず紹介されますか？</summary><div class="answer"><p>必ず紹介を保証するものではありません。内容や時期に応じて、Sayo’s JournalのSNS投稿や特集記事で紹介することがあります。</p></div></details><details class="faq"><summary>対応エリアはどこですか？</summary><div class="answer"><p>飯田市・下伊那地域に関係する情報を中心に受け付けます。開催場所が地域外でも、地域の人・団体・活動に関係する内容は対象になる場合があります。</p></div></details></div></div></section>
+<section class="cta" id="contact"><div class="wrap"><div class="cta-box"><h2>最大5投稿分、送ってみませんか。</h2><p>お店のこと、活動のこと、イベントのこと。まずは分かる範囲で大丈夫です。Sayo’s Journalで、あとから見つかる記事に整えます。</p><a class="btn main" href="#">無料記事の情報を送る</a></div></div></section>
+</main>
+<footer class="footer"><div class="wrap"><div class="fbrand">Sayo’s Journal</div><p>地域の情報を、未来の資産に。</p></div></footer>
+</body></html>

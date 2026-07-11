@@ -1,0 +1,511 @@
+<title>SNS5→Web記事LP 矛盾点まとめ</title>
+<style>
+  :root {
+    --paper: #FCFAF8;
+    --card: #FFFFFF;
+    --ink: #2A252A;
+    --muted: #746B72;
+    --hair: #E6DDE1;
+    --rose: #B84F7C;
+    --rose-soft: #F7EBF1;
+    --amber: #A5711F;
+    --amber-soft: #FAF0DE;
+    --slate: #5A6472;
+    --slate-soft: #EDF0F3;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #1B181C;
+      --card: #232025;
+      --ink: #EDE7EA;
+      --muted: #A399A0;
+      --hair: #3A343A;
+      --rose: #E9A2C0;
+      --rose-soft: #3A2530;
+      --amber: #D8B06B;
+      --amber-soft: #37301F;
+      --slate: #A9B4C2;
+      --slate-soft: #2A2F36;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B181C;
+    --card: #232025;
+    --ink: #EDE7EA;
+    --muted: #A399A0;
+    --hair: #3A343A;
+    --rose: #E9A2C0;
+    --rose-soft: #3A2530;
+    --amber: #D8B06B;
+    --amber-soft: #37301F;
+    --slate: #A9B4C2;
+    --slate-soft: #2A2F36;
+  }
+  :root[data-theme="light"] {
+    --paper: #FCFAF8;
+    --card: #FFFFFF;
+    --ink: #2A252A;
+    --muted: #746B72;
+    --hair: #E6DDE1;
+    --rose: #B84F7C;
+    --rose-soft: #F7EBF1;
+    --amber: #A5711F;
+    --amber-soft: #FAF0DE;
+    --slate: #5A6472;
+    --slate-soft: #EDF0F3;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+    line-height: 1.85;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+  }
+
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .kicker {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rose);
+    font-weight: 700;
+  }
+  h1 {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: 1.95rem;
+    line-height: 1.45;
+    font-weight: 600;
+    text-wrap: balance;
+    letter-spacing: 0.01em;
+  }
+  .standfirst {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.25rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  .verdict {
+    background: var(--rose-soft);
+    border-left: 3px solid var(--rose);
+    padding: 1.15rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .verdict h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--rose);
+  }
+  .verdict p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  h2.rule {
+    margin: 0;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .findings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    counter-reset: f;
+  }
+
+  .finding {
+    background: var(--card);
+    border: 1px solid var(--hair);
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    break-inside: avoid;
+  }
+
+  .finding-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .finding-head::before {
+    counter-increment: f;
+    content: counter(f, decimal-leading-zero);
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .finding-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    flex: 1;
+    min-width: 14rem;
+    text-wrap: balance;
+  }
+
+  .chip {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 0.18rem 0.55rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .chip.fix { background: var(--rose-soft); color: var(--rose); }
+  .chip.decide { background: var(--amber-soft); color: var(--amber); }
+  .chip.note { background: var(--slate-soft); color: var(--slate); }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--hair);
+    border-left: 1px solid var(--hair);
+  }
+  .compare > div {
+    border-right: 1px solid var(--hair);
+    border-bottom: 1px solid var(--hair);
+    padding: 0.8rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .compare .label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .compare .side-lp .label { color: var(--rose); }
+  .compare p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+  .compare .quote {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  }
+  @media (max-width: 34rem) {
+    .compare { grid-template-columns: 1fr; }
+  }
+
+  .why {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .why strong { color: var(--ink); }
+
+  code, .src {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 0.85em;
+  }
+  .src {
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding-top: 0.15rem;
+    border-top: 1px dotted var(--hair);
+  }
+
+  .checklist {
+    background: var(--card);
+    border: 1px solid var(--hair);
+    padding: 1.4rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    break-inside: avoid;
+  }
+  .checklist ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .checklist li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    font-size: 0.92rem;
+  }
+  .box {
+    flex: none;
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 1.5px solid var(--muted);
+    margin-top: 0.42rem;
+  }
+
+  .decision {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .option {
+    border: 1px solid var(--hair);
+    border-left: 3px solid var(--slate);
+    background: var(--card);
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    break-inside: avoid;
+  }
+  .option b { font-size: 0.95rem; }
+  .option p { margin: 0; font-size: 0.88rem; color: var(--muted); }
+
+  footer {
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid var(--hair);
+    padding-top: 1.25rem;
+  }
+
+  @media print {
+    @page { margin: 16mm 14mm; }
+    body { background: #fff; color: #000; font-size: 10.5pt; line-height: 1.7; }
+    .sheet { max-width: none; padding: 0; gap: 1.6rem; }
+    .finding, .checklist, .option { box-shadow: none; }
+    .verdict { background: none; border-left: 3px solid #000; }
+    .chip { border: 1px solid #666; background: none !important; color: #000 !important; }
+    a { color: #000; text-decoration: none; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <span class="kicker">Landing Page Audit</span>
+    <h1>「最大5投稿分のSNS情報を、1本のWeb記事に」LP<br>— 既存フォーム／既存LPとの矛盾点</h1>
+    <p class="standfirst">新しく作ろうとしている <code>index_SNS5web.html</code> と、すでに動いている <code>/request/post</code> のLP・投稿フォームを突き合わせた結果です。</p>
+    <div class="meta">
+      <span>対象：<code>index_SNS5web.html</code>（271行）</span>
+      <span>比較：<code>/request/post</code></span>
+      <span>2026-07-11</span>
+    </div>
+  </header>
+
+  <section class="verdict">
+    <h2>いちばん大きな問題</h2>
+    <p>LPは「メモ・箇条書き・チラシでOK」と何度も約束していますが、<strong>いまのフォームはSNS投稿のURL（必須・1〜5件）しか受け取れません。</strong>自由記述欄は2026-07-07にDBのカラムごと削除済みです。このまま公開すると、読者はスクロールしてフォームに着いた瞬間に「メモを書く欄がない」ことに気づきます。</p>
+  </section>
+
+  <h2 class="rule">矛盾点（重い順）</h2>
+
+  <ol class="findings">
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>メモ・箇条書き・チラシを送る欄が存在しない</h3>
+        <span class="chip fix">要修正</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">LPの記述</span>
+          <p class="quote">「投稿のメモ、箇条書き、写真、チラシ、SNSリンクなどをもとに、読みやすく整理します」</p>
+          <p class="quote">「文章がまとまっていなくても送れますか？ → はい。箇条書き、メモ、SNSリンク、チラシの内容などでも大丈夫です」</p>
+        </div>
+        <div>
+          <span class="label">実装の実際</span>
+          <p>送信できるのは <strong>SNS投稿のURL（必須・1〜5件）</strong>／種別／「その他」補足200字／電話・メール／公開希望／画像／同意 のみ。<strong>自由記述欄はありません。</strong></p>
+        </div>
+      </div>
+      <p class="src">src/lib/inquiry-schema.ts:47（sns_urls は .min(1) で必須）／ supabase/migrations/20260707120000_drop_mini_inquiries_message.sql（message カラムを DROP 済み）</p>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>チラシは送れない（画像2枚まで・PDF不可）</h3>
+        <span class="chip fix">要修正</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">LPの記述</span>
+          <p class="quote">「写真、チラシ」を送れるものとして繰り返し提示。「最大5投稿分」の情報量を前提にしている。</p>
+        </div>
+        <div>
+          <span class="label">実装の実際</span>
+          <p>画像は<strong>2枚まで</strong>。許可形式は jpeg / png / webp / heic / heif で、<strong>PDFは弾かれます。</strong>5投稿分を謳って写真2枚は量的にも合いません。</p>
+        </div>
+      </div>
+      <p class="src">src/lib/inquiry-schema.ts:132-140（INQUIRY_IMAGE_MAX_COUNT = 2）</p>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>「最大5投稿分」の意味がズレている</h3>
+        <span class="chip fix">要修正</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">LPの記述</span>
+          <p>「投稿1＝お店の特徴／投稿2＝営業日・時間／投稿3＝昼と夜の使い方／投稿4＝店主の人柄／投稿5＝基本情報」＝<strong>5テーマ分の情報を書いて送る</strong>ように読める。</p>
+        </div>
+        <div>
+          <span class="label">実装の実際</span>
+          <p><strong>すでに投稿済みのSNS投稿のURLを最大5本貼る</strong>だけ。数字の5は偶然一致していますが、行為が別物です。「投稿1に営業日を書く」ことはできません。</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>「無料記事」という名称を使っている（命名ルール違反）</h3>
+        <span class="chip fix">要修正</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">LPの記述</span>
+          <p>「<strong>無料記事</strong>の使い方」（ヒーロー）／「<strong>無料記事</strong>は、地域の情報を集める入口です」／「要約・整理した<strong>無料記事</strong>を作成し」／CTAボタン「<strong>無料記事</strong>の情報を送る」— 計4箇所。</p>
+        </div>
+        <div>
+          <span class="label">決めてあるルール</span>
+          <p>2026-07-08に<strong>「名称としての『無料記事』は全廃 → 『投稿記事』に統一」</strong>と決定済み。「無料」を使ってよいのは訴求として効く4箇所（ヒーロー主コピー／「なんで無料で掲載できるの？」見出し／同本文／送信欄の注記）だけ。</p>
+        </div>
+      </div>
+      <p class="src">CLAUDE.md ／ .claude/rules/implementation-status.md に明記</p>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>送れる本数の約束が食い違う</h3>
+        <span class="chip decide">要判断</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">新LPの記述</span>
+          <p class="quote">「1投稿分の小さなお知らせを1本の記事にする使い方でも大丈夫です」→ 小さいものを何度でも送っていいように読める。</p>
+        </div>
+        <div>
+          <span class="label">既存LPのFAQ</span>
+          <p class="quote">「何本まで送れますか？ → <strong>同一の個人・団体につき月1本を目安</strong>に受け付けます」</p>
+        </div>
+      </div>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>対象読者とトーンが別物（同じフォームなのに）</h3>
+        <span class="chip decide">要判断</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">新LP</span>
+          <p>「初めて見る人にも分かる紹介記事に整えます」「店主の人柄」「お店だけでなく団体・イベントにも」＝<strong>事業者・団体の集客ツール</strong></p>
+        </div>
+        <div>
+          <span class="label">/request/post</span>
+          <p>「あなたの言葉が、地域の記録になる」「告知も、自慢も、失敗談も」「地域の掲示板」＝<strong>地域の個人</strong></p>
+        </div>
+      </div>
+      <p class="why">矛盾というより「<strong>同じフォームなのに別商品に見える</strong>」問題。2枚を並べるのか、1枚に統合するのかの判断に直結します。</p>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>掲載条件・対応エリアの文言が二重管理になる</h3>
+        <span class="chip note">確認</span>
+      </div>
+      <div class="compare">
+        <div class="side-lp">
+          <span class="label">新LP</span>
+          <p>掲載NG＝「地域との関係が薄いもの、公序良俗に反するもの、事実確認が難しいもの」。対応エリア「<strong>飯田市・下伊那地域</strong>」を明記。</p>
+        </div>
+        <div>
+          <span class="label">/request/post</span>
+          <p>掲載NG＝「誹謗中傷、権利関係が不明な画像、事実確認ができない内容、地域との関係が薄い内容」。<strong>対応エリアのFAQ項目は無し。</strong></p>
+        </div>
+      </div>
+      <p class="why">対応エリアの明示は<strong>新LPのほうが親切</strong>です。既存LPにも足すのがよさそうです。</p>
+    </li>
+
+    <li class="finding">
+      <div class="finding-head">
+        <h3>実装上の衝突（作るときの落とし穴）</h3>
+        <span class="chip note">確認</span>
+      </div>
+      <p class="why">HTMLのクラス名（<code>header</code> <code>hero</code> <code>card</code> <code>flow</code> <code>faq</code> <code>banner</code> <code>cta-box</code>…）は既存2LPと<strong>完全に同名</strong>。<code>.lp-post</code> / <code>.lp-long</code> と同じく3つ目のスコープ（例 <code>.lp-sns5</code>）で必ず包まないと既存LPが壊れます。</p>
+      <p class="why"><code>:root</code> に定義された色変数（<code>--pink:#D86C9B</code> 等）もLP間で衝突するため、スコープクラス側に定義し直す必要があります。</p>
+      <p class="why">CTAボタンが <code>href="#"</code> でフォーム未接続。サイト本体（トップ／ブログ／ギャラリー／About）への内部リンクがゼロで<strong>SEO的に孤立</strong>します（既存2LPは内部リンクあり）。</p>
+      <p class="why">Google Fontsを <code>@import</code> で外部読み込み（Kaisei Opti / Nunito）。既存LPは next/font でセルフホストしているので方針を揃える必要があります。</p>
+    </li>
+
+  </ol>
+
+  <h2 class="rule">先に決めること</h2>
+
+  <div class="decision">
+    <div class="option">
+      <b>A. LPを実装に合わせる（文言を直す）</b>
+      <p>「もう投稿済みのSNS投稿を、最大5本ぶんURLで送るだけ」と言い切る。メモ・チラシの記述を削る。DB変更なし、いちばん早い。</p>
+    </div>
+    <div class="option">
+      <b>B. フォームに自由記述欄を戻す</b>
+      <p>message カラムを nullable で復活させ、メモ・箇条書きを書けるようにする。2026-07-07 に「SNSに投稿している人に絞る」として消した判断を巻き戻すことになる。</p>
+    </div>
+    <div class="option">
+      <b>C. 両方（URL必須のまま、任意の補足メモ欄を足す）</b>
+      <p>SNS URLは必須のまま、任意の「補足メモ」欄を追加。DBに1カラム追加。ハイブリッド。</p>
+    </div>
+  </div>
+
+  <div class="checklist">
+    <b>そのうえで、ページ構成の判断</b>
+    <ul>
+      <li><span class="box"></span><span><b>独立LPとして新規作成</b> — フォームは既存の submitMiniInquiry を再利用。お店や団体に<strong>直接URLを渡す営業ツール</strong>として使うなら、これが最適。</span></li>
+      <li><span class="box"></span><span><b>/request/post に事例セクションとして統合</b> — 「飲食店なら／朝活なら／市民活動なら」の3事例を既存LPに足す。検索やサイト内から来る人が主なら、1枚を強くするほうが効く（既存LPは理念が厚く「で、何を送ればいいの？」が薄い）。</span></li>
+      <li><span class="box"></span><span><b>/request/post からリンクする</b> — 迷っていた案。LPからLPへ送るとフォームまでの距離が伸びるため、通常はコンバージョンが落ちる。おすすめしません。</span></li>
+    </ul>
+  </div>
+
+  <footer>
+    判断の分かれ目は「<b>誰に、どこで見せるか</b>」です。直接渡す営業ツールなら独立LP、検索・サイト内導線なら統合。まずここを決めれば、あとは文言調整で片づきます。
+  </footer>
+
+</div>
