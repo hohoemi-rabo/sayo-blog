@@ -4,7 +4,7 @@ import { SITE_CONFIG } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: `ご相談を受け付けました | ${SITE_CONFIG.name}`,
-  description: '無料記事のご相談を受け付けました。3 日以内にご連絡いたします。',
+  description: '投稿記事のご相談を受け付けました。3 日以内にご連絡いたします。',
   robots: { index: false, follow: false },
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post/thanks`,

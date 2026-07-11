@@ -5,14 +5,14 @@ import { JsonLd } from '@/lib/structured-data'
 import { MiniLpForm } from './_components/MiniLpForm'
 
 export const metadata: Metadata = {
-  title: '無料記事を掲載する',
+  title: '投稿記事を掲載する',
   description:
     '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで、紹介したい SNS 投稿の URL を送るだけで大丈夫です。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post`,
   },
   openGraph: {
-    title: `無料記事を掲載する | ${SITE_CONFIG.name}`,
+    title: `投稿記事を掲載する | ${SITE_CONFIG.name}`,
     description:
       '飯田下伊那の情報を、あとから見つかる記事に。告知・イベント・ご近所の話まで、無料で掲載できます。',
     url: `${SITE_CONFIG.url}/request/post`,
@@ -23,11 +23,11 @@ export const metadata: Metadata = {
 // FAQ 構造化データ (リッチリザルト候補)
 const FAQ_ITEMS = [
   {
-    q: '無料記事は誰でも送れますか？',
+    q: '投稿記事は誰でも送れますか？',
     a: '飯田下伊那に関係する情報であれば、個人・店舗・団体・イベント主催者など、どなたでも送っていただけます。',
   },
   {
-    q: '無料記事は必ず掲載されますか？',
+    q: '投稿記事は必ず掲載されますか？',
     a: '必ず掲載されるものではありません。内容確認のうえ、掲載可否は運営側で判断します。',
   },
   {
@@ -69,7 +69,7 @@ export default function MiniRequestLpPage() {
             Sayo&apos;s<br />Journal
           </Link>
           <nav className="navlinks">
-            <a href="#about">無料記事とは</a>
+            <a href="#about">投稿記事とは</a>
             <a href="#contents">できること</a>
             <a href="#benefits">メリット</a>
             <a href="#flow">掲載方法</a>
@@ -122,7 +122,7 @@ export default function MiniRequestLpPage() {
         <div className="wrap">
           <div className="section-title">
             <div className="eyebrow">About</div>
-            <h2>無料記事は、地域情報が集まる入口。</h2>
+            <h2>投稿記事は、地域情報が集まる入口。</h2>
             <p>
               Sayo&apos;s Journalは、飯田下伊那の「今」を集め、検索しやすく、見返しやすく整える地域情報サイトです。
             </p>
@@ -155,7 +155,7 @@ export default function MiniRequestLpPage() {
         <div className="wrap">
           <div className="section-title">
             <div className="eyebrow">Contents</div>
-            <h2>無料記事でできること</h2>
+            <h2>投稿記事でできること</h2>
             <p>
               告知やイベント情報だけでなく、地域の小さな出来事や活動の記録も掲載できます。
             </p>
@@ -178,7 +178,7 @@ export default function MiniRequestLpPage() {
             </div>
           </div>
           <p className="note">
-            ※無料記事は受付状況により掲載時期を調整する場合があります。掲載可否は内容確認のうえ、運営側で判断します。
+            ※投稿記事は受付状況により掲載時期を調整する場合があります。掲載可否は内容確認のうえ、運営側で判断します。
           </p>
         </div>
       </section>
@@ -188,7 +188,7 @@ export default function MiniRequestLpPage() {
           <div className="section-title">
             <div className="eyebrow">Benefits</div>
             <h2>SNSで流れた情報を、あとから見つかる記事に。</h2>
-            <p>無料記事を掲載すると、情報の届き方が少し変わります。</p>
+            <p>投稿記事を掲載すると、情報の届き方が少し変わります。</p>
           </div>
           <div className="benefit-grid">
             <div className="benefit">
@@ -258,13 +258,13 @@ export default function MiniRequestLpPage() {
           <div className="why-free">
             <h3>なんで無料で掲載できるの？</h3>
             <p>
-              Sayo’s Journalは、地域情報が集まる場所を育てていくため、まずは無料記事の掲載から始めます。
+              Sayo’s Journalは、地域情報が集まる場所を育てていくため、投稿記事の掲載を無料にしています。
             </p>
             <p>
-              無料記事が増えることで、サイト全体の情報量が増え、見に来る人にとっても、発信する人にとっても使いやすい場所になります。
+              投稿記事が増えることで、サイト全体の情報量が増え、見に来る人にとっても、発信する人にとっても使いやすい場所になります。
             </p>
             <p>
-              また、より深く伝えたい方には有料取材記事を、Web機能を導入したい企業・団体には機能導入の相談窓口を用意しています。無料記事は、Sayo’s Journalを一緒に育てるための入口です。
+              また、より深く伝えたい方には有料の取材記事を、Web機能を導入したい企業・団体には機能導入の相談窓口を用意しています。投稿記事は、Sayo’s Journalを一緒に育てるための入口です。
             </p>
           </div>
         </div>
@@ -285,8 +285,8 @@ export default function MiniRequestLpPage() {
         <div className="wrap">
           <div className="section-title">
             <div className="eyebrow">Flow</div>
-            <h2>無料記事掲載方法</h2>
-            <p>無料記事の掲載は、この流れで進みます。</p>
+            <h2>投稿記事の掲載方法</h2>
+            <p>投稿記事の掲載は、この流れで進みます。</p>
           </div>
           <div className="flow">
             <div className="step">
