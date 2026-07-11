@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { RotateCcw, ArrowLeft } from 'lucide-react'
+import { RotateCcw, ArrowLeft, Layers } from 'lucide-react'
 import {
   ANGLE_QUESTIONS,
   findArticleAngle,
@@ -45,6 +45,23 @@ export function AngleDiagnosis() {
   function restart() {
     setHistory(['q1'])
     setResult(null)
+  }
+
+  /**
+   * 7 型の一覧へ送り、自分の型のカードをハイライトして着地させる。
+   * 結果パネルと型カードは中身が同じなので、単に飛ばすだけだと同じ文章を 2 度読ませることになる。
+   * 「ほかと見くらべる」ための移動だと分かるように、着地先を光らせる。
+   */
+  function compare(key: ArticleAngleKey) {
+    const card = document.getElementById(key)
+    if (!card) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    card.scrollIntoView({
+      behavior: reduced ? 'auto' : 'smooth',
+      block: 'center',
+    })
+    card.classList.add('is-current')
+    window.setTimeout(() => card.classList.remove('is-current'), 2600)
   }
 
   return (
@@ -92,10 +109,20 @@ export function AngleDiagnosis() {
             >
               この型で投稿記事を送る
             </Link>
-            <button type="button" className="btn gold" onClick={back}>
+            <button
+              type="button"
+              className="btn gold"
+              onClick={() => compare(angle.key)}
+            >
+              <Layers className="h-4 w-4" /> ほかの型と見くらべる
+            </button>
+          </div>
+
+          <div className="dg-subactions">
+            <button type="button" className="dg-back" onClick={back}>
               <ArrowLeft className="h-4 w-4" /> 前の質問にもどる
             </button>
-            <button type="button" className="btn gold" onClick={restart}>
+            <button type="button" className="dg-back" onClick={restart}>
               <RotateCcw className="h-4 w-4" /> もう一度診断する
             </button>
           </div>
