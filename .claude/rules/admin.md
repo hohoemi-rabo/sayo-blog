@@ -56,7 +56,9 @@ paths:
 - `/admin/inquiries` — 依頼管理 (force-dynamic, `?tab=mini|long` 切替 + 件数バッジ)
   - ミニ記事 (mini_inquiries) / ロング記事 (long_inquiries) を別タブで一覧表示
   - ミニ (Ticket 41): フィルタ + 詳細ダイアログ (内部メモ編集 / ステータス操作 / 削除) + AI 記事化 (`/admin/inquiries/[id]/generate`)
-  - ロング (Ticket 42): フィルタ + 詳細ダイアログ (依頼情報 + **案件管理 = 7段階ステータス / 取材日 (scheduled_at) / 金額 (fee_amount) / 既存記事との紐付け Select + 「新規記事を作成」導線**) + 内部メモ + 削除
+  - ロング (Ticket 42): フィルタ + 詳細ダイアログ (依頼情報 + **希望プラン (desired_plan)** + **案件管理 = 7段階ステータス / 取材日 (scheduled_at) / 金額 (fee_amount) / 既存記事との紐付け Select + 「新規記事を作成」導線**) + 内部メモ + 削除
+    - **希望プラン (`desired_plan`) と 金額 (`fee_amount`) は役割が別**: 前者は依頼者が公開 LP で選んだ希望 (monitor 500円 / standard 1万円 / deep 3万円 / undecided 未定)、後者は紗代さんが後から入れる**確定金額**。プランのラベルは `src/lib/inquiries.ts` の `LONG_PLAN_LABELS` (LP の `LONG_PLAN_OPTIONS` と必ず対応させる)
+    - 公開フォームは **取材記事 LP `/request/interview`** (内部コード名は `long` のまま。旧 `/request/long` は 301)
   - `?open={id}` で該当依頼の詳細ダイアログを自動オープン (メール通知リンク用、mini/long 両方)
   - Sidebar「依頼管理」に未処理 (pending) 件数の赤バッジ = mini.pending + long.pending 合算 (admin layout が getInquiryCounts で注入)
   - データ取得は `actions.ts` ('use server')、同期ヘルパー (parseInquiryTab / InquiryCounts / InquiryMutationResult) は `filters.ts` に分離
