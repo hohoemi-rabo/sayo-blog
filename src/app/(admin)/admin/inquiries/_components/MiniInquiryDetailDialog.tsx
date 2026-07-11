@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Textarea } from '@/components/ui/Textarea'
 import { useToast } from '@/components/ui/Toast'
 import { InquiryAttachments } from '@/components/admin/InquiryAttachments'
+import { ARTICLE_ANGLE_LABELS } from '@/lib/article-angles'
 import type { MiniInquiry, MiniInquiryStatus } from '@/lib/types'
 import {
   MINI_INQUIRY_TYPE_LABELS,
@@ -141,6 +142,13 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
                     </li>
                   ))}
                 </ul>
+              )}
+            </Row>
+            <Row label="切り口">
+              {inquiry.article_angle ? (
+                ARTICLE_ANGLE_LABELS[inquiry.article_angle]
+              ) : (
+                <span className="text-text-secondary">診断なし</span>
               )}
             </Row>
             <Row label="チラシ・写真">

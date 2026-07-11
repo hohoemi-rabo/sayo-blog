@@ -68,6 +68,7 @@ src/
 /privacy                       → Privacy Policy
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
 /request/post                  → 投稿記事 LP + 情報提供フォーム (公開名「投稿記事」/ 内部コード名 mini)。独立 LP ((lp) ルートグループ, 独自 Header/Footer)。ターゲットは **SNS に投稿している人 + チラシで宣伝している人**。**SNS URL (最大5) か チラシ・写真の添付 (最大2点/画像・PDF) の「どちらか一方」が必須** + BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD。旧 /request/mini は 301 (next.config.ts redirects)
+/request/post/guide            → 投稿記事の切り口診断 (7型)。「業種」ではなく「どの魅力を前に出すか」で分岐し、**送る5投稿の選び方**を示す。結果は `/request/post?angle=...` に引き継がれ mini_inquiries.article_angle に保存。7型の中身は静的 HTML でも出す (JS 内だけだとクロールされないため)。CSS は `/request/post` の layout を継承 = `.lp-post` スコープを共有
 /request/post/thanks           → 投稿記事 送信完了画面 (noindex, LP トーン)
 /request/interview             → 取材記事 LP + 相談フォーム (公開名「取材記事」/ 内部コード名 long)。独立 LP ((lp) ルートグループ)。プラン3種提示 + 希望プラン選択 (desired_plan) + 種別ごと条件出し分け + BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD。旧 /request/long は 301 (next.config.ts redirects)
 /request/interview/thanks      → 取材記事 送信完了画面 (noindex, LP トーン)

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ARTICLE_ANGLE_KEYS } from '@/lib/article-angles'
 import type {
   ClientType,
   LongInquiryPlan,
@@ -52,6 +53,8 @@ export const miniInquirySchema = z
      * DB には保存しない。
      */
     attachment_count: z.coerce.number().int().min(0),
+    /** 切り口診断 (/request/post/guide) の結果。診断を通らない人が大半なので任意 */
+    article_angle: z.enum(ARTICLE_ANGLE_KEYS).nullable(),
     inquiry_type: z.enum(MINI_INQUIRY_TYPES, { error: '種別を選択してください' }),
     inquiry_type_other: z
       .string()

@@ -12,6 +12,7 @@ import {
 } from '@/lib/inquiry-schema'
 import { uploadInquiryImages, InquiryImageError } from '@/lib/inquiry-images'
 import { MINI_INQUIRY_TYPE_LABELS, isPdfAttachment } from '@/lib/inquiries'
+import { ARTICLE_ANGLE_LABELS } from '@/lib/article-angles'
 
 export type SubmitMiniInquiryResult =
   | { ok: true }
@@ -82,6 +83,7 @@ export async function submitMiniInquiry(
   const raw = {
     sns_urls: rawUrls,
     attachment_count: files.length,
+    article_angle: (formData.get('article_angle') as string) || null,
     inquiry_type: formData.get('inquiry_type'),
     inquiry_type_other: (formData.get('inquiry_type_other') as string) || null,
     phone: formData.get('phone'),
@@ -133,6 +135,7 @@ export async function submitMiniInquiry(
     inquiry_type: data.inquiry_type,
     inquiry_type_other:
       data.inquiry_type === 'other' ? data.inquiry_type_other : null,
+    article_angle: data.article_angle,
     phone: data.phone,
     email: data.email || null,
     publish_preference: data.publish_preference,
@@ -157,6 +160,11 @@ export async function submitMiniInquiry(
   const pdfCount = imageUrls.filter(isPdfAttachment).length
   const summary = [
     `種別: ${MINI_INQUIRY_TYPE_LABELS[data.inquiry_type]}`,
+    `切り口: ${
+      data.article_angle
+        ? ARTICLE_ANGLE_LABELS[data.article_angle]
+        : '診断なし'
+    }`,
     `SNS URL: ${data.sns_urls.length} 件`,
     `添付: ${imageUrls.length} 点${pdfCount > 0 ? `（うち PDF ${pdfCount} 点）` : ''}`,
     `連絡先: ${data.phone}${data.email ? ` / ${data.email}` : ''}`,

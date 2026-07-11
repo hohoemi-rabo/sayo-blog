@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/site-config'
@@ -166,6 +167,19 @@ export default function MiniRequestLpPage() {
           <p className="note">
             ※どちらも手元にある方は、両方送っていただいて構いません。情報が多いほど、記事は詳しくなります。
           </p>
+
+          <div className="guide-link">
+            <div>
+              <b>どの投稿を送ればいいか迷ったら</b>
+              <p>
+                「どの魅力を前に出すか」で、選ぶべき投稿は変わります。3
+                つほどの質問に答えると、あなたに合う 5 投稿の選び方がわかります。
+              </p>
+            </div>
+            <Link className="btn gold" href="/request/post/guide">
+              🧭 投稿の選び方を診断する
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -397,7 +411,10 @@ export default function MiniRequestLpPage() {
               Journalに送ってください。SNS 投稿の URL を貼るか、チラシを 1
               枚選ぶだけで大丈夫です。
             </p>
-            <MiniLpForm />
+            {/* useSearchParams (?angle=) を読むので Suspense 必須。ページは静的のまま */}
+            <Suspense fallback={null}>
+              <MiniLpForm />
+            </Suspense>
           </div>
         </div>
       </section>

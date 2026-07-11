@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
-import { Plus, X, Link2, FileUp, FileText, Lightbulb } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Plus, X, Link2, FileUp, FileText, Lightbulb, Compass } from 'lucide-react'
 import {
   MINI_INQUIRY_TYPE_LABELS,
   PUBLISH_PREFERENCE_LABELS,
 } from '@/lib/inquiries'
+import { findArticleAngle } from '@/lib/article-angles'
 import {
   INQUIRY_ATTACHMENT_ACCEPT,
   INQUIRY_IMAGE_MAX_BYTES,
@@ -38,6 +40,8 @@ function currentMonth(): string {
 
 export function MiniLpForm() {
   const router = useRouter()
+  // 切り口診断 (/request/post/guide) から ?angle=... で流入したときだけ効く
+  const angle = findArticleAngle(useSearchParams().get('angle'))
   const [isPending, startTransition] = useTransition()
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -144,6 +148,32 @@ export function MiniLpForm() {
       />
 
       {generalError && <div className="lp-alert">{generalError}</div>}
+
+      {/* 診断から来た人だけ: 選んだ切り口を控え、送るべき投稿を思い出せるようにする */}
+      {angle && (
+        <>
+          <input type="hidden" name="article_angle" value={angle.key} />
+          <div className="lp-angle">
+            <div className="lp-angle-head">
+              <Compass className="h-4 w-4" />
+              <b>診断結果: {angle.title}</b>
+              <Link href="/request/post/guide" className="lp-angle-redo">
+                やり直す
+              </Link>
+            </div>
+            <p>{angle.impression}</p>
+            <ol className="lp-angle-picks">
+              {angle.picks.map((pick) => (
+                <li key={pick}>{pick}</li>
+              ))}
+            </ol>
+            <p className="lp-angle-note">
+              この 5
+              つに当てはまる投稿を選んで、下の欄に貼ってください。ぴったりそろわなくても大丈夫です。
+            </p>
+          </div>
+        </>
+      )}
 
       {/* ① 送るもの — SNS の URL か チラシ、どちらか一方でOK */}
       <fieldset className="lp-fieldset">

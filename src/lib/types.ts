@@ -3,6 +3,7 @@
  * These types will be auto-generated once database schema is created
  * Run: npx supabase gen types typescript --project-id nkvohswifpmarobyrnbe > src/lib/database.types.ts
  */
+import type { ArticleAngleKey } from '@/lib/article-angles'
 
 // Post types
 /** 記事の出自 (Ticket 41) — free=紗代さんの自由記事 / mini=ミニ記事依頼 / long=ロング記事(取材) */
@@ -369,6 +370,8 @@ export interface MiniInquiry {
   sns_urls: string[]
   inquiry_type: MiniInquiryType
   inquiry_type_other: string | null
+  /** 切り口診断 (/request/post/guide) の結果。診断を通らなければ null */
+  article_angle: ArticleAngleKey | null
   phone: string
   email: string | null
   publish_preference: PublishPreference

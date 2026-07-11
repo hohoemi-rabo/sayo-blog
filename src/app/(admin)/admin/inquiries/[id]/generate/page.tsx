@@ -8,6 +8,7 @@ import {
   isPdfAttachment,
 } from '@/lib/inquiries'
 import { InquiryAttachments } from '@/components/admin/InquiryAttachments'
+import { ARTICLE_ANGLE_LABELS } from '@/lib/article-angles'
 import { GenerateForm } from './_components/GenerateForm'
 
 export const dynamic = 'force-dynamic'
@@ -53,6 +54,17 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
                 : null}
             </dd>
           </div>
+          {inquiry.article_angle && (
+            <div className="flex gap-2">
+              <dt className="w-20 shrink-0 text-text-secondary">切り口</dt>
+              <dd className="text-text-primary">
+                {ARTICLE_ANGLE_LABELS[inquiry.article_angle]}
+                <span className="ml-2 text-xs text-text-secondary">
+                  （依頼者が診断で選んだ方向性）
+                </span>
+              </dd>
+            </div>
+          )}
           <div className="flex gap-2">
             <dt className="w-20 shrink-0 text-text-secondary">連絡先</dt>
             <dd className="text-text-primary">
