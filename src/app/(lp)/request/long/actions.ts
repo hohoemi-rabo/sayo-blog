@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { sendInquiryNotification } from '@/lib/mailer'
 import { longInquirySchema } from '@/lib/inquiry-schema'
-import { CLIENT_TYPE_LABELS } from '@/lib/inquiries'
+import { CLIENT_TYPE_LABELS, LONG_PLAN_LABELS } from '@/lib/inquiries'
 
 export type SubmitLongInquiryResult =
   | { ok: true }
@@ -57,6 +57,7 @@ export async function submitLongInquiry(
   // 4. Zod
   const raw = {
     client_type: formData.get('client_type'),
+    desired_plan: formData.get('desired_plan'),
     individual_name: (formData.get('individual_name') as string) || null,
     organization_name: (formData.get('organization_name') as string) || null,
     department_name: (formData.get('department_name') as string) || null,
@@ -89,6 +90,7 @@ export async function submitLongInquiry(
     .from('long_inquiries')
     .insert({
       client_type: data.client_type,
+      desired_plan: data.desired_plan,
       individual_name:
         data.client_type === 'individual' ? data.individual_name : null,
       organization_name:
@@ -126,6 +128,7 @@ export async function submitLongInquiry(
         : data.group_name
   const summary = [
     `種別: ${CLIENT_TYPE_LABELS[data.client_type]}`,
+    `希望プラン: ${LONG_PLAN_LABELS[data.desired_plan]}`,
     `依頼者: ${clientName ?? ''}`,
     `担当者: ${data.contact_person}`,
     `連絡先: ${data.phone}${data.email ? ` / ${data.email}` : ''}`,

@@ -20,6 +20,7 @@ import type { LongInquiry, LongInquiryStatus } from '@/lib/types'
 import {
   CLIENT_TYPE_LABELS,
   LONG_INQUIRY_STATUS_LABELS,
+  LONG_PLAN_LABELS,
   formatClientName,
 } from '@/lib/inquiries'
 import {
@@ -191,6 +192,9 @@ export function LongInquiryDetailDialog({
                 {new Date(inquiry.created_at).toLocaleString('ja-JP')}
               </Row>
               <Row label="種別">{CLIENT_TYPE_LABELS[inquiry.client_type]}</Row>
+              <Row label="希望プラン">
+                {LONG_PLAN_LABELS[inquiry.desired_plan]}
+              </Row>
               <Row label="依頼者">{formatClientName(inquiry)}</Row>
               <Row label="担当者">{inquiry.contact_person}</Row>
               <Row label="住所">{inquiry.address}</Row>

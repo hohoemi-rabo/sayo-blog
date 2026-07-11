@@ -138,15 +138,50 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 - 管理画面の記事一覧 `PostList.tsx` でも同フラグでサムネ白黒 + タイトル右に「📅 終了」ラベル
 - フラグ自体は admin の記事編集「公開設定」カード内のチェックボックスで切替
 
-## 投稿記事 LP (/request/post, 内部コード名 mini) — 独自デザインシステム
+## 独立 LP (`(lp)` グループ) — 投稿記事 / 取材記事
 
-`/request/post` (旧 /request/mini, 301 済み) は**サイト本体とは別のビジュアル体系**を持つ独立 LP。サイトの Poetic Psychedelic ではなく、ピンク〜コーラル〜ゴールド + 明朝のチラシ調 (`index_mini.html` プロトタイプ由来)。
+サイト本体とは**別のビジュアル体系**を持つチラシ調の独立 LP が 2 本ある。どちらも
+`index_mini.html` / `index_long.html` (紗代さんと相談したプロトタイプ) の忠実移植。
 
-- **ルートグループ `(lp)`**: サイト共通 `Header`/`Footer` を使わない (`(public)` レイアウトを避けるため別グループ)。`(lp)/layout.tsx` が LP 専用フォント (Cormorant/明朝/Zen Kaku) を next/font で self-host し `.lp-root` でラップ。
-- **CSS スコープ**: 全スタイルは `src/app/(lp)/lp-mini.css` に `.lp-root` プレフィックス付きで定義。App Router のルート単位 CSS 分割により **このルートでしか読み込まれない** → 素の要素セレクタ (`h1` 等) やジェネリックなクラス (`.card`/`.btn`) を使っても他ページに漏れない。サイトのデザインシステム変数 (`#FF6B9D` 等) とは独立。
-- **フォーム**: `MiniLpForm.tsx` は LP クラスで組むが、backend は既存 `submitMiniInquiry` を再利用 (サイト UI 部品 `Input`/`Button` は使わない)。
-- 新しい独立 LP を足す場合はこの `(lp)` グループ + ルートスコープ CSS のパターンを踏襲する。
+| LP | URL | CSS | スコープ | パレット |
+|----|-----|-----|---------|---------|
+| 投稿記事 (内部名 mini) | `/request/post` | `lp-post.css` | `.lp-post` | 鮮やかピンク `#e91e63` |
+| 取材記事 (内部名 long) | `/request/long` | `lp-long.css` | `.lp-long` | くすんだローズ `#C08B8B` |
+
+### ⚠️ CSS スコープ設計 (最重要)
+
+**両 LP はクラス名が完全に同一** (`.hero` `.card` `.btn` `.section` `.faq` `.plan` …) で
+**パレットだけ違う**。そのため:
+
+- `(lp)/layout.tsx` は **フォント変数の提供のみ** (Cormorant / Shippori Mincho / Zen Kaku を
+  next/font で self-host)。**ここで LP の CSS を import してはいけない** (グループ全体に効いて衝突する)。
+- 各 LP の CSS は**ルートごとの layout** で読む:
+  `(lp)/request/post/layout.tsx` → `lp-post.css` + `<div className="lp-post">`
+  `(lp)/request/long/layout.tsx` → `lp-long.css` + `<div className="lp-long">`
+- 全セレクタに `.lp-post` / `.lp-long` プレフィックスを必ず付ける。**プレフィックスを外すと
+  もう片方の LP と衝突する** (クライアント遷移で両方の CSS が DOM に残るケースがあるため、
+  ルート単位の CSS 分割だけでは守れない)。
+- 新しい独立 LP を足すときも、この「専用スコープクラス + ルート layout で CSS を読む」形を踏襲する。
+
+### `lp-long.css` の注意 (プロトタイプ由来)
+
+`index_long.html` は**テーマを4回上書きで重ねた作業ファイル** (`:root` が 4 つ)。完成形は
+4 層の**カスケード結果**で決まる (先行レイヤーにしか無い `.wrap` `.flow` `.planwrap` `h1` 等も生きている)。
+そのため **層を統合せず定義順をそのまま保持**している。整理したい場合はブラウザで実効スタイルを
+確認しながら行うこと。最終的に効くパレットは `--magenta:#C08B8B` / `--coral:#E7A1A1` / `--blush:#F6E6E2`。
+
+### フォーム
+
+LP のクラス (`.lp-form` `.lp-input` `.lp-choice` …) で組むが、**backend は既存 Server Action を
+そのまま再利用**する (サイト UI 部品 `Input`/`Button` は使わない)。
+- `MiniLpForm.tsx` → `submitMiniInquiry`
+- `LongLpForm.tsx` → `submitLongInquiry` (種別で必須項目を出し分け + 希望プラン選択 `.lp-plan-choice`)
+
+`index_long.html` にフォームは無いため、取材 LP のフォーム部品は投稿記事 LP から
+`.lp-long` パレットに合わせて移植したもの。
+
 - framer-motion 不使用の方針は LP でも同じ (CSS のみ)。
+- LP は SEO 的に孤立しないよう、ヘッダー/フッターからサイト本体へ内部リンクする (`.nav-site` / `.footer-links`)。
 
 ## Photo Gallery (/gallery)
 

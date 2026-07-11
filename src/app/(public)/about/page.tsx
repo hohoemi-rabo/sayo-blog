@@ -79,7 +79,7 @@ const pillars = [
   },
   {
     icon: PenLine,
-    title: 'ロング記事',
+    title: '取材記事',
     price: '500円〜',
     description:
       '紗代が直接取材にうかがって書く、じっくり丁寧な記事。お店・団体・活動の魅力を深くお伝えします。',

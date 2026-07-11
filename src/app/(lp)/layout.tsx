@@ -3,13 +3,16 @@ import {
   Shippori_Mincho,
   Zen_Kaku_Gothic_New,
 } from 'next/font/google'
-import './lp-mini.css'
 
 /**
  * LP 専用ルートグループのレイアウト。
  * サイト共通 Header / Footer は使わず、独立したチラシ型ページとして扱う。
  * (public) レイアウトの Header/Footer を回避するため別グループに分離している。
- * フォントは LP 独自 (明朝 + Cormorant + Zen Kaku) を next/font で self-host。
+ *
+ * ここでは **フォント変数の提供だけ** を行う。各 LP のスタイルは衝突を避けるため
+ * ルートごとの layout で読み込む (投稿記事 = lp-post.css / .lp-post、
+ * 取材記事 = lp-long.css / .lp-long)。両 LP はクラス名が同一 (.hero/.card/.btn 等) で
+ * パレットだけ違うため、共通レイアウトで片方の CSS を読むと衝突する。
  */
 
 const cormorant = Cormorant_Garamond({
@@ -36,7 +39,7 @@ const zenKaku = Zen_Kaku_Gothic_New({
 export default function LpLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className={`lp-root ${cormorant.variable} ${shippori.variable} ${zenKaku.variable}`}
+      className={`${cormorant.variable} ${shippori.variable} ${zenKaku.variable}`}
     >
       {children}
     </div>

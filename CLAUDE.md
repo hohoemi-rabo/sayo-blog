@@ -33,7 +33,8 @@ src/
 ├── app/
 │   ├── layout.tsx           # Root layout (fonts + global metadata)
 │   ├── (chat)/              # AI Chat page (公開 Header + main 専用高さ, no Footer)
-│   ├── (lp)/                # 独立 LP (サイト共通 Header/Footer 不使用, 独自フォント/CSS)。現在 /request/post (投稿記事, 内部コード名は mini)
+│   ├── (lp)/                # 独立 LP × 2 (サイト共通 Header/Footer 不使用)。/request/post (投稿記事=mini) と /request/long (取材記事=long)
+│   │                        # ⚠️ 両LPはクラス名が同一・パレットのみ差異。CSS はルート毎 layout で読み .lp-post / .lp-long にスコープ (frontend.md 参照)
 │   ├── (public)/            # Public pages (Header + Footer)
 │   │   ├── page.tsx         # Home (Hero + Pick Up 6 posts)
 │   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
@@ -68,8 +69,8 @@ src/
 /about                         → About (FUNE profile + 3つの記事のかたち + 情報窓口 CTA)
 /request/post                  → 投稿記事 LP + 情報提供フォーム (公開名「投稿記事」/ 内部コード名 mini)。独立 LP ((lp) ルートグループ, 独自 Header/Footer)。SNS URL 必須(最大5) + BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD。旧 /request/mini は 301 (next.config.ts redirects)
 /request/post/thanks           → 投稿記事 送信完了画面 (noindex, LP トーン)
-/request/long                  → 取材依頼フォーム (種別ごと条件出し分け + BotID + Gmail SMTP 通知)
-/request/long/thanks           → ロング記事 送信完了画面 (noindex)
+/request/long                  → 取材記事 LP + 相談フォーム (公開名「取材記事」/ 内部コード名 long)。独立 LP ((lp) ルートグループ)。プラン3種提示 + 希望プラン選択 + 種別ごと条件出し分け + BotID + Zod + Gmail SMTP 通知 + FAQ JSON-LD
+/request/long/thanks           → 取材記事 送信完了画面 (noindex, LP トーン)
 /admin/                        → Admin dashboard
 /admin/ai/knowledge            → AI Knowledge management
 /admin/ai/tags                 → AI Prompt Tags management
@@ -146,8 +147,9 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-07-08 (**公開名「投稿記事」で確定** = 旧「ミニ記事/無料記事」。①URL を `/request/mini` → `/request/post` に移設 (next.config.ts で旧URL・旧thanks を 301)。公開表示の「ミニ記事」→「投稿記事」(`ArticleTypeBadge` / About / LP)。②LP 本文の「無料」を 18箇所 → 5箇所に整理: 「無料記事」という**名称としての使用は全廃**し「投稿記事」に統一、「無料」は訴求として効く所だけ残す (ヒーロー主コピー / 「なんで無料で掲載できるの？」見出し + 同本文 / フォーム送信欄の注記。metadata・OG description は SEO 用に温存で本文非表示)。③**内部コード名 (mini_inquiries / MiniInquiry / article_type='mini' / 管理画面ラベル / mini-article-* 等) は mini のまま** = ユーザー不可視のため改名せず大改修を回避)
-**Prev**: 2026-07-07c (記事の読み方 UX: ①要約カード下部に本文への橋渡し案内 (`SummarySlider` 内, 要約があるときだけ表示)。②本文を「続きを読む」で折りたたみ = `src/components/ExpandableArticleBody.tsx` (全文は SSR HTML のまま = SEO 安全, CSS で冒頭クランプ + フェード, 短文は実測して非折りたたみ, TOC は `EXPAND_EVENT` で自動展開)。あわせてミニフォームの種別「その他」に近所話ガイド + 補足欄を 200字 textarea 化。詳細は `.claude/rules/implementation-status.md`)
-**Prev2**: 2026-07-07b (ミニ記事フォームの「伝えたいこと」自由記述欄を廃止。ターゲット=「SNS に投稿している人」に絞り、**SNS URL を必須(最低1件)に戻し** message カラムを DROP (migration `20260707120000_drop_mini_inquiries_message.sql`, テーブル 0 行のため無損失)。フォーム/Zod/actions/types/管理画面表示/LP コピー(「URL がなくても大丈夫」→「SNS 投稿の URL を送るだけで大丈夫」)を同期)
-**Prev3**: 2026-07-07 (①公開一覧のクエリ共通化 + ストリーミング化: posts 一覧クエリを `src/lib/post-queries.ts::fetchPublishedPosts` に集約 (/blog・/[category]・/api/posts の3重複を解消)。blog/category/search を実ストリーミング化。②DB ハードニング: migration `20260706150000_postgres_best_practices_hardening.sql` — 管理専用 RPC の anon EXECUTE 剥奪 / 匿名 INSERT ポリシー削除 / 全関数 search_path 固定 / RLS ポリシーの TO スコープ化 / FK インデックス追加。詳細は `.claude/rules/database.md`)
+**Updated**: 2026-07-08c (**取材記事 LP 化**: `/request/long` を `index_long.html` 忠実再現の独立 LP に置き換え ((public)→(lp) へ移設、URL 据え置きでリダイレクト不要)。①**CSS スコープ設計を刷新** — 両 LP はクラス名が同一でパレットのみ差異のため、`(lp)/layout.tsx` からの CSS import をやめ、ルート毎 layout で `lp-post.css`(`.lp-post`) / `lp-long.css`(`.lp-long`) を読む形に。旧 `lp-mini.css`/`.lp-root` は改名。②**希望プラン欄を新設** (migration `20260708120000`, `long_inquiries.desired_plan` = monitor/standard/deep/undecided + CHECK)。フォーム選択 + 通知メール + 管理詳細に表示。③**公開名「取材記事」で統一** (About の「ロング記事」を修正)。④sitemap に /request/long 追加、未使用 ComingSoon.tsx 削除。⚠️ `index_long.html` はテーマ4層の重ね書きファイルで、完成形はカスケード結果 = 層を統合せず定義順を保持。詳細は `.claude/rules/frontend.md`)
+**Prev**: 2026-07-08 (**公開名「投稿記事」で確定** = 旧「ミニ記事/無料記事」。①URL を `/request/mini` → `/request/post` に移設 (next.config.ts で旧URL・旧thanks を 301)。公開表示の「ミニ記事」→「投稿記事」(`ArticleTypeBadge` / About / LP)。②LP 本文の「無料」を 18箇所 → 5箇所に整理: 「無料記事」という**名称としての使用は全廃**し「投稿記事」に統一、「無料」は訴求として効く所だけ残す (ヒーロー主コピー / 「なんで無料で掲載できるの？」見出し + 同本文 / フォーム送信欄の注記。metadata・OG description は SEO 用に温存で本文非表示)。③**内部コード名 (mini_inquiries / MiniInquiry / article_type='mini' / 管理画面ラベル / mini-article-* 等) は mini のまま** = ユーザー不可視のため改名せず大改修を回避)
+**Prev2**: 2026-07-07c (記事の読み方 UX: ①要約カード下部に本文への橋渡し案内 (`SummarySlider` 内, 要約があるときだけ表示)。②本文を「続きを読む」で折りたたみ = `src/components/ExpandableArticleBody.tsx` (全文は SSR HTML のまま = SEO 安全, CSS で冒頭クランプ + フェード, 短文は実測して非折りたたみ, TOC は `EXPAND_EVENT` で自動展開)。あわせてミニフォームの種別「その他」に近所話ガイド + 補足欄を 200字 textarea 化。詳細は `.claude/rules/implementation-status.md`)
+**Prev3**: 2026-07-07b (ミニ記事フォームの「伝えたいこと」自由記述欄を廃止。ターゲット=「SNS に投稿している人」に絞り、**SNS URL を必須(最低1件)に戻し** message カラムを DROP (migration `20260707120000_drop_mini_inquiries_message.sql`, テーブル 0 行のため無損失)。フォーム/Zod/actions/types/管理画面表示/LP コピー(「URL がなくても大丈夫」→「SNS 投稿の URL を送るだけで大丈夫」)を同期)
+**Prev4**: 2026-07-07 (①公開一覧のクエリ共通化 + ストリーミング化: posts 一覧クエリを `src/lib/post-queries.ts::fetchPublishedPosts` に集約 (/blog・/[category]・/api/posts の3重複を解消)。blog/category/search を実ストリーミング化。②DB ハードニング: migration `20260706150000_postgres_best_practices_hardening.sql` — 管理専用 RPC の anon EXECUTE 剥奪 / 匿名 INSERT ポリシー削除 / 全関数 search_path 固定 / RLS ポリシーの TO スコープ化 / FK インデックス追加。詳細は `.claude/rules/database.md`)
 **Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI 3段階要約 complete / AI Chat UI 仕上げ済み (機能は安定運用中)

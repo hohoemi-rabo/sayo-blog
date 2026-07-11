@@ -394,9 +394,13 @@ export type LongInquiryStatus =
   | 'cancelled'
 export type ClientType = 'individual' | 'organization' | 'group'
 
+/** 取材記事の希望プラン (LP のプラン表と対応) */
+export type LongInquiryPlan = 'monitor' | 'standard' | 'deep' | 'undecided'
+
 export interface LongInquiry {
   id: string
   client_type: ClientType
+  desired_plan: LongInquiryPlan
   individual_name: string | null
   organization_name: string | null
   department_name: string | null

@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import type { ClientType, MiniInquiryType, PublishPreference } from '@/lib/types'
+import type {
+  ClientType,
+  LongInquiryPlan,
+  MiniInquiryType,
+  PublishPreference,
+} from '@/lib/types'
 
 /**
  * 情報窓口フォーム (ミニ記事) の入力バリデーション。
@@ -144,9 +149,20 @@ export const CLIENT_TYPES = [
   'group',
 ] as const satisfies readonly ClientType[]
 
+/** 取材記事の希望プラン (LP のプラン表と対応) */
+export const LONG_PLANS = [
+  'monitor',
+  'standard',
+  'deep',
+  'undecided',
+] as const satisfies readonly LongInquiryPlan[]
+
 export const longInquirySchema = z
   .object({
     client_type: z.enum(CLIENT_TYPES, { error: '種別を選択してください' }),
+    desired_plan: z.enum(LONG_PLANS, {
+      error: '希望プランを選択してください（未定でも大丈夫です）',
+    }),
     individual_name: z.string().trim().max(100).nullable(),
     organization_name: z.string().trim().max(200).nullable(),
     department_name: z.string().trim().max(100).nullable(),

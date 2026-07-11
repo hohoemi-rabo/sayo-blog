@@ -9,6 +9,7 @@ import type {
   PublishPreference,
   LongInquiry,
   LongInquiryStatus,
+  LongInquiryPlan,
   ClientType,
 } from '@/lib/types'
 
@@ -37,6 +38,47 @@ export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
   organization: '組織',
   group: '団体',
 }
+
+/** 取材記事の希望プラン。LP (/request/long) のプラン表と対応させること。 */
+export const LONG_PLAN_LABELS: Record<LongInquiryPlan, string> = {
+  monitor: '初期モニター記事（500円）',
+  standard: '取材記事（10,000円）',
+  deep: '深掘り記事（30,000円）',
+  undecided: 'まだ決めていない / 相談したい',
+}
+
+/** フォームの選択肢用 (LP のプラン表と同じ並び) */
+export const LONG_PLAN_OPTIONS: Array<{
+  value: LongInquiryPlan
+  label: string
+  price: string
+  hint: string
+}> = [
+  {
+    value: 'monitor',
+    label: '初期モニター記事',
+    price: '¥500',
+    hint: '電話・オンラインで聞き取り / 素材は先方提供',
+  },
+  {
+    value: 'standard',
+    label: '取材記事',
+    price: '¥10,000',
+    hint: '現地取材 + 写真撮影込み / 3,000文字まで',
+  },
+  {
+    value: 'deep',
+    label: '深掘り記事',
+    price: '¥30,000',
+    hint: '現地取材 + 写真撮影込み / 文字数制限なし',
+  },
+  {
+    value: 'undecided',
+    label: 'まだ決めていない',
+    price: '相談',
+    hint: '内容を伺ってから、一緒に決めます',
+  },
+]
 
 export const LONG_INQUIRY_STATUS_LABELS: Record<LongInquiryStatus, string> = {
   pending: '受付',
