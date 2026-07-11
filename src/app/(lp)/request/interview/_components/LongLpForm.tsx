@@ -16,7 +16,7 @@ const INTERVIEW_MIN = 200
 const INTERVIEW_MAX = 2000
 
 /**
- * 取材記事 LP (/request/long) 埋め込みフォーム。
+ * 取材記事 LP (/request/interview) 埋め込みフォーム。
  * LP のクラス (.lp-*) で組むが、backend は既存 submitLongInquiry を再利用する。
  * 種別 (個人/組織/団体) で必須項目を出し分ける点は従来フォームと同じ。
  */
@@ -41,7 +41,7 @@ export function LongLpForm() {
     startTransition(async () => {
       const result = await submitLongInquiry(fd)
       if (result.ok) {
-        router.push('/request/long/thanks')
+        router.push('/request/interview/thanks')
         return
       }
       setGeneralError(result.error)

@@ -9,13 +9,13 @@ export const metadata: Metadata = {
   description:
     '飯田下伊那のお店・活動・人物を、取材して記事にします。背景や想いまで聞き取り、あとから読み返せるWeb記事に。初期モニター500円 / 取材記事10,000円 / 深掘り記事30,000円。',
   alternates: {
-    canonical: `${SITE_CONFIG.url}/request/long`,
+    canonical: `${SITE_CONFIG.url}/request/interview`,
   },
   openGraph: {
     title: `取材記事を相談する | ${SITE_CONFIG.name}`,
     description:
       '伝えたい想いを、読み返せる記事に。お店や活動の魅力を、言葉と写真で残します。',
-    url: `${SITE_CONFIG.url}/request/long`,
+    url: `${SITE_CONFIG.url}/request/interview`,
     type: 'website',
   },
 }

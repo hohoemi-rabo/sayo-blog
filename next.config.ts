@@ -23,14 +23,26 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '100mb',
     },
   },
-  // 旧 /request/mini (ミニ記事) → /request/post (投稿記事) への恒久リダイレクト。
-  // 既存の被リンク / 検索インデックスを保つため 301。
+  // 公開名の確定に伴う旧 URL からの恒久リダイレクト (既存の被リンク / 検索インデックスを保つため 301)。
+  //   ミニ記事   → 投稿記事: /request/mini → /request/post
+  //   ロング記事 → 取材記事: /request/long → /request/interview
+  // ※ DB/型/article_type などの内部コード名は mini / long のまま (ユーザー不可視)。
   async redirects() {
     return [
       { source: '/request/mini', destination: '/request/post', permanent: true },
       {
         source: '/request/mini/thanks',
         destination: '/request/post/thanks',
+        permanent: true,
+      },
+      {
+        source: '/request/long',
+        destination: '/request/interview',
+        permanent: true,
+      },
+      {
+        source: '/request/long/thanks',
+        destination: '/request/interview/thanks',
         permanent: true,
       },
     ]

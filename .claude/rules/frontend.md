@@ -38,7 +38,7 @@ paths:
 ## Header CTA Hierarchy (公開ヘッダー)
 
 公開ヘッダー (`Header.tsx`) の 2 つの CTA は視覚ヒエラルキーを付けている:
-- **主役「取材を依頼」** (`/request/long`): ピンク〜コーラルのグラデ `from-[#ED93B1] to-[#D85A30]` + 柔らかい glow shadow + `hover:-translate-y-0.5` で浮き上がり。白文字に `text-shadow` を足してグラデ左端でもコントラスト確保。
+- **主役「取材を依頼」** (`/request/interview`): ピンク〜コーラルのグラデ `from-[#ED93B1] to-[#D85A30]` + 柔らかい glow shadow + `hover:-translate-y-0.5` で浮き上がり。白文字に `text-shadow` を足してグラデ左端でもコントラスト確保。
 - **脇役「情報を届ける」** (`/request/post`): 枠付きゴースト (`border-primary/40` + `text-primary`)、hover で枠を濃く。主役を引き立てる。
 - 注意: `primary-hover` (#FF8FB3) は primary (#FF6B9D) より**明るい**ため、塗り CTA の hover に使うと白文字が同化する。塗りボタンの hover は `brightness-95` 等で**暗く**する。
 
@@ -146,7 +146,7 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
 | LP | URL | CSS | スコープ | パレット |
 |----|-----|-----|---------|---------|
 | 投稿記事 (内部名 mini) | `/request/post` | `lp-post.css` | `.lp-post` | 鮮やかピンク `#e91e63` |
-| 取材記事 (内部名 long) | `/request/long` | `lp-long.css` | `.lp-long` | くすんだローズ `#C08B8B` |
+| 取材記事 (内部名 long) | `/request/interview` | `lp-long.css` | `.lp-long` | くすんだローズ `#C08B8B` |
 
 ### ⚠️ CSS スコープ設計 (最重要)
 
@@ -157,7 +157,7 @@ Use Intersection Observer with `threshold: 0.1, rootMargin: '100px'`.
   next/font で self-host)。**ここで LP の CSS を import してはいけない** (グループ全体に効いて衝突する)。
 - 各 LP の CSS は**ルートごとの layout** で読む:
   `(lp)/request/post/layout.tsx` → `lp-post.css` + `<div className="lp-post">`
-  `(lp)/request/long/layout.tsx` → `lp-long.css` + `<div className="lp-long">`
+  `(lp)/request/interview/layout.tsx` → `lp-long.css` + `<div className="lp-long">`
 - 全セレクタに `.lp-post` / `.lp-long` プレフィックスを必ず付ける。**プレフィックスを外すと
   もう片方の LP と衝突する** (クライアント遷移で両方の CSS が DOM に残るケースがあるため、
   ルート単位の CSS 分割だけでは守れない)。

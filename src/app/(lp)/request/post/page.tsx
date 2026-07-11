@@ -359,7 +359,7 @@ export default function MiniRequestLpPage() {
             <Link href="/">トップ</Link>
             <Link href="/blog">ブログ</Link>
             <Link href="/gallery">ギャラリー</Link>
-            <Link href="/request/long">取材を依頼</Link>
+            <Link href="/request/interview">取材を依頼</Link>
             <Link href="/privacy">プライバシーポリシー</Link>
           </nav>
         </div>

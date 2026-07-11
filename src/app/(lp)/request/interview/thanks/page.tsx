@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: '取材記事のご相談を受け付けました。3 日以内にご連絡いたします。',
   robots: { index: false, follow: false },
   alternates: {
-    canonical: `${SITE_CONFIG.url}/request/long/thanks`,
+    canonical: `${SITE_CONFIG.url}/request/interview/thanks`,
   },
 }
 

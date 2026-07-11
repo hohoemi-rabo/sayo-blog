@@ -39,7 +39,7 @@ export const CLIENT_TYPE_LABELS: Record<ClientType, string> = {
   group: '団体',
 }
 
-/** 取材記事の希望プラン。LP (/request/long) のプラン表と対応させること。 */
+/** 取材記事の希望プラン。LP (/request/interview) のプラン表と対応させること。 */
 export const LONG_PLAN_LABELS: Record<LongInquiryPlan, string> = {
   monitor: '初期モニター記事（500円）',
   standard: '取材記事（10,000円）',

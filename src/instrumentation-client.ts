@@ -11,7 +11,7 @@ initBotId({
       method: 'POST',
     },
     {
-      path: '/request/long',
+      path: '/request/interview',
       method: 'POST',
     },
   ],

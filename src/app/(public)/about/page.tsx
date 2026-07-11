@@ -242,7 +242,7 @@ export default function AboutPage() {
               📩 投稿記事の情報を届ける
             </Link>
             <Link
-              href="/request/long"
+              href="/request/interview"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-noto-sans-jp font-medium hover:bg-primary-hover hover:shadow-md transition-all duration-200"
             >
               ✍️ 取材を依頼する

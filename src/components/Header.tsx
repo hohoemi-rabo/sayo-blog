@@ -27,7 +27,7 @@ export default function Header() {
 
   const ctaLinks = [
     { href: '/request/post', label: '情報を届ける', emoji: '📩', primary: false },
-    { href: '/request/long', label: '取材を依頼', emoji: '✍️', primary: true },
+    { href: '/request/interview', label: '取材を依頼', emoji: '✍️', primary: true },
   ]
 
   return (

@@ -1,5 +1,5 @@
 /*
- * 取材記事 LP (/request/long、内部コード名は long) 専用スタイル。
+ * 取材記事 LP (/request/interview、内部コード名は long) 専用スタイル。
  * index_long.html の <style> を忠実移植し、全体を .lp-long にスコープ。
  *
  * ⚠️ 重要: 元プロトタイプは「テーマを4回上書きで重ねた」作業ファイル (:root が 4 つ)。
