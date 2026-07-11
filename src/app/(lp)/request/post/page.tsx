@@ -7,14 +7,14 @@ import { MiniLpForm } from './_components/MiniLpForm'
 export const metadata: Metadata = {
   title: '投稿記事を掲載する',
   description:
-    '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで、紹介したい SNS 投稿の URL を送るだけで大丈夫です。',
+    '飯田下伊那の告知・イベント情報・地域の話を、無料で記事掲載できる情報窓口。SNS 投稿の URL を送るか、チラシを 1 枚送るだけ。告知や自慢はもちろん、ご近所のちょっとした出来事や失敗談まで受け付けています。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post`,
   },
   openGraph: {
     title: `投稿記事を掲載する | ${SITE_CONFIG.name}`,
     description:
-      '飯田下伊那の情報を、あとから見つかる記事に。告知・イベント・ご近所の話まで、無料で掲載できます。',
+      '飯田下伊那の情報を、あとから見つかる記事に。SNS 投稿の URL か、チラシ 1 枚から。告知・イベント・ご近所の話まで、無料で掲載できます。',
     url: `${SITE_CONFIG.url}/request/post`,
     type: 'website',
   },
@@ -25,6 +25,14 @@ const FAQ_ITEMS = [
   {
     q: '投稿記事は誰でも送れますか？',
     a: '飯田下伊那に関係する情報であれば、個人・店舗・団体・イベント主催者など、どなたでも送っていただけます。',
+  },
+  {
+    q: 'SNSをやっていなくても送れますか？',
+    a: '送れます。チラシを1枚送っていただければ記事にできます。写真に撮ったものでも、PDFでも大丈夫です。逆に、SNS投稿のURLだけ送っていただく形でも構いません。どちらか一方があれば受け付けます。',
+  },
+  {
+    q: '記事に載せる写真はどうなりますか？',
+    a: 'SNS投稿に含まれる写真や、送っていただいたチラシの内容を、記事にする際に使わせていただく場合があります。掲載前に内容をご確認いただき、写真の使用可否もそのときに伺います。',
   },
   {
     q: '投稿記事は必ず掲載されますか？',
@@ -69,9 +77,9 @@ export default function MiniRequestLpPage() {
             Sayo&apos;s<br />Journal
           </Link>
           <nav className="navlinks">
+            <a href="#send">送るもの</a>
             <a href="#about">投稿記事とは</a>
             <a href="#contents">できること</a>
-            <a href="#benefits">メリット</a>
             <a href="#flow">掲載方法</a>
             <a href="#faq">Q&amp;A</a>
             <span className="nav-sep" aria-hidden="true" />
@@ -105,7 +113,8 @@ export default function MiniRequestLpPage() {
             告知も、自慢も、失敗談も。無料で記事掲載できます。
           </p>
           <p className="subcopy">
-            トレンド重視のSNSもいいけれど、地域の情報は流れて終わるだけではもったいない。告知・イベント情報・自慢・失敗談・おもしろい話まで、あなたの言葉で送ってください。
+            SNS
+            に投稿しているなら、その投稿のURLを。チラシで宣伝しているなら、そのチラシを。どちらか一方を送っていただければ、あとから見つかる記事に整えます。告知・イベント情報・自慢・失敗談・おもしろい話まで、あなたの言葉で送ってください。
           </p>
           <div className="hero-buttons">
             <a className="btn main" href="#contact">
@@ -115,6 +124,48 @@ export default function MiniRequestLpPage() {
               掲載の流れを見る
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="section" id="send" style={creamGradient}>
+        <div className="wrap">
+          <div className="section-title">
+            <div className="eyebrow">What to Send</div>
+            <h2>送るのは、どちらか一方で大丈夫です。</h2>
+            <p>
+              文章を書き起こす必要はありません。すでに手元にあるものを、そのまま送ってください。
+            </p>
+          </div>
+          <div className="send-grid">
+            <div className="card">
+              <div className="icon">📱</div>
+              <h3>SNS に投稿している方</h3>
+              <p>
+                紹介したい投稿の URL を貼るだけ。Instagram・X・Facebook
+                など、どの SNS でも大丈夫です。
+              </p>
+              <p>
+                お店の特徴、営業日、店主のこと。別々の日に投稿してバラバラになっている
+                <b>同じ話題の投稿を、最大 5 件まとめて 1 本の記事</b>
+                に整えます。
+              </p>
+            </div>
+            <div className="send-or" aria-hidden="true">
+              <span>または</span>
+            </div>
+            <div className="card">
+              <div className="icon">📄</div>
+              <h3>チラシで宣伝している方</h3>
+              <p>
+                チラシを送るだけ。写真に撮ったものでも、PDF
+                でも大丈夫です。SNS
+                をやっていなくても、チラシ 1 枚から記事にできます。
+              </p>
+            </div>
+          </div>
+          <p className="note">
+            ※どちらも手元にある方は、両方送っていただいて構いません。情報が多いほど、記事は詳しくなります。
+          </p>
         </div>
       </section>
 
@@ -342,7 +393,9 @@ export default function MiniRequestLpPage() {
           <div className="cta-box">
             <h2>まずは、あなたの情報から。</h2>
             <p>
-              告知・イベント情報・地域の話を、Sayo&apos;s Journalに送ってください。紹介したい SNS 投稿の URL を貼るだけで大丈夫です。
+              告知・イベント情報・地域の話を、Sayo&apos;s
+              Journalに送ってください。SNS 投稿の URL を貼るか、チラシを 1
+              枚選ぶだけで大丈夫です。
             </p>
             <MiniLpForm />
           </div>

@@ -1,14 +1,14 @@
 'use client'
 
-import { useMemo, useRef, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, ImagePlus } from 'lucide-react'
+import { Plus, X, Link2, FileUp, FileText, Lightbulb } from 'lucide-react'
 import {
   MINI_INQUIRY_TYPE_LABELS,
   PUBLISH_PREFERENCE_LABELS,
 } from '@/lib/inquiries'
 import {
-  INQUIRY_IMAGE_ACCEPT,
+  INQUIRY_ATTACHMENT_ACCEPT,
   INQUIRY_IMAGE_MAX_BYTES,
   INQUIRY_IMAGE_MAX_COUNT,
   MINI_INQUIRY_TYPES,
@@ -17,7 +17,8 @@ import {
 import type { MiniInquiryType, PublishPreference } from '@/lib/types'
 import { submitMiniInquiry } from '../actions'
 
-const ACCEPT_ATTR = INQUIRY_IMAGE_ACCEPT.join(',')
+const ACCEPT_ATTR = INQUIRY_ATTACHMENT_ACCEPT.join(',')
+const MAX_URLS = 5
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
@@ -43,15 +44,26 @@ export function MiniLpForm() {
   const [urls, setUrls] = useState<string[]>([''])
   const [inquiryType, setInquiryType] = useState<MiniInquiryType | ''>('')
   const [pref, setPref] = useState<PublishPreference | ''>('')
-  const [images, setImages] = useState<File[]>([])
+  const [files, setFiles] = useState<File[]>([])
   const [consent, setConsent] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [generalError, setGeneralError] = useState<string | null>(null)
 
+  // PDF は <img> で表示できないので種類で振り分ける
   const previews = useMemo(
-    () => images.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })),
-    [images]
+    () =>
+      files.map((f) => ({
+        name: f.name,
+        isPdf: f.type === 'application/pdf',
+        url: f.type === 'application/pdf' ? null : URL.createObjectURL(f),
+      })),
+    [files]
   )
+  useEffect(() => {
+    return () => {
+      previews.forEach((p) => p.url && URL.revokeObjectURL(p.url))
+    }
+  }, [previews])
 
   const minDate = todayPlus(1)
   const minMonth = currentMonth()
@@ -60,33 +72,28 @@ export function MiniLpForm() {
     setUrls((prev) => prev.map((u, i) => (i === index ? value : u)))
   }
   function addUrl() {
-    setUrls((prev) => (prev.length < 5 ? [...prev, ''] : prev))
+    setUrls((prev) => (prev.length < MAX_URLS ? [...prev, ''] : prev))
   }
   function removeUrl(index: number) {
     setUrls((prev) => prev.filter((_, i) => i !== index))
   }
 
-  function onPickImages(e: React.ChangeEvent<HTMLInputElement>) {
+  function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? [])
     e.target.value = '' // 同じファイルを選び直せるように
-    setImages((prev) => {
+    setFiles((prev) => {
       const merged = [...prev]
       for (const f of picked) {
         if (merged.length >= INQUIRY_IMAGE_MAX_COUNT) break
         if (f.size > INQUIRY_IMAGE_MAX_BYTES) continue
-        if (
-          !INQUIRY_IMAGE_ACCEPT.includes(
-            f.type as (typeof INQUIRY_IMAGE_ACCEPT)[number]
-          )
-        )
-          continue
+        if (!INQUIRY_ATTACHMENT_ACCEPT.includes(f.type as never)) continue
         merged.push(f)
       }
       return merged
     })
   }
-  function removeImage(index: number) {
-    setImages((prev) => prev.filter((_, i) => i !== index))
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -101,9 +108,9 @@ export function MiniLpForm() {
     urls.forEach((u) => {
       if (u.trim() !== '') fd.append('sns_urls', u.trim())
     })
-    // 画像も state から
+    // 添付も state から
     fd.delete('images')
-    images.forEach((f) => fd.append('images', f))
+    files.forEach((f) => fd.append('images', f))
 
     startTransition(async () => {
       const result = await submitMiniInquiry(fd)
@@ -138,46 +145,168 @@ export function MiniLpForm() {
 
       {generalError && <div className="lp-alert">{generalError}</div>}
 
-      {/* SNS URL */}
+      {/* ① 送るもの — SNS の URL か チラシ、どちらか一方でOK */}
       <fieldset className="lp-fieldset">
         <legend className="lp-legend">
-          SNS の URL<span className="req">*</span>
-          <span className="opt">（最大 5 件・紹介したい投稿のリンク）</span>
+          送るもの<span className="req">*</span>
+          <span className="opt">（どちらか一方で大丈夫です）</span>
         </legend>
         <p className="lp-hint">
-          告知・イベント・ご近所の話・失敗談など、紹介したい SNS 投稿のリンクを貼ってください。Instagram・X・Facebook など、どの SNS でも大丈夫です。
+          SNS に投稿しているなら
+          <b>投稿の URL</b>を、チラシで宣伝しているなら
+          <b>チラシ</b>を送ってください。もちろん両方あっても大丈夫です。
         </p>
-        {urls.map((url, i) => (
-          <div key={i} className="lp-urlrow">
-            <input
-              type="url"
-              inputMode="url"
-              className="lp-input"
-              placeholder="https://www.instagram.com/p/..."
-              value={url}
-              onChange={(e) => updateUrl(i, e.target.value)}
-            />
-            {urls.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeUrl(i)}
-                className="lp-iconbtn"
-                aria-label="この URL を削除"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+
+        <div className="lp-sendbox">
+          <div className="lp-sendbox-head">
+            <Link2 className="h-4 w-4" />
+            <b>SNS 投稿の URL</b>
+            <span>最大 {MAX_URLS} 件 → 1 本の記事に</span>
           </div>
-        ))}
-        {urls.length < 5 && (
-          <button type="button" onClick={addUrl} className="lp-addbtn">
-            <Plus className="h-4 w-4" /> URL を追加（残り {5 - urls.length} 件）
-          </button>
-        )}
-        <FieldError message={fieldErrors.sns_urls} />
+          <p className="lp-hint">
+            Instagram・X・Facebook など、どの SNS でも大丈夫です。
+            <b>
+              1 回の送信で書けるのは、1 つの話題についての記事です。
+            </b>
+            同じお店・同じ活動・同じイベントについての投稿を、まとめて送ってください。
+          </p>
+
+          <details className="lp-example">
+            <summary>
+              <Lightbulb className="h-4 w-4" />
+              たとえば、飲食店の紹介記事にするなら
+            </summary>
+            <div className="lp-example-body">
+              <p>
+                バラバラの日に投稿した 5 つを、1 本の紹介記事にまとめます。
+              </p>
+              <ol className="lp-example-list">
+                <li>
+                  <span>投稿 1</span>お店の特徴（どんな料理・どんな雰囲気）
+                </li>
+                <li>
+                  <span>投稿 2</span>営業日・営業時間のお知らせ
+                </li>
+                <li>
+                  <span>投稿 3</span>昼と夜の使い方（ひとりランチ・宴会など）
+                </li>
+                <li>
+                  <span>投稿 4</span>店主の人柄・始めたきっかけ
+                </li>
+                <li>
+                  <span>投稿 5</span>住所・駐車場などの基本情報
+                </li>
+              </ol>
+              <p className="lp-example-warn">
+                逆に、「お店の紹介」と「別のイベント告知」のように話題が違うものは、
+                1 本の記事にまとまりません。お手数ですが、話題ごとに分けて送ってください。
+              </p>
+            </div>
+          </details>
+
+          {urls.map((url, i) => (
+            <div key={i} className="lp-urlrow">
+              <span className="lp-urlnum" aria-hidden="true">
+                {i + 1}
+              </span>
+              <input
+                type="url"
+                inputMode="url"
+                className="lp-input"
+                placeholder="https://www.instagram.com/p/..."
+                aria-label={`投稿 ${i + 1} の URL`}
+                value={url}
+                onChange={(e) => updateUrl(i, e.target.value)}
+              />
+              {urls.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeUrl(i)}
+                  className="lp-iconbtn"
+                  aria-label={`投稿 ${i + 1} の URL を削除`}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ))}
+          {urls.length < MAX_URLS && (
+            <button type="button" onClick={addUrl} className="lp-addbtn">
+              <Plus className="h-4 w-4" /> 同じ話題の投稿を追加（あと{' '}
+              {MAX_URLS - urls.length} 件）
+            </button>
+          )}
+          <FieldError message={fieldErrors.sns_urls} />
+        </div>
+
+        <div className="lp-or">
+          <span>または</span>
+        </div>
+
+        <div className="lp-sendbox">
+          <div className="lp-sendbox-head">
+            <FileUp className="h-4 w-4" />
+            <b>チラシ・写真</b>
+            <span>
+              最大 {INQUIRY_IMAGE_MAX_COUNT} 点 / 画像・PDF / 各 10MB まで
+            </span>
+          </div>
+          <p className="lp-hint">
+            チラシは写真に撮ったものでも、PDF でも大丈夫です。SNS
+            に投稿していない方は、こちらだけで送れます。
+          </p>
+          {previews.length > 0 && (
+            <div className="lp-thumbs">
+              {previews.map((p, i) =>
+                p.isPdf ? (
+                  <div key={p.name + i} className="lp-thumb lp-thumb-file">
+                    <FileText className="h-6 w-6" />
+                    <span>{p.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      aria-label="この添付を削除"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div key={p.url ?? p.name} className="lp-thumb">
+                    {/* プレビューは object URL のため next/image を使わない */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.url!} alt={p.name} />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      aria-label="この添付を削除"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )
+              )}
+            </div>
+          )}
+          {files.length < INQUIRY_IMAGE_MAX_COUNT && (
+            <label className="lp-imgpick">
+              <FileUp className="h-4 w-4" />
+              チラシ・写真を選ぶ
+              <input
+                type="file"
+                accept={ACCEPT_ATTR}
+                multiple
+                onChange={onPickFiles}
+                className="honeypot"
+              />
+            </label>
+          )}
+          <FieldError message={fieldErrors.images} />
+        </div>
+
+        <FieldError message={fieldErrors.attachments} />
       </fieldset>
 
-      {/* 種別 */}
+      {/* ② 種別 */}
       <fieldset className="lp-fieldset">
         <legend className="lp-legend">
           種別<span className="req">*</span>
@@ -217,42 +346,7 @@ export function MiniLpForm() {
         )}
       </fieldset>
 
-      {/* 連絡先 */}
-      <fieldset className="lp-fieldset">
-        <legend className="lp-legend">連絡先</legend>
-        <div>
-          <label htmlFor="lp-phone" className="lp-hint">
-            電話番号 <span className="req">*</span>
-          </label>
-          <input
-            id="lp-phone"
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            className="lp-input"
-            placeholder="0265-00-0000"
-            autoComplete="tel"
-          />
-          <FieldError message={fieldErrors.phone} />
-        </div>
-        <div>
-          <label htmlFor="lp-email" className="lp-hint">
-            メールアドレス（任意）
-          </label>
-          <input
-            id="lp-email"
-            name="email"
-            type="email"
-            inputMode="email"
-            className="lp-input"
-            placeholder="sample@example.com"
-            autoComplete="email"
-          />
-          <FieldError message={fieldErrors.email} />
-        </div>
-      </fieldset>
-
-      {/* 公開希望時期 */}
+      {/* ③ 公開希望時期 */}
       <fieldset className="lp-fieldset">
         <legend className="lp-legend">
           公開希望時期<span className="req">*</span>
@@ -307,50 +401,49 @@ export function MiniLpForm() {
         )}
       </fieldset>
 
-      {/* 画像 */}
+      {/* ④ 連絡先 */}
       <fieldset className="lp-fieldset">
-        <legend className="lp-legend">
-          画像
-          <span className="opt">
-            （任意 / 最大 {INQUIRY_IMAGE_MAX_COUNT} 枚・各 10MB まで）
-          </span>
-        </legend>
-        {previews.length > 0 && (
-          <div className="lp-thumbs">
-            {previews.map((p, i) => (
-              <div key={p.url} className="lp-thumb">
-                {/* プレビューは object URL のため next/image を使わない */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.url} alt={p.name} />
-                <button
-                  type="button"
-                  onClick={() => removeImage(i)}
-                  aria-label="画像を削除"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {images.length < INQUIRY_IMAGE_MAX_COUNT && (
-          <label className="lp-imgpick">
-            <ImagePlus className="h-4 w-4" />
-            画像を選ぶ
+        <legend className="lp-legend">連絡先</legend>
+        <div className="lp-field2">
+          <div>
+            <label htmlFor="lp-phone" className="lp-hint">
+              電話番号 <span className="req">*</span>
+            </label>
             <input
-              type="file"
-              accept={ACCEPT_ATTR}
-              multiple
-              onChange={onPickImages}
-              className="honeypot"
+              id="lp-phone"
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              className="lp-input"
+              placeholder="0265-00-0000"
+              autoComplete="tel"
             />
-          </label>
-        )}
-        <FieldError message={fieldErrors.images} />
+            <FieldError message={fieldErrors.phone} />
+          </div>
+          <div>
+            <label htmlFor="lp-email" className="lp-hint">
+              メールアドレス（任意）
+            </label>
+            <input
+              id="lp-email"
+              name="email"
+              type="email"
+              inputMode="email"
+              className="lp-input"
+              placeholder="sample@example.com"
+              autoComplete="email"
+            />
+            <FieldError message={fieldErrors.email} />
+          </div>
+        </div>
       </fieldset>
 
-      {/* 同意 */}
+      {/* ⑤ 同意 */}
       <fieldset className="lp-fieldset">
+        <p className="lp-usage">
+          送っていただいた SNS
+          投稿の文章・写真や、チラシの内容は、記事にする際に使わせていただく場合があります。掲載前に内容をご確認いただき、写真の使用可否もそのときに伺います。
+        </p>
         <label className="lp-consent">
           <input
             type="checkbox"
@@ -368,10 +461,11 @@ export function MiniLpForm() {
 
       <div>
         <button type="submit" className="lp-submit" disabled={isPending}>
-          {isPending ? '送信中…' : 'この内容で相談する'}
+          {isPending ? '送信中…' : '無料で記事掲載を依頼する'}
         </button>
         <p className="lp-submit-note">
-          送信後 3 日以内に、ご記入の連絡先へお返事します。掲載は無料です。
+          掲載は無料です。費用は一切かかりません。送信後 3
+          日以内に、ご記入の連絡先へお返事します。
         </p>
       </div>
     </form>
