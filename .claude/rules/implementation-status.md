@@ -51,6 +51,19 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - Ticket 41: ミニ記事フロー (公開フォーム /request/post + BotID/Zod/レート制限 + Gmail SMTP 通知 + 管理画面詳細/ステータス/未読バッジ + AI たたき台生成) ✅
 - Ticket 42: ロング記事 CRM (公開フォーム /request/interview + 案件管理 7段階ステータス/取材日/金額/記事紐付け + 自動公開連動 + ArticleTypeBadge 公開表示) ✅
 
+### HOISA ブランド化 + トップ刷新 — Ticket 44 Complete (2026-10-14)
+仕様・経緯: `docs/44_hoisa-top-redesign.md`。デザイン案 `s1.png` (リポジトリ外)。
+- **カテゴリ再編** (同日・先行): 6 本 = food / event / outing / culture / life / people。migration `20261014120000_reorganize_categories.sql` (既存行を UPDATE で転用 + people 新設 + 記事ごとの対応表で振り分け + トランザクション内検証)。控え `supabase/backups/20261014_category_reorg_backup.md`。旧 URL: 一覧は next.config.ts の redirects、記事は `[category]/[slug]/page.tsx` が**カテゴリ不一致なら正規 URL へ permanentRedirect** (記事ごとの対応表は持たない)。バッジ色 `category-colors.ts`、AI のフォールバックカテゴリ `life`
+- **サイト名**: `SITE_CONFIG.name = 'HOISA'` / `tagline` / title / description。直書きは全廃 (LP・同意文・通知メール件名・AI プロンプト含む)。ページ title のサイト名二重表示も修正 (layout の template に任せる。トップは `{ absolute }`)
+- **フォント**: `src/lib/fonts.ts`。Cormorant (欧文ロゴ, Google) + **和文はサブセットの local font** (Shippori Mincho 400 / Klee One)。`npm run fonts:subset` (`scripts/build-font-subsets.mjs`) で固定文言の文字だけ取得。LP の Shippori は `(lp)/layout.tsx` で従来どおり Google から (LP 限定)。⚠️ 和文を next/font/google でサイト全体に読んだ版は**トップで 13MB / 482 リクエスト・モバイル LCP 89 秒**になった
+- **ロゴ**: `HoisaLogo.tsx` (header / hero。文字 + SVG 枝飾り、em 基準配置)。正式ロゴが来たら中身だけ差し替え
+- **ヘッダー**: `Header.tsx` (Server: `getNavCategories`) → `HeaderClient.tsx`。メニュー定義は `src/lib/site-nav.ts` (フッターと共有。'use client' に置くと Server から読めない)。詳細は frontend.md
+- **ヒーロー**: `HeroSection.tsx` (Server)。写真は仮 = 記事「天竜峡」の写真 (`HERO_PHOTO`)
+- **3 枠**: `HomeHighlights.tsx` + `src/lib/home-posts.ts::getHomePosts()` (3 クエリ並列 → 特集 / お知らせ / レポート / Pick Up を順に決めて重複除外)。お知らせの並びは「開催日が今日以降 → 未終了 → 終了」(現状は開催日未入力のため実質 新しい順)
+- **AI 要約リンク**: `SummarySlider` が `?summary=` をマウント後に読む (記事ページは ISR のまま)。アンカー `SUMMARY_ANCHOR_ID` は `summary-levels.ts`
+- **/chat**: 一般向けは「現在開発中・近日公開」
+- 計測 (ローカル本番ビルド, Lighthouse 12 モバイル): Performance 84 / LCP 4.2s / CLS 0 (改修前の本番トップ 76)。残る重さは既存の Noto Serif/Sans JP の @font-face CSS (各 ~280KB) = 改修前からある技術的負債
+
 ### 画像ギャラリー (Gallery) — Complete
 チケット番号は付けず `docs/REQUIREMENTS-gallery.md` を仕様の正本とする。テキスト導線に対し「写真から記事に入る」導線を追加。
 - DB: `post_images` テーブル + RLS + 部分インデックス + RPC `get_gallery_images` ✅
@@ -84,7 +97,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 ## Key File Map
 
 ### Pages
-- `src/app/(public)/page.tsx` - Home (Hero + Pick Up featured/latest 6 posts, ISR 600s)
+- `src/app/(public)/page.tsx` - Home (HOISA `HeroSection` + `HomeHighlights` 特集/レポート/お知らせ + Pick Up 6 posts。記事の割り振りは `src/lib/home-posts.ts`, ISR 600s)
 - `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button, force-dynamic)
 - `src/app/(public)/[category]/page.tsx` - Category listing (React.cache + force-dynamic)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, React.cache for dedup)

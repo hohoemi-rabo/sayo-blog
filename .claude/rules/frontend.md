@@ -36,6 +36,10 @@ paths:
 - **Headings**: Playfair Display (`--font-playfair`)
 - **Body (Japanese)**: Noto Serif JP (`--font-noto-serif-jp`)
 - **UI/Navigation**: Noto Sans JP (`--font-noto-sans-jp`)
+- **HOISA ブランド** (`src/lib/fonts.ts`): `font-cormorant` (欧文ロゴ) / `font-mincho` (Shippori Mincho 400) / `font-hand` (Klee One)
+  - ⚠️ `font-mincho` / `font-hand` は**使う文字だけのサブセット**。**固定の文言にだけ使う** (キャッチ・ヒーロー説明文・フッター)。記事タイトル等の可変テキストは `font-noto-serif-jp`。文言を変えたら `npm run fonts:subset` を実行してフォントもコミット
+  - 和文フォントを next/font/google で足すと、表示文字ぶんの分割ファイル + 数百 KB の @font-face CSS がサイト全体に乗る (Ticket 44 でトップが 13MB / LCP 89 秒になった)。足すなら同じサブセット方式か、LP のようにルート限定で
+- **globals.css が素の `<a>` をピンク (primary) にする**。カード内のタイトルリンク等は文字色を明示すること
 
 ## Public Header (HOISA, 2026-10 / Ticket 44)
 

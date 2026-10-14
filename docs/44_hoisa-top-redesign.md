@@ -100,6 +100,18 @@
 - [×] Step 4: ヒーロー (ロゴ部分, 写真は仮置き = 記事「天竜峡」の写真。`HeroSection.tsx` の HERO_PHOTO で差し替え)
 - [×] Step 5: ヒーロー (3 つの枠) + Pick Up との重複除外 (`src/lib/home-posts.ts` + `HomeHighlights.tsx`。「AI要約で読む」→ 記事の `?summary=…#ai-summary`)
 - [×] Step 6: フッター更新 (淡いローズ地 + ヘッダーと同じメニュー定義 `site-nav.ts` + DB のカテゴリ)
-- [ ] Step 7: レスポンシブ確認 / Lighthouse / ドキュメント更新
-- [ ] `npm run lint` / `npm run build` パス
+- [×] Step 7: レスポンシブ確認 / Lighthouse / ドキュメント更新 (和文フォントをサブセット化: トップ 13MB → 2MB、モバイル Performance 59 → 84)
+- [×] `npm run lint` / `npm run build` パス
 - [ ] (素材待ち) 風景写真・ロゴ・OG 画像・favicon の差し替え
+
+## 実施結果メモ (2026-10-14)
+
+- **フォントの事故と対処**: Step 2〜4 で和文明朝 (Shippori 4 ウェイト) と手書き風 (Klee One) を next/font/google で
+  サイト全体に読んだところ、トップがフォントだけで 13MB / 482 リクエスト、モバイル LCP 89 秒になった
+  (和文は表示した文字ぶんの unicode-range 分割ファイルを落とすため)。使う場所は固定文言だけなので、
+  その文字だけのサブセットを `npm run fonts:subset` で作り next/font/local に切り替え。LP の Shippori は LP 限定に戻した
+- **計測** (ローカル本番ビルド, Lighthouse 12): モバイル Performance 84 / LCP 4.2s / CLS 0、デスクトップ 99。
+  改修前の本番トップはモバイル 76
+- **残る技術的負債**: 既存の Noto Serif JP / Noto Sans JP (各 3 ウェイト) の @font-face CSS が各 ~280KB、全ページで描画ブロック。
+  改修前からあるもの。減らすならウェイト削減かサブセット化 (別チケット)
+- **確認した幅**: 375 / 390 / 768 / 1024 / 1100 / 1440 / 1920px。全ページ横スクロール (はみ出し) なし
