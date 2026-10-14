@@ -1,4 +1,4 @@
-import { Cormorant_Garamond, Shippori_Mincho } from 'next/font/google'
+import { Cormorant_Garamond, Klee_One, Shippori_Mincho } from 'next/font/google'
 
 /**
  * サイト本体と LP の両方で使う明朝系フォント (next/font で self-host)。
@@ -22,4 +22,14 @@ export const shippori = Shippori_Mincho({
   weight: ['400', '500', '600', '700'],
   variable: '--font-shippori',
   display: 'swap',
+})
+
+// ヒーロー右上の手書き風ひとこと専用。使う場所が 1 か所だけなので preload しない
+// (和文は unicode-range で分割配信され、実際に使う文字のファイルだけが読まれる)
+export const klee = Klee_One({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-klee',
+  display: 'swap',
+  preload: false,
 })
