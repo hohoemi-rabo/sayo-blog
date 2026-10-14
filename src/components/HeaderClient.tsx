@@ -8,32 +8,9 @@ import { cn } from '@/lib/utils'
 import { SITE_CONFIG } from '@/lib/site-config'
 import HoisaLogo from './HoisaLogo'
 import SearchBar from './SearchBar'
+import type { NavCategory } from '@/lib/nav-categories'
+import { AI_ITEM, READ_ITEMS, SEND_ITEMS, type NavItem } from '@/lib/site-nav'
 
-export type NavCategory = { slug: string; name: string }
-
-type NavItem = { href: string; label: string; description?: string }
-
-const READ_ITEMS: NavItem[] = [
-  { href: '/blog', label: '新着の記事', description: 'いちばん新しい記事から' },
-  { href: '/blog?sort=popular', label: 'よく読まれている記事', description: '人気の記事から' },
-  { href: '/gallery', label: '写真から探す', description: 'ギャラリーで写真を眺める' },
-]
-
-// 「情報を届ける」の 2 択 (仮)。取材記事は有料の窓口なのでヘッダーから外さない
-const SEND_ITEMS: NavItem[] = [
-  {
-    href: '/request/post',
-    label: '投稿記事で届ける',
-    description: 'SNS の投稿やチラシから、無料で記事に',
-  },
-  {
-    href: '/request/interview',
-    label: '取材を依頼する',
-    description: '取材して、じっくり記事にします',
-  },
-]
-
-const AI_ITEM = { href: '/chat', label: 'AIで探す' }
 
 export default function HeaderClient({ categories }: { categories: NavCategory[] }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)

@@ -1,4 +1,8 @@
 import Link from 'next/link'
+import { SITE_CONFIG } from '@/lib/site-config'
+import { getNavCategories } from '@/lib/nav-categories'
+import { AI_ITEM, READ_ITEMS, SEND_ITEMS, type NavItem } from '@/lib/site-nav'
+import HoisaLogo from './HoisaLogo'
 
 const socialLinks = [
   {
@@ -21,88 +25,101 @@ const socialLinks = [
   },
 ]
 
-const siteLinks = [
-  { href: '/', label: 'ホーム' },
-  { href: '/blog', label: 'ブログ' },
-  { href: '/gallery', label: 'ギャラリー' },
-  { href: '/about', label: 'About' },
-  { href: '/privacy', label: 'Privacy Policy' },
+const ABOUT_ITEMS: NavItem[] = [
+  { href: '/about', label: `${SITE_CONFIG.name}について` },
+  { href: AI_ITEM.href, label: `${AI_ITEM.label}（近日公開）` },
+  { href: '/privacy', label: 'プライバシーポリシー' },
 ]
 
-export default function Footer() {
+/**
+ * 公開フッター (Server)。ヘッダーと同じメニュー定義 (`site-nav.ts`) と DB のカテゴリを使う。
+ * 色はヒーローに合わせた淡いローズ地。
+ */
+export default async function Footer() {
+  const categories = await getNavCategories()
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="relative bg-background-dark text-background border-t-4 border-primary">
-      {/* Decorative Top Border Pattern */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent-turquoise via-primary to-accent-purple" />
+    <footer className="relative mt-8 overflow-hidden bg-[#FBEFEE] text-text-primary">
+      {/* 上端の細い曲線 (ヒーローの装飾と揃える) */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 1440 40"
+        preserveAspectRatio="none"
+        fill="none"
+        className="absolute inset-x-0 top-0 h-6 w-full text-hoisa/30"
+      >
+        <path d="M0 20 C 240 0, 480 40, 720 20 S 1200 0, 1440 20" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {/* Brand Section */}
-          <div className="space-y-4 animate-fade-in-up stagger-1">
-            <h3 className="text-2xl font-playfair font-bold text-primary mb-4">
-              HOISA
-            </h3>
-            <p className="text-background/80 font-noto-serif-jp leading-relaxed">
-              言葉で&quot;場所・人・記憶&quot;をつなぐ
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-10">
+        <div className="grid gap-10 lg:grid-cols-[1.3fr_2fr]">
+          {/* Brand */}
+          <div>
+            <Link href="/" aria-label={`${SITE_CONFIG.name} トップへ`} className="inline-block">
+              <HoisaLogo />
+            </Link>
+            <p className="mt-4 font-mincho tracking-[0.18em] text-text-primary/85">{SITE_CONFIG.tagline}</p>
+            <p className="mt-3 max-w-sm font-noto-sans-jp text-sm leading-relaxed text-text-secondary">
+              深く掘った話も、誰かが届けたい話も、小さなお知らせも。飯田下伊那の「あれこれ」が行き交う場所です。
             </p>
-          </div>
 
-          {/* Site Links */}
-          <div className="space-y-4 animate-fade-in-up stagger-2">
-            <h4 className="text-lg font-noto-sans-jp font-bold text-primary mb-4">
-              Site Map
-            </h4>
-            <ul className="space-y-2">
-              {siteLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-background/80 hover:text-primary transition-colors duration-200 font-noto-sans-jp inline-block group"
-                  >
-                    <span className="relative">
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-primary transition-all duration-200 group-hover:w-full" />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Social Links */}
-          <div className="space-y-4 animate-fade-in-up stagger-3">
-            <h4 className="text-lg font-noto-sans-jp font-bold text-primary mb-4">
-              Follow Me
-            </h4>
-            <div className="flex space-x-4">
+            <div className="mt-6 flex items-center gap-3">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-background/10 text-background hover:bg-primary hover:text-white transition-all duration-200 hover:scale-110"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-hoisa shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-hoisa hover:text-white"
                   aria-label={social.name}
                 >
                   {social.icon}
                 </a>
               ))}
+              <p className="ml-1 font-noto-sans-jp text-xs text-text-secondary">記事の更新情報やオフショットを発信中</p>
             </div>
-            <p className="text-sm text-background/60 font-noto-sans-jp mt-6">
-              記事の更新情報やオフショットを発信しています
-            </p>
+          </div>
+
+          {/* Links */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            <FooterColumn title="記事を読む" items={READ_ITEMS} />
+            <FooterColumn
+              title="カテゴリ"
+              items={categories.map((c) => ({ href: `/${c.slug}`, label: c.name }))}
+            />
+            <FooterColumn title="情報を届ける" items={SEND_ITEMS} />
+            <FooterColumn title={SITE_CONFIG.name} items={ABOUT_ITEMS} />
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-12 pt-8 border-t border-background/20 text-center animate-fade-in stagger-4">
-          <p className="text-sm text-background/60 font-noto-sans-jp">
-            &copy; {currentYear} Sayo Motooka. All rights reserved.
+        <div className="mt-12 border-t border-hoisa/15 pt-6 text-center">
+          <p className="font-noto-sans-jp text-xs text-text-secondary">
+            &copy; {currentYear} {SITE_CONFIG.name} / {SITE_CONFIG.author.name}. All rights reserved.
           </p>
         </div>
       </div>
     </footer>
+  )
+}
+
+function FooterColumn({ title, items }: { title: string; items: NavItem[] }) {
+  return (
+    <nav aria-label={title}>
+      <h2 className="mb-3 font-noto-sans-jp text-xs font-semibold tracking-wider text-hoisa">{title}</h2>
+      <ul className="space-y-2">
+        {items.map((item) => (
+          <li key={item.href}>
+            {/* globals.css が素の <a> をピンクにするので文字色を明示 */}
+            <Link
+              href={item.href}
+              className="font-noto-sans-jp text-sm text-text-primary/85 hover:text-hoisa transition-colors"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }

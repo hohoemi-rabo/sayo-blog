@@ -99,7 +99,7 @@
 - [×] Step 3: ヘッダー刷新 (PC / スマホ / キーボード操作) + /chat の「現在開発中・近日公開」
 - [×] Step 4: ヒーロー (ロゴ部分, 写真は仮置き = 記事「天竜峡」の写真。`HeroSection.tsx` の HERO_PHOTO で差し替え)
 - [×] Step 5: ヒーロー (3 つの枠) + Pick Up との重複除外 (`src/lib/home-posts.ts` + `HomeHighlights.tsx`。「AI要約で読む」→ 記事の `?summary=…#ai-summary`)
-- [ ] Step 6: フッター更新
+- [×] Step 6: フッター更新 (淡いローズ地 + ヘッダーと同じメニュー定義 `site-nav.ts` + DB のカテゴリ)
 - [ ] Step 7: レスポンシブ確認 / Lighthouse / ドキュメント更新
 - [ ] `npm run lint` / `npm run build` パス
 - [ ] (素材待ち) 風景写真・ロゴ・OG 画像・favicon の差し替え
