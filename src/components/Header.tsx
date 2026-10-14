@@ -44,7 +44,7 @@ export default function Header() {
             className="flex items-center space-x-2 group"
           >
             <span className="text-2xl md:text-3xl font-playfair font-bold text-primary transition-colors duration-200 group-hover:text-primary-hover">
-              Sayo&apos;s Journal
+              HOISA
             </span>
           </Link>
 

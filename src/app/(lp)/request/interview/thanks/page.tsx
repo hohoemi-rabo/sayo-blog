@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/site-config'
 
 export const metadata: Metadata = {
-  title: `ご相談を受け付けました | ${SITE_CONFIG.name}`,
+  title: 'ご相談を受け付けました',
   description: '取材記事のご相談を受け付けました。3 日以内にご連絡いたします。',
   robots: { index: false, follow: false },
   alternates: {

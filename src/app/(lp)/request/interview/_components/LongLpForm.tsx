@@ -330,7 +330,7 @@ export function LongLpForm() {
             onChange={(e) => setConsent(e.target.checked)}
           />
           <span>
-            取材のうえ Sayo&apos;s Journal で記事化することに同意します。
+            取材のうえ HOISA で記事化することに同意します。
             <span className="req">*</span>
           </span>
         </label>

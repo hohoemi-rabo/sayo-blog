@@ -17,7 +17,7 @@ interface GenerateKnowledgeResult {
   content: string // structured markdown
 }
 
-const KNOWLEDGE_PROMPT = `あなたは南信州の地域情報ブログ「Sayo's Journal」のナレッジデータ生成アシスタントです。
+const KNOWLEDGE_PROMPT = `あなたは南信州の地域情報ブログ「HOISA」のナレッジデータ生成アシスタントです。
 記事のHTMLコンテンツを解析し、AI検索用の構造化データを生成してください。
 
 以下のJSON形式で回答してください。他のテキストは含めないでください。

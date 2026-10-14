@@ -29,8 +29,8 @@ export default function ArticleAngleGuidePage() {
     <>
       <header className="header">
         <div className="wrap nav">
-          <Link href="/" className="brand" aria-label="Sayo's Journal トップへ">
-            Sayo&apos;s<br />Journal
+          <Link href="/" className="brand" aria-label="HOISA トップへ">
+            HOISA
           </Link>
           <nav className="navlinks">
             <a href="#about">切り口とは</a>
@@ -216,7 +216,7 @@ export default function ArticleAngleGuidePage() {
       <footer className="footer">
         <div className="wrap">
           <Link href="/" className="fbrand">
-            Sayo&apos;s Journal
+            HOISA
           </Link>
           <p>地域の情報を、未来の資産に。</p>
           <nav className="footer-links">

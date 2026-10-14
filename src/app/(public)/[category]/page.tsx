@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   if (!category) return {}
 
   return {
-    title: `${category.name} | ${SITE_CONFIG.name}`,
+    title: category.name,
     description: category.description || `${SITE_CONFIG.name}の${category.name}に関する記事一覧。`,
     alternates: {
       canonical: `${SITE_CONFIG.url}/${slug}`,

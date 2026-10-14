@@ -482,7 +482,7 @@ export function MiniLpForm() {
             onChange={(e) => setConsent(e.target.checked)}
           />
           <span>
-            提供した情報を Sayo&apos;s Journal で記事化することに同意します。
+            提供した情報を HOISA で記事化することに同意します。
             <span className="req">*</span>
           </span>
         </label>

@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="space-y-4 animate-fade-in-up stagger-1">
             <h3 className="text-2xl font-playfair font-bold text-primary mb-4">
-              Sayo&apos;s Journal
+              HOISA
             </h3>
             <p className="text-background/80 font-noto-serif-jp leading-relaxed">
               言葉で&quot;場所・人・記憶&quot;をつなぐ

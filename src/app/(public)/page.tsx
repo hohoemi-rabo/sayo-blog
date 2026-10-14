@@ -8,7 +8,7 @@ import { SITE_CONFIG } from '@/lib/site-config'
 import { PostWithRelations } from '@/lib/types'
 
 export const metadata: Metadata = {
-  title: SITE_CONFIG.title,
+  title: { absolute: SITE_CONFIG.title },
   description: SITE_CONFIG.description,
   alternates: {
     canonical: SITE_CONFIG.url,

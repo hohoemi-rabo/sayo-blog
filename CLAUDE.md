@@ -5,7 +5,7 @@ Detailed rules are split into `.claude/rules/` for context-efficient loading.
 
 ## Project Overview
 
-**Sayo's Journal** - A narrative blog site combining "words × photos × experiences" for writer/interviewer Sayo Motooka. Built with Next.js 15 + Supabase + Tailwind CSS.
+**HOISA** (旧 Sayo's Journal, 2026-10 改名) - A narrative blog site combining "words × photos × experiences" for writer/interviewer Sayo Motooka. Built with Next.js 15 + Supabase + Tailwind CSS.
 
 ## Development Commands
 

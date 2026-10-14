@@ -37,7 +37,7 @@ export async function POST() {
     return `- ${meta.title || '不明'} (${meta.category || ''}/${meta.area || ''}): ${meta.summary || ''} [${(meta.keywords || []).join(', ')}]`
   })
 
-  const prompt = `以下はブログサイト「Sayo's Journal」のナレッジデータ一覧です。
+  const prompt = `以下はブログサイト「HOISA」のナレッジデータ一覧です。
 このサイトは長野県飯田市・南信州エリアのグルメ、スポット、イベント、文化を紹介しています。
 
 ${summaries.join('\n')}

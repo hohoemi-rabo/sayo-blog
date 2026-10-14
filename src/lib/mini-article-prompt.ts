@@ -58,7 +58,7 @@ export function buildMiniArticlePrompt(input: BuildMiniArticlePromptInput): stri
 
   return `${PERSONA}
 
-以下は、地域の方が「Sayo's Journal で紹介してほしい」と寄せてくださった
+以下は、地域の方が「HOISA で紹介してほしい」と寄せてくださった
 SNS 投稿の本文（最大 5 件）と種別情報です。
 これらを **ひとつのミニ記事（短めの紹介記事）** にまとめ、**JSON 形式のみ** で出力してください。
 

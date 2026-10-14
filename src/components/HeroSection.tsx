@@ -44,7 +44,7 @@ export default function HeroSection() {
         <div className="animate-fade-in stagger-2">
           {/* Title */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-playfair font-bold text-primary mb-6 animate-slide-in-up stagger-3">
-            Sayo&apos;s Journal
+            HOISA
           </h1>
 
           {/* Subtitle */}

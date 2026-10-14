@@ -74,8 +74,8 @@ export default function MiniRequestLpPage() {
 
       <header className="header">
         <div className="wrap nav">
-          <Link href="/" className="brand" aria-label="Sayo's Journal トップへ">
-            Sayo&apos;s<br />Journal
+          <Link href="/" className="brand" aria-label="HOISA トップへ">
+            HOISA
           </Link>
           <nav className="navlinks">
             <a href="#send">送るもの</a>
@@ -189,7 +189,7 @@ export default function MiniRequestLpPage() {
             <div className="eyebrow">About</div>
             <h2>投稿記事は、地域情報が集まる入口。</h2>
             <p>
-              Sayo&apos;s Journalは、飯田下伊那の「今」を集め、検索しやすく、見返しやすく整える地域情報サイトです。
+              HOISAは、飯田下伊那の「今」を集め、検索しやすく、見返しやすく整える地域情報サイトです。
             </p>
           </div>
           <div className="grid3">
@@ -209,7 +209,7 @@ export default function MiniRequestLpPage() {
               <div className="icon">🌸</div>
               <h3>未来に残す</h3>
               <p>
-                SNSで今を届け、Sayo&apos;s Journalで未来に残す。地域の情報を資産にします。
+                SNSで今を届け、HOISAで未来に残す。地域の情報を資産にします。
               </p>
             </div>
           </div>
@@ -340,7 +340,7 @@ export default function MiniRequestLpPage() {
           <div className="banner">
             <h2>掲載した情報は、こんな人に届きます。</h2>
             <p>
-              週末の予定を探している人、地域の活動を知りたい人、新しいお店や講座に出会いたい人へ。Sayo&apos;s Journalは、投稿された情報をあとから見つけやすい形に整えます。
+              週末の予定を探している人、地域の活動を知りたい人、新しいお店や講座に出会いたい人へ。HOISAは、投稿された情報をあとから見つけやすい形に整えます。
             </p>
           </div>
         </div>
@@ -407,8 +407,8 @@ export default function MiniRequestLpPage() {
           <div className="cta-box">
             <h2>まずは、あなたの情報から。</h2>
             <p>
-              告知・イベント情報・地域の話を、Sayo&apos;s
-              Journalに送ってください。SNS 投稿の URL を貼るか、チラシを 1
+              告知・イベント情報・地域の話を、HOISA
+              に送ってください。SNS 投稿の URL を貼るか、チラシを 1
               枚選ぶだけで大丈夫です。
             </p>
             {/* useSearchParams (?angle=) を読むので Suspense 必須。ページは静的のまま */}
@@ -422,7 +422,7 @@ export default function MiniRequestLpPage() {
       <footer className="footer">
         <div className="wrap">
           <Link href="/" className="fbrand">
-            Sayo&apos;s Journal
+            HOISA
           </Link>
           <p>地域の情報を、未来の資産に。</p>
           <nav className="footer-links">

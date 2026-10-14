@@ -18,7 +18,7 @@ const ChatPage = nextDynamic(
 )
 
 export const metadata: Metadata = {
-  title: `AI Chat | ${SITE_CONFIG.name}`,
+  title: 'AI Chat',
   description: '飯田・下伊那のことなら、AIナビゲーター FUNE になんでも聞いてください。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/chat`,

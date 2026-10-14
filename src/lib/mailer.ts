@@ -66,7 +66,7 @@ export async function sendInquiryNotification(
     await tx.sendMail({
       from: GMAIL_SMTP_USER,
       to: INQUIRY_NOTIFY_TO,
-      subject: `[Sayo's Journal] 新しい${typeLabel}依頼が届きました`,
+      subject: `[HOISA] 新しい${typeLabel}依頼が届きました`,
       text: `新しい${typeLabel}の依頼が届きました。\n\n${input.summary}\n\n管理画面で確認:\n${adminUrl}\n`,
     })
   } catch (err) {

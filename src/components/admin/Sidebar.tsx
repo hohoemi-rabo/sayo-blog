@@ -52,7 +52,7 @@ export function Sidebar({ inquiriesPending = 0 }: SidebarProps) {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] text-white">
       <div className="flex h-16 items-center justify-center border-b border-white/10">
         <Link href="/admin" className="text-xl font-bold text-primary">
-          Sayo&apos;s Admin
+          HOISA Admin
         </Link>
       </div>
 

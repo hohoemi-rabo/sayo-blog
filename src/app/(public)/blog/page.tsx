@@ -18,8 +18,8 @@ interface BlogPageProps {
 }
 
 export const metadata: Metadata = {
-  title: `ブログ | ${SITE_CONFIG.name}`,
-  description: `${SITE_CONFIG.name}の記事一覧。グルメ、イベント、スポット、カルチャー、ニュースなど、南信州の魅力を発信しています。`,
+  title: 'ブログ',
+  description: `${SITE_CONFIG.name}の記事一覧。食・グルメ、イベント・講座、おでかけ、文化・歴史、暮らし、人・活動まで、飯田下伊那のあれこれを届けます。`,
   alternates: {
     canonical: `${SITE_CONFIG.url}/blog`,
   },

@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { SITE_CONFIG } from '@/lib/site-config'
 
 export const metadata: Metadata = {
-  title: `プライバシーポリシー | ${SITE_CONFIG.name}`,
+  title: 'プライバシーポリシー',
   description: `${SITE_CONFIG.name}のプライバシーポリシー。個人情報の取り扱いについて。`,
   alternates: {
     canonical: `${SITE_CONFIG.url}/privacy`,

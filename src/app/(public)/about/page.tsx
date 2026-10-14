@@ -16,7 +16,7 @@ import {
 import { SITE_CONFIG } from '@/lib/site-config'
 
 export const metadata: Metadata = {
-  title: `About | ${SITE_CONFIG.name}`,
+  title: 'About',
   description: 'ライター・インタビュアー本岡紗代のプロフィール。地域密着の取材記事やインタビューを中心に、言葉の温度をたいせつにした執筆活動を行っています。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/about`,

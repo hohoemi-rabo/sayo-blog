@@ -5,7 +5,7 @@ import { ToastProvider } from '@/components/ui/Toast'
 import { getInquiryCounts } from './inquiries/actions'
 
 export const metadata = {
-  title: '管理画面 | Sayo\'s Journal',
+  title: '管理画面 | HOISA',
   robots: 'noindex, nofollow',
 }
 

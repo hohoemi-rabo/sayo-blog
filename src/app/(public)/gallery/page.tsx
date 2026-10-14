@@ -16,7 +16,7 @@ import InfiniteImageGrid from './_components/InfiniteImageGrid'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: `ギャラリー | ${SITE_CONFIG.name}`,
+  title: 'ギャラリー',
   description:
     '南信州（飯田・下伊那）の人・場所・食を綴った記事の写真ギャラリー。気になる一枚から、その物語へ。',
   alternates: {
