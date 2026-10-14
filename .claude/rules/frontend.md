@@ -37,12 +37,15 @@ paths:
 - **Body (Japanese)**: Noto Serif JP (`--font-noto-serif-jp`)
 - **UI/Navigation**: Noto Sans JP (`--font-noto-sans-jp`)
 
-## Header CTA Hierarchy (公開ヘッダー)
+## Public Header (HOISA, 2026-10 / Ticket 44)
 
-公開ヘッダー (`Header.tsx`) の 2 つの CTA は視覚ヒエラルキーを付けている:
-- **主役「取材を依頼」** (`/request/interview`): ピンク〜コーラルのグラデ `from-[#ED93B1] to-[#D85A30]` + 柔らかい glow shadow + `hover:-translate-y-0.5` で浮き上がり。白文字に `text-shadow` を足してグラデ左端でもコントラスト確保。
-- **脇役「情報を届ける」** (`/request/post`): 枠付きゴースト (`border-primary/40` + `text-primary`)、hover で枠を濃く。主役を引き立てる。
-- 注意: `primary-hover` (#FF8FB3) は primary (#FF6B9D) より**明るい**ため、塗り CTA の hover に使うと白文字が同化する。塗りボタンの hover は `brightness-95` 等で**暗く**する。
+`Header.tsx` (Server) がカテゴリを DB から取り → `HeaderClient.tsx` (Client) が描画。3 つの layout ((public)/(chat)) はそのまま `<Header />` を呼ぶ。admin は別物 (`components/admin/Header`)。
+- **cookies() を読まない**: 読むと全公開ページが動的に落ちる。だから「AI で探す」の「近日公開」バッジは管理者にも出る (管理者は /chat で普通に使える)
+- メニュー: ロゴ (+ xl 以上でキャッチ) / 記事を読む ▾ (新着・人気・ギャラリー) / 探す ▾ (DB のカテゴリ + キーワード検索) / AI で探す / 情報を届ける ▾ (投稿記事・取材記事の 2 択) / 検索 (`SearchBar compact`)
+- デスクトップ表示は **lg 以上**。lg 未満はハンバーガー。高さは h-16 / md:h-20 のまま ((chat)/layout.tsx の高さ計算が依存)
+- `NavDropdown`: マウスはホバーで開く。**ホバーで開いた直後のクリックで閉じない**よう pointerType を見ている (タッチ・キーボードはトグル)。Esc でボタンにフォーカスを戻す / 外側クリック / Tab で外へ出る / 遷移 で閉じる
+- 取材記事 (有料) は「情報を届ける」の中に残す = ヘッダーから窓口を消さない
+- 旧ヘッダーの絵文字 CTA は廃止 (lucide アイコンに置換)
 
 ## Component Conventions
 

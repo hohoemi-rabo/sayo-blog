@@ -72,8 +72,14 @@ export default async function ChatRoute() {
 
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-noto-sans-jp text-sm mb-8">
           <Sparkles className="w-4 h-4" />
-          現在開発中です。お楽しみに！
+          現在開発中・近日公開
         </div>
+
+        <p className="text-sm text-text-secondary font-noto-sans-jp leading-relaxed mb-8 -mt-4">
+          公開まで、もうしばらくお待ちください。
+          <br />
+          それまでは、記事やカテゴリからどうぞ。
+        </p>
 
         <div>
           <Link

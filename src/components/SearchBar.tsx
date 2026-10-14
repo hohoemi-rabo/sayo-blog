@@ -23,7 +23,10 @@ interface SearchSuggestion {
   }>
 }
 
-export default function SearchBar() {
+/**
+ * @param compact ヘッダー用の小ぶりなピル型 (デザイン案の検索欄)
+ */
+export default function SearchBar({ compact = false }: { compact?: boolean }) {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -102,9 +105,11 @@ export default function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="記事を検索..."
-          className="w-full pl-12 pr-12 py-3 rounded-xl border border-border-decorative
-            focus:outline-none focus:ring-2 focus:ring-primary font-noto-sans-jp
-            transition-shadow"
+          className={`w-full pl-12 pr-12 border font-noto-sans-jp transition-shadow focus:outline-none focus:ring-2 ${
+            compact
+              ? 'py-2.5 rounded-full bg-white/80 border-hoisa/20 text-sm focus:ring-hoisa/40'
+              : 'py-3 rounded-xl border-border-decorative focus:ring-primary'
+          }`}
           aria-label="記事を検索"
         />
 
