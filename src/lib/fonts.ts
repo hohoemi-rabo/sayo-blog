@@ -1,14 +1,23 @@
-import { Cormorant_Garamond, Klee_One, Shippori_Mincho } from 'next/font/google'
+import { Cormorant_Garamond } from 'next/font/google'
+import localFont from 'next/font/local'
 
 /**
- * サイト本体と LP の両方で使う明朝系フォント (next/font で self-host)。
+ * HOISA ブランド用フォント (ルートレイアウトで変数を付与)。
  *
- * もともと LP 専用 ((lp)/layout.tsx) で読んでいたものを、HOISA ロゴ・ヘッダー・ヒーローでも
- * 使うためにここへ集約した。ルートレイアウトで変数を付与し、LP 側は同じ変数を参照するだけにする
- * (同じフォントを 2 か所で宣言すると別ファイルとして二重に読み込まれるため)。
+ * 和文 (明朝・手書き風) は **使う文字だけのサブセット** を next/font/local で読む。
+ * next/font/google で和文をサイト全体に読むと、表示した文字の分だけ unicode-range の分割ファイルを
+ * 何十本も落とし (トップで 13MB / 482 リクエスト)、@font-face 宣言だけで描画ブロックの CSS も
+ * 数百 KB 増えたため。サブセットは `npm run fonts:subset` (scripts/build-font-subsets.mjs) で作る。
+ *
+ * ⚠️ そのため font-mincho / font-hand は **固定の文言だけ** に使うこと (キャッチ・ヒーロー説明文など)。
+ * 記事タイトル等の可変テキストは Noto Serif JP (font-noto-serif-jp) を使う。
+ * サブセットに無い文字は Noto Serif JP にフォールバックする (崩れはしないが書体が混ざる)。
+ *
+ * LP は Shippori Mincho を広い文言・多数のウェイトで使うので、LP 側 ((lp)/layout.tsx) で
+ * 従来どおり Google から読む (LP のページでしか読み込まれない)。
  */
 
-// HOISA の欧文ロゴ・装飾見出し
+// HOISA の欧文ロゴ。欧文のみなので Google から (LP も同じ変数を参照する)
 export const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['500', '600', '700'],
@@ -16,19 +25,18 @@ export const cormorant = Cormorant_Garamond({
   display: 'swap',
 })
 
-// キャッチ・ヒーロー本文などの和文明朝
-export const shippori = Shippori_Mincho({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-shippori',
+// キャッチ・ヒーロー説明文などの和文明朝 (Shippori Mincho 400 のサブセット)
+export const hoisaMincho = localFont({
+  src: '../fonts/shippori-mincho-400-subset.woff2',
+  weight: '400',
+  variable: '--font-hoisa-mincho',
   display: 'swap',
 })
 
-// ヒーロー右上の手書き風ひとこと専用。使う場所が 1 か所だけなので preload しない
-// (和文は unicode-range で分割配信され、実際に使う文字のファイルだけが読まれる)
-export const klee = Klee_One({
-  subsets: ['latin'],
-  weight: ['400'],
+// ヒーロー右上の手書き風ひとこと (Klee One 400 のサブセット、14 文字)
+export const klee = localFont({
+  src: '../fonts/klee-one-400-subset.woff2',
+  weight: '400',
   variable: '--font-klee',
   display: 'swap',
   preload: false,

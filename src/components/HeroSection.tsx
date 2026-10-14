@@ -44,7 +44,8 @@ export default function HeroSection() {
       {/* 下端を次のセクションの地色へ溶かす */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />
 
-      {/* 右上の手書き風ひとこと (PC のみ) */}
+      {/* 右上の手書き風ひとこと (PC のみ)。フォントはこの 14 文字だけのサブセットなので、
+          文言を変えたら scripts/build-font-subsets.mjs の text も変えて `npm run fonts:subset` */}
       <p
         aria-hidden="true"
         className="hidden lg:block absolute right-[4%] top-10 z-10 font-hand text-lg leading-[2.1] tracking-[0.3em] text-text-primary/70 -rotate-6"

@@ -75,7 +75,7 @@ function FeatureCard({ post, className }: { post: PostWithRelations; className?:
       <Label className="absolute left-5 top-5">特集</Label>
 
       <div className="p-6 sm:p-8">
-        <h2 className="font-mincho text-xl sm:text-2xl xl:text-[1.7rem] font-semibold leading-snug text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.35)]">
+        <h2 className="font-noto-serif-jp text-xl sm:text-2xl xl:text-[1.7rem] font-bold leading-snug text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.35)]">
           {/* カード全体ではなくタイトルをリンクにし、after で面全体をクリック可能にする (中の要約リンクと入れ子にしない) */}
           <Link href={href} className="text-white hover:text-white after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:underline">
             {post.title}
@@ -166,7 +166,7 @@ function ReportCard({ post, className }: { post: PostWithRelations; className?: 
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h2 className="font-mincho text-lg font-semibold leading-snug text-text-primary line-clamp-3">
+        <h2 className="font-noto-serif-jp text-lg font-bold leading-snug text-text-primary line-clamp-3">
           <Link href={href} className="text-text-primary hover:text-hoisa after:absolute after:inset-0 after:content-[''] focus:outline-none focus-visible:underline">
             {post.title}
           </Link>
@@ -204,7 +204,7 @@ function NoticeList({ posts, className }: { posts: PostWithRelations[]; classNam
       )}
     >
       <div className="mb-3 flex items-center justify-between">
-        <h2 id="home-notices-title" className="flex items-center gap-2 font-mincho text-lg font-semibold text-text-primary">
+        <h2 id="home-notices-title" className="flex items-center gap-2 font-noto-serif-jp text-lg font-bold text-text-primary">
           <Bell className="h-5 w-5 text-hoisa" aria-hidden="true" />
           まちのお知らせ
         </h2>

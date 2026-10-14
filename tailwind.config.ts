@@ -65,8 +65,8 @@ const config: Config = {
 
         // HOISA ブランド (ロゴ・ヘッダー・ヒーロー)。src/lib/fonts.ts で読み込み
         cormorant: ['var(--font-cormorant)', 'Georgia', 'serif'],
-        mincho: ['var(--font-shippori)', 'var(--font-noto-serif-jp)', 'serif'],
-        hand: ['var(--font-klee)', 'var(--font-shippori)', 'serif'],
+        mincho: ['var(--font-hoisa-mincho)', 'var(--font-noto-serif-jp)', 'serif'],
+        hand: ['var(--font-klee)', 'var(--font-noto-serif-jp)', 'serif'],
 
         // Legacy fonts (will be replaced)
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
