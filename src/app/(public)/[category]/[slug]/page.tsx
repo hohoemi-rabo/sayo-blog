@@ -234,7 +234,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         {/* モバイル TOC */}
         {headings.length > 0 && (
-          <div className="xl:hidden">
+          <div className="min-[1440px]:hidden">
             <TableOfContents headings={headings} />
           </div>
         )}
@@ -260,9 +260,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <ReactionBar postId={post.id} />
       </div>
 
-      {/* デスクトップ TOC — 固定位置で右側に配置（メインのレイアウトに影響なし） */}
+      {/* デスクトップ TOC — 固定位置で右側に配置（メインのレイアウトに影響なし）。
+          本文 (max-w-4xl = 56rem) の右に TOC (w-56) を並べるには 56rem + 両側 (2rem 余白 + 14rem + 1rem) = 90rem
+          = 1440px 必要。xl (1280px) から出していた頃は 1280〜1440px のノート PC で本文・画像に重なっていた。
+          この幅は TableOfContents.tsx 内の出し分けと揃えること */}
       {headings.length > 0 && (
-        <aside className="hidden xl:block fixed top-24 right-[max(1rem,calc((100vw-56rem)/2-16rem))] w-56 max-h-[calc(100vh-8rem)] overflow-y-auto">
+        <aside className="hidden min-[1440px]:block fixed top-24 right-[max(1rem,calc((100vw-56rem)/2-16rem))] w-56 max-h-[calc(100vh-8rem)] overflow-y-auto">
           <TableOfContents headings={headings} />
         </aside>
       )}

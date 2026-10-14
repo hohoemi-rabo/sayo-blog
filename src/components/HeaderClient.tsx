@@ -38,10 +38,10 @@ export default function HeaderClient({ categories }: { categories: NavCategory[]
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between gap-4 h-16 md:h-20" aria-label="メインメニュー">
-          {/* Logo + tagline */}
+          {/* Logo + tagline。キャッチは 1440px から (1280〜1440px で出すと検索欄が右端からはみ出した) */}
           <Link href="/" className="flex items-center gap-5 shrink-0" aria-label={`${SITE_CONFIG.name} トップへ`}>
             <HoisaLogo />
-            <span className="hidden xl:inline pl-3 font-mincho text-sm tracking-[0.18em] text-text-primary/80">
+            <span className="hidden min-[1440px]:inline pl-3 font-mincho text-sm tracking-[0.18em] text-text-primary/80">
               {SITE_CONFIG.tagline}
             </span>
           </Link>

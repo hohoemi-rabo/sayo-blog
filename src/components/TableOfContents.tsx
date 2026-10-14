@@ -96,9 +96,9 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <>
-      {/* デスクトップ: サイドバー用 */}
+      {/* デスクトップ: サイドバー用 (1440px 以上。記事ページの aside と同じ幅で切り替える) */}
       <nav
-        className="hidden xl:block"
+        className="hidden min-[1440px]:block"
         aria-label="目次"
       >
         <h2 className="text-sm font-bold text-text-primary font-noto-sans-jp mb-3 uppercase tracking-wider">
@@ -108,7 +108,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
       </nav>
 
       {/* モバイル・タブレット: 折りたたみ */}
-      <div className="xl:hidden mb-8">
+      <div className="min-[1440px]:hidden mb-8">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center justify-between w-full py-3 px-4 bg-background-dark/5 rounded-xl text-sm font-noto-sans-jp font-medium text-text-primary"
