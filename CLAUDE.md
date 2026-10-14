@@ -57,11 +57,11 @@ src/
 ```
 /                              → Home (Hero + Pick Up posts)
 /blog                          → Blog listing ("もっと見る" button)
-/blog?category=gourmet         → Category filter
+/blog?category=food            → Category filter
 /blog?hashtags=tag1,tag2       → Hashtag filter
 /blog?sort=popular             → Sort by view count
-/gourmet/                      → Category listing page
-/gourmet/[slug]/               → Article detail
+/food/                         → Category listing page
+/food/[slug]/                  → Article detail
 /search?q=keyword              → Search results
 /gallery                       → 写真ギャラリー (公開記事の画像を masonry 一覧 → クリックで記事直行)
 /chat                          → AI Chat (admin: full chat, user: teaser)
@@ -87,7 +87,7 @@ src/
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```
 
-**Categories** (flat): gourmet, event, spot, culture, news
+**Categories** (flat, 2026-10 再編): food (食・グルメ), event (イベント・講座), outing (おでかけ), culture (文化・歴史), life (暮らし), people (人・活動)。旧 gourmet/spot/news の URL は 301 (一覧は next.config.ts、記事は記事ページでカテゴリ不一致を検出して正規 URL へ)
 
 ## Environment Variables
 

@@ -61,7 +61,7 @@ ${CATEGORY_LINE(input.categories)}
 
 【出力は JSON のみ】（説明文・マークダウンフェンスは一切出力しない）
 {
-  "category_slug": "gourmet",
+  "category_slug": "food",
   "keywords": ["飯田市", "ラーメン", "..."],
   "organized_facts": "・種別: ...\\n・名称: ...\\n・日時: ...\\n・場所: ...\\n・料金: ...\\n・特徴: ...\\n・連絡先: ..."
 }

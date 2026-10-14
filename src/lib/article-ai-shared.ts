@@ -18,7 +18,7 @@ import type { IgArticleAiOutput, IgArticleEventData } from '@/lib/types'
 
 export const MAX_RETRIES = 3
 export const INITIAL_BACKOFF_MS = 1000
-export const FALLBACK_CATEGORY_SLUG = 'news'
+export const FALLBACK_CATEGORY_SLUG = 'life'
 
 /** 期待される入力不足など、呼び出し側に 400 として返すべきエラー */
 export class ArticleAiValidationError extends Error {

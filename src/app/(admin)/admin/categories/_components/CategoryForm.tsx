@@ -139,7 +139,7 @@ export function CategoryForm({ mode, initialData }: CategoryFormProps) {
                 id="slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                placeholder="例: gourmet"
+                placeholder="例: food"
                 required
               />
               <p className="text-xs text-text-secondary">

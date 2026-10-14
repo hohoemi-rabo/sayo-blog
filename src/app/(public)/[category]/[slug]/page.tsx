@@ -1,5 +1,5 @@
 import { cache, Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
 import { Category, Hashtag } from '@/lib/types'
@@ -55,6 +55,10 @@ const getPost = cache(async (slug: string) => {
   return data
 })
 
+function getPostCategorySlug(post: { post_categories: unknown }): string | undefined {
+  return (post.post_categories as Array<{ categories: { slug: string } }>)[0]?.categories.slug
+}
+
 // Pre-render top 30 articles
 export async function generateStaticParams() {
   const supabase = createClient()
@@ -109,7 +113,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 
   const description = truncateDescription(post.excerpt || post.title)
   const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}/og-image.png`
-  const canonicalUrl = `/${category}/${slug}/`
+  const canonicalUrl = `/${getPostCategorySlug(post) ?? category}/${slug}/`
   const hashtags = (
     post.post_hashtags as Array<{ hashtags: { name: string } }>
   ).map((ph) => ph.hashtags)
@@ -174,8 +178,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // Phase 2: 見出しにid付与 + TOC用データ抽出
   const { processedHtml, headings } = processArticleContent(post.content)
 
-  // Build JSON-LD structured data
+  // URL のカテゴリが記事の実カテゴリと違えば正規 URL へ 301。
+  // 2026-10 のカテゴリ再編で旧 URL (/gourmet/xxx, /news/xxx 等) が外部に残っているため、
+  // 記事ごとの対応表を持たずにここで一括して吸収する (同じ記事が複数 URL で表示される重複も防ぐ)。
   const firstCategory = categories[0] as Category | undefined
+  if (firstCategory && firstCategory.slug !== resolvedParams.category) {
+    permanentRedirect(`/${firstCategory.slug}/${post.slug}`)
+  }
+
+  // Build JSON-LD structured data
   const articleSchema = generateArticleSchema(
     post,
     firstCategory?.slug || resolvedParams.category

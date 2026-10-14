@@ -137,7 +137,7 @@ function sanitizeCaptionBody(input: {
   let cleaned = body
 
   // 1. Remove article URL (all common variants: https/http, localhost dev URL, bare domain)
-  const urlPath = articleUrl.replace(/^https?:\/\/[^/]+/, '') // /gourmet/xxx
+  const urlPath = articleUrl.replace(/^https?:\/\/[^/]+/, '') // /food/xxx
   const urlPatterns = [
     articleUrl,
     articleUrl.replace(/^https:\/\//, 'http://'),

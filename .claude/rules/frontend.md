@@ -22,12 +22,14 @@ paths:
 - **Text**: `#1A1816` (rich black)
 - **Accents**: `#4ECDC4` (turquoise), `#9B59B6` (purple)
 
-**Category Gradients** (each category has unique gradient):
-- gourmet: `#FFB75E → #FFD194`
-- spot: `#4FC3F7 → #81D4FA`
+**Category Gradients** (`src/lib/category-colors.ts` が slug → グラデを対応付け。未登録 slug は primary のグラデに落ちる):
+- food: `#FFB75E → #FFD194`
 - event: `#5C6BC0 → #7986CB`
+- outing: `#4FC3F7 → #81D4FA`
 - culture: `#8D6E63 → #A1887F`
-- news: `#AB47BC → #BA68C8`
+- life: `#AB47BC → #BA68C8`
+- people: `#66BB6A → #81C784`
+- ⚠️ カテゴリを足す/スラッグを変えるときは `category-colors.ts` も更新すること (2026-10 再編で更新済み)
 
 ## Typography
 

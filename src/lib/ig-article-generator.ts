@@ -24,7 +24,7 @@ import type { IgArticleAiOutput, IgArticleEventData } from '@/lib/types'
 
 const MAX_RETRIES = 3
 const INITIAL_BACKOFF_MS = 1000
-const FALLBACK_CATEGORY_SLUG = 'news'
+const FALLBACK_CATEGORY_SLUG = 'life'
 
 // Validation errors are surfaced to the API caller as 400; other errors are 500.
 export class IgArticleValidationError extends Error {
@@ -128,7 +128,7 @@ export async function generateArticleFromIg(
 
     const ai = await callGeminiForArticle(prompt)
 
-    // 7. Resolve recommended category id (fallback to news).
+    // 7. Resolve recommended category id (fallback to life).
     const categoryId = resolveCategoryId(
       categories,
       ai.recommended_category_slug,

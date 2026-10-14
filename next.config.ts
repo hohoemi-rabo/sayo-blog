@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
         destination: '/request/interview/thanks',
         permanent: true,
       },
+      // 2026-10 カテゴリ再編: 旧カテゴリ一覧ページ。旧記事 URL (/gourmet/xxx 等) は
+      // 記事ページ側でカテゴリ不一致を検出して 301 する (記事ごとの対応表は持たない)
+      { source: '/gourmet', destination: '/food', permanent: true },
+      { source: '/spot', destination: '/outing', permanent: true },
+      { source: '/news', destination: '/life', permanent: true },
     ]
   },
 };
