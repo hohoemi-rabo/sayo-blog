@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import HeroSection from '@/components/HeroSection'
 import PostCard from '@/components/PostCard'
-import { createClient } from '@/lib/supabase'
+import HomeHighlights from '@/components/HomeHighlights'
+import { getHomePosts } from '@/lib/home-posts'
 import { SITE_CONFIG } from '@/lib/site-config'
-import { PostWithRelations } from '@/lib/types'
 
 export const metadata: Metadata = {
   title: { absolute: SITE_CONFIG.title },
@@ -17,53 +17,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 600 // 10 minutes ISR
 
-async function getPickupPosts(): Promise<PostWithRelations[]> {
-  const supabase = createClient()
-
-  const selectQuery = `
-    *,
-    post_categories!inner(
-      categories!inner(id, slug, name, parent_id)
-    ),
-    post_hashtags(
-      hashtags(id, name, slug, count)
-    )
-  `
-
-  // おすすめ記事を優先表示。なければ最新6件にフォールバック
-  const { data: featured } = await supabase
-    .from('posts')
-    .select(selectQuery)
-    .eq('is_published', true)
-    .eq('is_featured', true)
-    .order('published_at', { ascending: false })
-    .limit(6)
-
-  if (featured && featured.length > 0) {
-    return featured as PostWithRelations[]
-  }
-
-  const { data, error } = await supabase
-    .from('posts')
-    .select(selectQuery)
-    .eq('is_published', true)
-    .order('published_at', { ascending: false })
-    .limit(6)
-
-  if (error) {
-    console.error('Error fetching pickup posts:', error)
-    return []
-  }
-
-  return (data || []) as PostWithRelations[]
-}
-
 export default async function HomePage() {
-  const posts = await getPickupPosts()
+  const { feature, report, notices, pickup: posts } = await getHomePosts()
 
   return (
     <>
       <HeroSection />
+      <HomeHighlights feature={feature} report={report} notices={notices} />
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* Section heading */}

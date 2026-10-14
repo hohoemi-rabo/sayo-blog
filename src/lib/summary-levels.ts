@@ -10,6 +10,13 @@
 
 export type SummaryLevel = 'short' | 'medium' | 'long'
 
+/**
+ * 記事ページ内の要約スライダーへのアンカー。トップの「AI要約で読む」は
+ * `/{category}/{slug}?summary={level}#ai-summary` へリンクする。
+ * (Server Component からも参照するので 'use client' のファイルには置かない)
+ */
+export const SUMMARY_ANCHOR_ID = 'ai-summary'
+
 export interface SummaryLevelConfig {
   /** UI ラベル */
   label: string

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sparkles, Clock } from 'lucide-react'
-import { SUMMARY_LEVELS, type SummaryLevel } from '@/lib/summary-levels'
+import { SUMMARY_ANCHOR_ID, SUMMARY_LEVELS, type SummaryLevel } from '@/lib/summary-levels'
 
 interface SummarySliderProps {
   summaryShort: string | null
@@ -33,6 +33,13 @@ export function SummarySlider({
     available[0]?.level ?? 'short'
   )
 
+  // トップの「AI要約で読む」から ?summary=medium#ai-summary のように来たら、その長さで開く。
+  // 記事ページは ISR なので useSearchParams ではなくマウント後に location を読む (ページを動的にしない)
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('summary')
+    if (requested && requested in SUMMARY_LEVELS) setSelected(requested as SummaryLevel)
+  }, [])
+
   if (available.length === 0) return null
 
   const activeIndex = Math.max(
@@ -44,8 +51,9 @@ export function SummarySlider({
 
   return (
     <section
+      id={SUMMARY_ANCHOR_ID}
       aria-label="AI要約"
-      className="mb-8 rounded-2xl border border-border-decorative bg-background/60 p-5 sm:p-6"
+      className="scroll-mt-24 md:scroll-mt-28 mb-8 rounded-2xl border border-border-decorative bg-background/60 p-5 sm:p-6"
     >
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />

@@ -98,7 +98,7 @@
 - [×] Step 2: フォント共有化 + HoisaLogo (header / hero の 2 サイズ。正式ロゴが届いたら中身を差し替え)
 - [×] Step 3: ヘッダー刷新 (PC / スマホ / キーボード操作) + /chat の「現在開発中・近日公開」
 - [×] Step 4: ヒーロー (ロゴ部分, 写真は仮置き = 記事「天竜峡」の写真。`HeroSection.tsx` の HERO_PHOTO で差し替え)
-- [ ] Step 5: ヒーロー (3 つの枠) + Pick Up との重複除外
+- [×] Step 5: ヒーロー (3 つの枠) + Pick Up との重複除外 (`src/lib/home-posts.ts` + `HomeHighlights.tsx`。「AI要約で読む」→ 記事の `?summary=…#ai-summary`)
 - [ ] Step 6: フッター更新
 - [ ] Step 7: レスポンシブ確認 / Lighthouse / ドキュメント更新
 - [ ] `npm run lint` / `npm run build` パス
