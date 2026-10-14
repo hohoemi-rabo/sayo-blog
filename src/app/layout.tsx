@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { cormorant, shippori } from "@/lib/fonts";
 import { generateWebSiteSchema, generateOrganizationSchema, JsonLd } from "@/lib/structured-data";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
@@ -103,7 +104,7 @@ export default function RootLayout({
   return (
     <html lang="ja" data-scroll-behavior="smooth">
       <body
-        className={`${playfair.variable} ${notoSerifJP.variable} ${notoSansJP.variable} font-noto-serif-jp antialiased`}
+        className={`${playfair.variable} ${notoSerifJP.variable} ${notoSansJP.variable} ${cormorant.variable} ${shippori.variable} font-noto-serif-jp antialiased`}
       >
         <GoogleAnalytics />
         <JsonLd data={generateWebSiteSchema()} />

@@ -22,6 +22,12 @@ const config: Config = {
         'text-primary': '#1A1816',
         'text-secondary': '#6B6865',
 
+        // HOISA ブランド (ロゴ・ヒーロー)。デザイン案 s1.png のローズピンク
+        hoisa: {
+          DEFAULT: '#E0527F',
+          light: '#F08AAA',
+        },
+
         // Accent colors
         'accent-turquoise': '#4ECDC4',
         'accent-purple': '#9B59B6',
@@ -56,6 +62,10 @@ const config: Config = {
 
         // UI fonts
         'noto-sans-jp': ['var(--font-noto-sans-jp)', 'sans-serif'],
+
+        // HOISA ブランド (ロゴ・ヘッダー・ヒーロー)。src/lib/fonts.ts で読み込み
+        cormorant: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        mincho: ['var(--font-shippori)', 'var(--font-noto-serif-jp)', 'serif'],
 
         // Legacy fonts (will be replaced)
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],

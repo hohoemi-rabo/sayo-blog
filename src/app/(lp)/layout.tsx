@@ -1,8 +1,5 @@
-import {
-  Cormorant_Garamond,
-  Shippori_Mincho,
-  Zen_Kaku_Gothic_New,
-} from 'next/font/google'
+import type { CSSProperties } from 'react'
+import { Zen_Kaku_Gothic_New } from 'next/font/google'
 
 /**
  * LP 専用ルートグループのレイアウト。
@@ -13,21 +10,10 @@ import {
  * ルートごとの layout で読み込む (投稿記事 = lp-post.css / .lp-post、
  * 取材記事 = lp-long.css / .lp-long)。両 LP はクラス名が同一 (.hero/.card/.btn 等) で
  * パレットだけ違うため、共通レイアウトで片方の CSS を読むと衝突する。
+ *
+ * 明朝系 (Cormorant / Shippori) はサイト本体と共有するためルートレイアウトで読み込み済み
+ * (`src/lib/fonts.ts`)。LP の CSS が参照する `--font-lp-*` はここでその変数に橋渡しする。
  */
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-lp-latin',
-  display: 'swap',
-})
-
-const shippori = Shippori_Mincho({
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-lp-serif',
-  display: 'swap',
-})
 
 const zenKaku = Zen_Kaku_Gothic_New({
   subsets: ['latin'],
@@ -36,11 +22,14 @@ const zenKaku = Zen_Kaku_Gothic_New({
   display: 'swap',
 })
 
+const LP_FONT_VARS = {
+  '--font-lp-latin': 'var(--font-cormorant)',
+  '--font-lp-serif': 'var(--font-shippori)',
+} as CSSProperties
+
 export default function LpLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className={`${cormorant.variable} ${shippori.variable} ${zenKaku.variable}`}
-    >
+    <div className={zenKaku.variable} style={LP_FONT_VARS}>
       {children}
     </div>
   )
