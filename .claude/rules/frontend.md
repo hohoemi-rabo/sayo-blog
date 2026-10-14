@@ -51,6 +51,13 @@ paths:
 - 取材記事 (有料) は「情報を届ける」の中に残す = ヘッダーから窓口を消さない
 - 旧ヘッダーの絵文字 CTA は廃止 (lucide アイコンに置換)
 
+## Article Page TOC (記事ページの目次)
+
+- **右の固定目次は 1440px 以上だけ**。本文 (max-w-4xl = 56rem) の右に `fixed` の目次 (w-56) を並べるには 56rem + 両側 (2rem 余白 + 14rem + 1rem) = 90rem = 1440px 必要
+- 1440px 未満は本文上の開閉式目次 (`TableOfContents` 内で出し分け)。切替幅は `[category]/[slug]/page.tsx` の aside と **必ず揃える** (`min-[1440px]:`)
+- ⚠️ 以前は xl (1280px) から出しており、1280〜1440px (15 インチのノート PC に多い) で本文・画像に重なっていた。本文幅や目次幅を変えるときはこの計算をやり直すこと
+- 同じ幅の理由で、ヘッダーのキャッチも 1440px から表示
+
 ## Component Conventions
 
 - Use `@/` path alias for imports

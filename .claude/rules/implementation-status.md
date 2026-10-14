@@ -52,7 +52,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - Ticket 42: ロング記事 CRM (公開フォーム /request/interview + 案件管理 7段階ステータス/取材日/金額/記事紐付け + 自動公開連動 + ArticleTypeBadge 公開表示) ✅
 
 ### HOISA ブランド化 + トップ刷新 — Ticket 44 Complete (2026-10-14)
-仕様・経緯: `docs/44_hoisa-top-redesign.md`。デザイン案 `s1.png` (リポジトリ外)。
+仕様・経緯: `docs/44_hoisa-top-redesign.md`。デザイン案の画像 (`s1.png`) は紗代さんとの相談用で**リポジトリに無い** (削除済み)。デザインの正本は実装そのもの。
 - **カテゴリ再編** (同日・先行): 6 本 = food / event / outing / culture / life / people。migration `20261014120000_reorganize_categories.sql` (既存行を UPDATE で転用 + people 新設 + 記事ごとの対応表で振り分け + トランザクション内検証)。控え `supabase/backups/20261014_category_reorg_backup.md`。旧 URL: 一覧は next.config.ts の redirects、記事は `[category]/[slug]/page.tsx` が**カテゴリ不一致なら正規 URL へ permanentRedirect** (記事ごとの対応表は持たない)。バッジ色 `category-colors.ts`、AI のフォールバックカテゴリ `life`
 - **サイト名**: `SITE_CONFIG.name = 'HOISA'` / `tagline` / title / description。直書きは全廃 (LP・同意文・通知メール件名・AI プロンプト含む)。ページ title のサイト名二重表示も修正 (layout の template に任せる。トップは `{ absolute }`)
 - **フォント**: `src/lib/fonts.ts`。Cormorant (欧文ロゴ, Google) + **和文はサブセットの local font** (Shippori Mincho 400 / Klee One)。`npm run fonts:subset` (`scripts/build-font-subsets.mjs`) で固定文言の文字だけ取得。LP の Shippori は `(lp)/layout.tsx` で従来どおり Google から (LP 限定)。⚠️ 和文を next/font/google でサイト全体に読んだ版は**トップで 13MB / 482 リクエスト・モバイル LCP 89 秒**になった
@@ -62,6 +62,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **3 枠**: `HomeHighlights.tsx` + `src/lib/home-posts.ts::getHomePosts()` (3 クエリ並列 → 特集 / お知らせ / レポート / Pick Up を順に決めて重複除外)。お知らせの並びは「開催日が今日以降 → 未終了 → 終了」(現状は開催日未入力のため実質 新しい順)
 - **AI 要約リンク**: `SummarySlider` が `?summary=` をマウント後に読む (記事ページは ISR のまま)。アンカー `SUMMARY_ANCHOR_ID` は `summary-levels.ts`
 - **/chat**: 一般向けは「現在開発中・近日公開」
+- **ノート PC 幅の修正** (同日, `1a19047`): 記事ページ右の固定目次は **1440px から** (本文 56rem + 両側 2rem + 14rem + 1rem = 90rem)。xl (1280px) から出していた頃は 1280〜1440px (15 インチノート) で本文・画像に重なっていた。ヘッダーのキャッチも同じ理由で 1440px から (1280px で検索欄がはみ出した)
 - 計測 (ローカル本番ビルド, Lighthouse 12 モバイル): Performance 84 / LCP 4.2s / CLS 0 (改修前の本番トップ 76)。残る重さは既存の Noto Serif/Sans JP の @font-face CSS (各 ~280KB) = 改修前からある技術的負債
 
 ### 画像ギャラリー (Gallery) — Complete
@@ -118,12 +119,24 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - `src/components/SearchBar.tsx` - Search with autocomplete
 - `src/components/GoogleAnalytics.tsx` - GA4 (env var based)
 - `src/components/ScrollProgress.tsx` - Scroll progress bar (CSS scaleX)
-- `src/components/TableOfContents.tsx` - TOC with IntersectionObserver tracking
+- `src/components/TableOfContents.tsx` - TOC with IntersectionObserver tracking。**1440px 以上は記事ページの固定 aside、未満は本文上の開閉式** (切替幅は `[category]/[slug]/page.tsx` の aside と揃える)
 - `src/components/ImageLightbox.tsx` - Native `<dialog>` lightbox
 - `src/components/ReactionBar.tsx` - Reaction buttons toggle (localStorage + Supabase)
 - `src/components/RelatedArticles.tsx` - Server Component, scoring-based
 - `src/components/ScrollFadeIn.tsx` - IntersectionObserver fade-in wrapper
 - `src/components/EventEndedOverlay.tsx` - イベント終了記事のサムネ/ヒーロー画像オーバーレイ (mode: card | hero)
+
+### HOISA (Ticket 44)
+- `src/components/Header.tsx` (Server, カテゴリ取得) / `HeaderClient.tsx` (Client, プルダウン・スマホメニュー)
+- `src/components/Footer.tsx` - Server, 淡いローズ地 + 4 列リンク
+- `src/components/HeroSection.tsx` - トップのヒーロー (Server)。仮写真は `HERO_PHOTO`
+- `src/components/HomeHighlights.tsx` - 特集 / レポート / まちのお知らせ
+- `src/components/HoisaLogo.tsx` - ロゴ (header / hero)。正式ロゴが来たら中身を差し替え
+- `src/lib/home-posts.ts` - `getHomePosts()` トップの枠ごとの記事決定 + 重複除外 / `postHref` / `formatDotDate`
+- `src/lib/site-nav.ts` - ヘッダー・フッター共通のメニュー定義 (Server/Client 両用のため 'use client' に置かない)
+- `src/lib/nav-categories.ts` - `getNavCategories()` (React.cache でヘッダー・フッター 1 回に)
+- `src/lib/fonts.ts` - Cormorant + 和文サブセット (Shippori 400 / Klee One)。`src/fonts/*.woff2` は `npm run fonts:subset` (`scripts/build-font-subsets.mjs`) で生成
+- `src/lib/category-colors.ts` - カテゴリ slug → バッジのグラデ (カテゴリを足したら更新)
 
 ### Utilities
 - `src/lib/types.ts` - TypeScript interfaces
