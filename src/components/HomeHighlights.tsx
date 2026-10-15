@@ -1,27 +1,27 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, Bell, Sparkles } from 'lucide-react'
+import { ArrowRight, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PostWithRelations } from '@/lib/types'
 import { SUMMARY_ANCHOR_ID, SUMMARY_LEVELS, type SummaryLevel } from '@/lib/summary-levels'
-import { NOTICE_CATEGORY_SLUG, formatDotDate, postHref } from '@/lib/home-posts'
+import { formatDotDate, postHref } from '@/lib/home-posts'
 
 /**
  * 注: globals.css が素の <a> をピンクにするため、カード内のリンクは文字色を明示している。
  *
- * トップのヒーロー直下の 3 枠 (デザイン案 s1.png): 特集 / レポート / まちのお知らせ。
+ * トップのヒーロー直下の 3 枠 (デザイン案 s1.png): 特集 / レポート / ランダムな記事 (見出し無し)。
  * どの記事を出すかは `getHomePosts()` が決める (Pick Up との重複除外もそちら)。
  */
 export default function HomeHighlights({
   feature,
   report,
-  notices,
+  randomPosts,
 }: {
   feature: PostWithRelations | null
   report: PostWithRelations | null
-  notices: PostWithRelations[]
+  randomPosts: PostWithRelations[]
 }) {
-  if (!feature && !report && notices.length === 0) return null
+  if (!feature && !report && randomPosts.length === 0) return null
 
   return (
     <section
@@ -31,7 +31,7 @@ export default function HomeHighlights({
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-12">
         {feature && <FeatureCard post={feature} className="md:col-span-2 xl:col-span-6" />}
         {report && <ReportCard post={report} className="xl:col-span-3" />}
-        {notices.length > 0 && <NoticeList posts={notices} className="xl:col-span-3" />}
+        {randomPosts.length > 0 && <RandomPostList posts={randomPosts} className="xl:col-span-3" />}
       </div>
     </section>
   )
@@ -194,22 +194,19 @@ function ReportCard({ post, className }: { post: PostWithRelations; className?: 
 
 /* ------------------------------------------------------------------ */
 
-function NoticeList({ posts, className }: { posts: PostWithRelations[]; className?: string }) {
+function RandomPostList({ posts, className }: { posts: PostWithRelations[]; className?: string }) {
   return (
     <section
-      aria-labelledby="home-notices-title"
+      // 見出しは置かない方針 (「もっと見る」だけ)。スクリーンリーダー向けの名前だけ付ける
+      aria-label="ほかの記事"
       className={cn(
         'rounded-3xl border border-hoisa/10 bg-white/90 p-5 shadow-[0_12px_32px_rgba(224,82,127,0.08)]',
         className
       )}
     >
-      <div className="mb-3 flex items-center justify-between">
-        <h2 id="home-notices-title" className="flex items-center gap-2 font-noto-serif-jp text-lg font-bold text-text-primary">
-          <Bell className="h-5 w-5 text-hoisa" aria-hidden="true" />
-          まちのお知らせ
-        </h2>
+      <div className="mb-1 flex justify-end">
         <Link
-          href={`/${NOTICE_CATEGORY_SLUG}`}
+          href="/blog"
           className="group inline-flex items-center gap-1 font-noto-sans-jp text-xs text-hoisa hover:text-text-primary"
         >
           もっと見る
@@ -228,14 +225,13 @@ function NoticeList({ posts, className }: { posts: PostWithRelations[]; classNam
                     alt=""
                     fill
                     sizes="80px"
-                    className={cn('object-cover', post.event_ended && 'grayscale')}
+                    className="object-cover"
                   />
                 )}
               </div>
               <div className="min-w-0">
                 <p className="font-noto-sans-jp text-xs text-text-secondary">
-                  {formatDotDate(post.event_date_start ?? post.published_at)}
-                  {post.event_ended && <span className="ml-2 text-text-secondary/80">終了</span>}
+                  {formatDotDate(post.published_at)}
                 </p>
                 <p className="mt-0.5 line-clamp-2 font-noto-sans-jp text-sm font-medium leading-snug text-text-primary group-hover:text-hoisa group-focus-visible:underline">
                   {post.title}

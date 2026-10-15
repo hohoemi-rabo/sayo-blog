@@ -18,12 +18,12 @@ export const metadata: Metadata = {
 export const revalidate = 600 // 10 minutes ISR
 
 export default async function HomePage() {
-  const { feature, report, notices, pickup: posts } = await getHomePosts()
+  const { feature, report, randomPosts, pickup: posts } = await getHomePosts()
 
   return (
     <>
       <HeroSection />
-      <HomeHighlights feature={feature} report={report} notices={notices} />
+      <HomeHighlights feature={feature} report={report} randomPosts={randomPosts} />
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* Section heading */}

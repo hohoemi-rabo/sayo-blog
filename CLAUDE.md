@@ -36,7 +36,7 @@ src/
 │   ├── (lp)/                # 独立 LP × 2 (サイト共通 Header/Footer 不使用)。/request/post (投稿記事=mini) と /request/interview (取材記事=long)
 │   │                        # ⚠️ 両LPはクラス名が同一・パレットのみ差異。CSS はルート毎 layout で読み .lp-post / .lp-long にスコープ (frontend.md 参照)
 │   ├── (public)/            # Public pages (Header + Footer)
-│   │   ├── page.tsx         # Home (HOISA Hero + 特集/レポート/まちのお知らせ + Pick Up 6 posts)
+│   │   ├── page.tsx         # Home (HOISA Hero + 特集/レポート/ランダム3件 + Pick Up 6 posts)
 │   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
 │   │   ├── [category]/      # Category listing
 │   │   ├── [category]/[slug]/ # Article detail
@@ -55,7 +55,7 @@ src/
 ## URL Structure
 
 ```
-/                              → Home (HOISA ヒーロー + 特集 / レポート / まちのお知らせ + Pick Up)
+/                              → Home (HOISA ヒーロー + 特集 / レポート / ランダム3件 + Pick Up)
 /blog                          → Blog listing ("もっと見る" button)
 /blog?category=food            → Category filter
 /blog?hashtags=tag1,tag2       → Hashtag filter
@@ -161,4 +161,4 @@ Context-specific rules are loaded based on file paths being worked on:
 **Prev5**: 2026-07-07b (ミニ記事フォームの「伝えたいこと」自由記述欄を廃止。ターゲット=「SNS に投稿している人」に絞り、**SNS URL を必須(最低1件)に戻し** message カラムを DROP (migration `20260707120000_drop_mini_inquiries_message.sql`, テーブル 0 行のため無損失)。フォーム/Zod/actions/types/管理画面表示/LP コピー(「URL がなくても大丈夫」→「SNS 投稿の URL を送るだけで大丈夫」)を同期)
 **Project Status**: Phase 1 + Phase 2 complete / Phase 3 (29-32, 37 done; 34-36 廃止; 33 保留; 38-39 pending) / Phase 4 情報窓口フォーム complete (40-42 done) / 画像ギャラリー complete / 記事クラフト complete (Ticket 43) / AI 3段階要約 complete / AI Chat UI 仕上げ済み (機能は安定運用中) / 投稿記事の窓口をチラシ対応 + 切り口診断 complete (2026-07-11) / HOISA ブランド化 + トップ刷新 complete (Ticket 44, 2026-10-14)
 
-**Next**: ①**HOISA の素材差し替え** (紗代さん待ち: 風景写真 = `HeroSection.tsx` の `HERO_PHOTO` / 正式ロゴ = `HoisaLogo.tsx` / OG 画像 / favicon)。②**イベントカレンダー** (未着手・紗代さんと要件を詰めてから。飯田市はイベント情報がまとまった場所が無い → **サイトの柱になる機能**。`posts` の `is_event` + イベント9カラムはあるが**開催日は全記事未入力** = トップの「まちのお知らせ」も今は終了イベントばかり並ぶ。開催日を入れれば自動で今後のものが先頭に来る)。③**ビジネス向け LP** (`/business` 予定。新フォーム = `business_inquiries` が必要。カレンダーの扱いが決まらないと出せない。議題は `docs/business-lp-questions.md`)。④**Noto Serif/Sans JP の @font-face CSS (各 ~280KB, 全ページ描画ブロック) の削減** (改修前からの技術的負債。ウェイト削減かサブセット化)。⑤AI チャットの一般公開 (今は「近日公開」表示)
+**Next**: ①**HOISA の素材差し替え** (紗代さん待ち: 風景写真 = `HeroSection.tsx` の `HERO_PHOTO` / 正式ロゴ = `HoisaLogo.tsx` / OG 画像 / favicon)。②**イベントカレンダー** (未着手・紗代さんと要件を詰めてから。飯田市はイベント情報がまとまった場所が無い → **サイトの柱になる機能**。`posts` の `is_event` + イベント9カラムはあるが**開催日は全記事未入力** = トップの「まちのお知らせ」枠は 2026-10-15 に見出しごと廃止し、終了イベントを除くランダム 3 件に変更済み)。③**ビジネス向け LP** (`/business` 予定。新フォーム = `business_inquiries` が必要。カレンダーの扱いが決まらないと出せない。議題は `docs/business-lp-questions.md`)。④**Noto Serif/Sans JP の @font-face CSS (各 ~280KB, 全ページ描画ブロック) の削減** (改修前からの技術的負債。ウェイト削減かサブセット化)。⑤AI チャットの一般公開 (今は「近日公開」表示)
