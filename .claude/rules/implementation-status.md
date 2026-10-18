@@ -103,7 +103,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - `src/app/(public)/[category]/page.tsx` - Category listing (React.cache + force-dynamic)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, React.cache for dedup)
 - `src/app/(chat)/chat/page.tsx` - AI Chat (ChatPage: dynamic import, admin-only)
-- `src/app/(public)/about/page.tsx` - About (FUNE profile + specialties + 3 つの記事のかたち + 情報窓口 CTA + Instagram CTA)
+- `src/app/(public)/about/page.tsx` - About。**2026-10-18 に紗代さんの原稿 (HOISAについて.docx) で改稿**: 01 HOISA について → 02 流れる情報を、残る情報へ (+ 3 つの記事のかたち + 寄稿 CTA `/request/post`) → 03 人の言葉と、AI の力と → HOISA の特徴 (システム相談 CTA = Instagram DM) → 運営者について (プロフィール + 「えっさほいさ」の掛け合い + お手伝いできること + Instagram)。記事のかたちの文中は「紗代」ではなく「私」。Contact ページは無い (`SITE_CONFIG.instagramUrl` をフッターと共用)
 - `src/app/(public)/privacy/page.tsx` - Privacy Policy
 - `src/app/(public)/search/page.tsx` - Search (dynamic)
 - `src/app/(chat)/layout.tsx` - AI Chat 専用 layout (公開 Header + main を `h-[calc(100dvh-Xrem)] overflow-hidden`、Footer 無し)。(public) の `min-h-screen + Footer` による body 余剰スクロール問題を避けるため Phase 4 後に活性化

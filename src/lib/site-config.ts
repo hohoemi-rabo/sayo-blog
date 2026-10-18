@@ -19,6 +19,8 @@ export const SITE_CONFIG = {
     nameEn: 'Sayo Motooka',
     url: siteUrl,
   },
+  // 連絡窓口 (Contact ページは無く、仕事・システムの相談は Instagram の DM で受ける)。フッターと About で共用
+  instagramUrl: 'https://www.instagram.com/fune.iida.toyooka.odekake/',
   themeColor: '#FF6B9D',
   keywords: ['HOISA', '飯田', '下伊那', '南信州', '地域情報', 'イベント', 'グルメ', 'おでかけ', 'インタビュー', 'ライター'],
 } as const
