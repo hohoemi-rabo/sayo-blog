@@ -148,6 +148,7 @@ Vercel Hobby の画像最適化は **月 5,000 変換**まで。超えると未�
 - `next.config.ts`: `images.loader = 'custom'` + `loaderFile: src/lib/image-loader.ts` + `deviceSizes: [400, 800, 1200]`
 - ローダー: Supabase の公開画像 → `/api/img?src=…&w=400|800|1200`。ローカル (`/images/…`)・外部・blob: はそのまま (縮小しない)
 - `/api/img` (`src/app/api/img/route.ts`): Storage の `image-variants` に縮小版 (WebP q75, `w{幅}/{元バケット}/{元パス}.webp`) があればそこへ 307、無ければ sharp で作って保存してから 307。リダイレクトは 1 年キャッシュなので 2 回目以降は CDN が返す。失敗時は元画像へ 307 (`no-store` = 次回作り直す)。自プロジェクトの Supabase 公開 URL と 3 幅以外は 400
+- **1920px は作らないと決めた** (2026-10-19, 紗代さんと合意)。高精細なノート PC で大きく出る写真 (トップのヒーロー・特集カード・記事上部の写真) は旧 Vercel 最適化 (1920/2048px) より少し甘くなるが、今後も画像が増える前提でストレージを優先した。画質の苦情が出たら `VARIANT_WIDTHS` に 1920 を足すだけで戻せる (作り済みの縮小版はそのまま使える)。画質 75 は旧 Vercel の既定値と同じ
 - **幅を増やすと縮小版がその分 Storage に増える** (Supabase 無料枠 1GB。2026-10 時点で元画像 353MB)。縮小版は表示されたものだけ作る = 事前の一括生成はしていない
 - 記事本文の写真は従来どおり HTML の `<img>` で Supabase の元画像を直接読む (この仕組みの対象外)
 
