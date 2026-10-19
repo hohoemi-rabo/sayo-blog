@@ -65,6 +65,15 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **ノート PC 幅の修正** (同日, `1a19047`): 記事ページ右の固定目次は **1440px から** (本文 56rem + 両側 2rem + 14rem + 1rem = 90rem)。xl (1280px) から出していた頃は 1280〜1440px (15 インチノート) で本文・画像に重なっていた。ヘッダーのキャッチも同じ理由で 1440px から (1280px で検索欄がはみ出した)
 - 計測 (ローカル本番ビルド, Lighthouse 12 モバイル): Performance 84 / LCP 4.2s / CLS 0 (改修前の本番トップ 76)。残る重さは既存の Noto Serif/Sans JP の @font-face CSS (各 ~280KB) = 改修前からある技術的負債
 
+### 画像の自前縮小 (Vercel 画像最適化の置き換え) — 2026-10-19
+**経緯**: トップのランダム枠の写真が表示されず、本番の `/_next/image` が `402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED` を返していた。Vercel Hobby の画像最適化は**月 5,000 変換** (画像 × 幅ごとに 1 回) で、ギャラリー (約 1,200 枚)・トップ刷新・ランダム枠で表示する画像の種類が増えて使い切った。超えると課金ではなく**未キャッシュの画像だけ**が壊れる (キャッシュ済みは見えるので「一部だけ出ない」症状になる)。ルール改定ではない。
+- **仕組み**: next/image のカスタムローダー → Supabase の公開画像は `/api/img?src=…&w=` へ。`/api/img` は `image-variants` バケットに縮小版があれば 307、無ければ sharp で WebP (q75) を作って保存 → 307。リダイレクトは 1 年キャッシュで 2 回目以降は CDN HIT (関数は動かない)。失敗時は元画像へ `no-store` の 307 (壊れた画像にしない + 次回作り直す)。自プロジェクトの Supabase 公開 URL と決まった幅以外は 400 (任意 URL の変換台にさせない)
+- **幅は 400 / 800 / 1200 の 3 つだけ**。縮小版は**表示されたものだけ作る** (一括生成しない = Supabase 無料枠 1GB を守る。元画像だけで約 350MB)。1920px は作らないと紗代さんと合意 (高精細 PC の大きい写真は旧より少し甘い。戻すなら `VARIANT_WIDTHS` に足すだけ)
+- 記事本文の写真は対象外 (HTML の `<img>` で Supabase の元画像を直接読んでいる)。ローカル画像 (`/images/profile.jpg`) も縮小しない
+- 効果: 例 537KB の JPEG → 400px WebP 15.7KB。初回だけ 1〜2 秒遅れる
+- ファイル: `src/lib/image-variants.ts` (幅・URL 解析・保存キー。Client/Server 両用) / `src/lib/image-loader.ts` (loaderFile) / `src/app/api/img/route.ts` / `next.config.ts` (`loader: 'custom'`, `deviceSizes: [400, 800, 1200]`, `imageSizes: []`) / `supabase/migrations/20261019120000_add_image_variants_bucket.sql` (本番適用済み) / `package.json` に `sharp` を明示
+- ⚠️ 同日のデプロイが Google Fonts (Noto Serif JP) の一時的な応答不良でビルド失敗した。今回の変更とは無関係で Redeploy で通った
+
 ### 画像ギャラリー (Gallery) — Complete
 チケット番号は付けず `docs/REQUIREMENTS-gallery.md` を仕様の正本とする。テキスト導線に対し「写真から記事に入る」導線を追加。
 - DB: `post_images` テーブル + RLS + 部分インデックス + RPC `get_gallery_images` ✅
@@ -143,7 +152,8 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - `src/lib/post-queries.ts` - fetchPublishedPosts (公開記事一覧クエリの単一情報源。/blog・/[category]・/api/posts で共用)
 - `src/lib/supabase.ts` - Server Supabase clients
 - `src/lib/supabase-browser.ts` - Browser Supabase singleton
-- `src/lib/site-config.ts` - Site-wide constants
+- `src/lib/site-config.ts` - Site-wide constants (`instagramUrl` = 連絡窓口。フッターと About で共用)
+- `src/lib/image-variants.ts` / `src/lib/image-loader.ts` - 画像の縮小版の決まりごと / next/image のカスタムローダー
 - `src/lib/seo-utils.ts` - SEO utilities
 - `src/lib/structured-data.tsx` - JSON-LD generators
 - `src/lib/article-utils.ts` - HTML heading extraction + id assignment for TOC
@@ -197,6 +207,7 @@ ChatGPT/Gemini/Claude 風の体感に揃えるため、以下の挙動を追加�
 - **文字サイズ**: 吹き出し本文 `text-lg` (18px)、prose `prose-lg`。AI 返信は `w-full` で会話エリア (`max-w-3xl`) いっぱい。
 
 ### API Routes
+- `src/app/api/img/route.ts` - 画像の縮小版を作って配る (next/image のカスタムローダーの行き先。詳細は上の「画像の自前縮小」)
 - `src/app/api/posts/route.ts` - Posts API (infinite scroll)
 - `src/app/api/search/suggest/route.ts` - Search autocomplete
 - `src/app/api/admin/media/route.ts` - Media list API
