@@ -2,14 +2,14 @@ import type { NextConfig } from "next";
 import { withBotId } from "botid/next/config";
 
 const nextConfig: NextConfig = {
+  // Vercel の画像最適化は使わない (Hobby の月 5,000 変換を超えると 402 で画像が出なくなる)。
+  // Supabase の画像は自前の縮小版 (/api/img → Storage の image-variants) で配る。詳細は src/lib/image-variants.ts
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-    ],
+    loader: 'custom',
+    loaderFile: './src/lib/image-loader.ts',
+    // 縮小版は 400 / 800 / 1200 しか作らないので、srcset もこの 3 つに揃える
+    deviceSizes: [400, 800, 1200],
+    imageSizes: [],
   },
   // 記事クラフト生成 (チラシ/メモ→記事) は runtime に文体プロファイルの md を fs 読みするため、
   // Vercel の関数バンドルに docs/writing-style-profile.md を同梱させる。

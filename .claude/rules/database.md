@@ -180,6 +180,7 @@ interface PostCardProps {
 |--------|--------|---------|
 | `thumbnails` | yes | 記事サムネイル + Tiptap 本文画像 (`/YYYY/MM/{timestamp}.{ext}`) |
 | `ig-posts` | yes | ブログ→IG 方向の投稿画像 (Phase 3A) |
+| `image-variants` | yes | next/image 用の縮小版 WebP (`w{400\|800\|1200}/{元バケット}/{元パス}.webp`)。`/api/img` が初回表示時に service role で作る。SELECT ポリシー無し (一覧させない)。migration `20261019120000` |
 | `inquiry-images` | yes | 情報窓口フォーム添付画像 (Phase 4, `mini/{id}/{n}.{ext}` / `long/{id}/{n}.{ext}`) |
 
 Phase 3 / Phase 4 buckets: SELECT 全ユーザー許可、INSERT/UPDATE/DELETE は `(select auth.role()) = 'authenticated'` 制限。

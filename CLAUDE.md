@@ -21,7 +21,8 @@ npm run lint        # Run ESLint
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS 3.4.17
 - **Database**: Supabase (PostgreSQL + pgvector)
-- **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `inquiry-images`)
+- **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `inquiry-images` / `image-variants` = next/image 用の縮小版)
+- **Images**: Vercel の画像最適化は不使用 (Hobby の月 5,000 変換超えで 402 になったため)。next/image はカスタムローダー → `/api/img` が縮小版を作って Storage から配る (詳細 frontend.md)
 - **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-2-preview)
 - **Language**: TypeScript 5
 - **React**: 19.1.0
