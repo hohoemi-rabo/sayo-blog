@@ -59,7 +59,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **ロゴ**: `HoisaLogo.tsx` (header / hero。文字 + SVG 枝飾り、em 基準配置)。正式ロゴが来たら中身だけ差し替え
 - **ヘッダー**: `Header.tsx` (Server: `getNavCategories`) → `HeaderClient.tsx`。メニュー定義は `src/lib/site-nav.ts` (フッターと共有。'use client' に置くと Server から読めない)。詳細は frontend.md
 - **ヒーロー**: `HeroSection.tsx` (Server)。写真は仮 = 記事「天竜峡」の写真 (`HERO_PHOTO`)
-- **3 枠**: `HomeHighlights.tsx` + `src/lib/home-posts.ts::getHomePosts()` (3 クエリ並列 → 特集 / レポート / Pick Up を順に決めて重複除外 → 残りからランダム 3 件を抽選して本体を取得)。**右枠は 2026-10-15 に「まちのお知らせ」から変更**: 見出し無し・「もっと見る」(/blog) のみ、全カテゴリから `event_ended=false` の記事をランダム 3 件。ISR 600s なので抽選は再生成ごと。抽選は固定枠の後 (先にやると特集等がずれる)
+- **3 枠**: `HomeHighlights.tsx` + `src/lib/home-posts.ts::getHomePosts()` (3 クエリ並列 → 特集 / レポート / Pick Up を順に決めて重複除外 → 残りからランダム 3 件を抽選して本体を取得)。**右枠は 2026-10-15 に「まちのお知らせ」から変更**: 見出し無し・「もっと見る」(/blog) のみ、全カテゴリから `event_ended=false` の記事をランダム 3 件。ISR 3600s (2026-10-19 に 600s から変更 = 10 分では変わりすぎた) なので抽選は 1 時間ごと + 記事保存時。抽選は固定枠の後 (先にやると特集等がずれる)
 - **AI 要約リンク**: `SummarySlider` が `?summary=` をマウント後に読む (記事ページは ISR のまま)。アンカー `SUMMARY_ANCHOR_ID` は `summary-levels.ts`
 - **/chat**: 一般向けは「現在開発中・近日公開」
 - **ノート PC 幅の修正** (同日, `1a19047`): 記事ページ右の固定目次は **1440px から** (本文 56rem + 両側 2rem + 14rem + 1rem = 90rem)。xl (1280px) から出していた頃は 1280〜1440px (15 インチノート) で本文・画像に重なっていた。ヘッダーのキャッチも同じ理由で 1440px から (1280px で検索欄がはみ出した)
@@ -98,7 +98,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 ## Key File Map
 
 ### Pages
-- `src/app/(public)/page.tsx` - Home (HOISA `HeroSection` + `HomeHighlights` 特集/レポート/ランダム3件 + Pick Up 6 posts。記事の割り振りは `src/lib/home-posts.ts`, ISR 600s)
+- `src/app/(public)/page.tsx` - Home (HOISA `HeroSection` + `HomeHighlights` 特集/レポート/ランダム3件 + Pick Up 6 posts。記事の割り振りは `src/lib/home-posts.ts`, ISR 3600s)
 - `src/app/(public)/blog/page.tsx` - Blog listing ("もっと見る" button, force-dynamic)
 - `src/app/(public)/[category]/page.tsx` - Category listing (React.cache + force-dynamic)
 - `src/app/(public)/[category]/[slug]/page.tsx` - Article (ISR 3600s, React.cache for dedup)

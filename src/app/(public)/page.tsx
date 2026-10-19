@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 600 // 10 minutes ISR
+// 1 時間 ISR。トップの「ランダム 3 件」の入れ替わり間隔でもある (10 分だと変わりすぎた)。
+// 新しい記事は保存時の revalidatePath('/') で即反映されるので、長めでも困らない
+export const revalidate = 3600
 
 export default async function HomePage() {
   const { feature, report, randomPosts, pickup: posts } = await getHomePosts()

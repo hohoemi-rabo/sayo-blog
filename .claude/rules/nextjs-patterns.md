@@ -19,7 +19,7 @@ Always use Server Components by default. Only add `'use client'` when you need:
 ### ISR (default for this project)
 ```typescript
 export const revalidate = 3600 // 1 hour for article pages
-export const revalidate = 600  // 10 min for home page
+export const revalidate = 3600 // 1 hour for home page (= ランダム枠の入れ替わり間隔)
 ```
 
 ### Dynamic rendering
