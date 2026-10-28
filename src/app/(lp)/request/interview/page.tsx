@@ -255,7 +255,13 @@ export default function LongRequestLpPage() {
           <div className="planwrap">
             {PLANS.map((p) => (
               <div className="plan" key={p.name}>
-                {p.badge && <div className="badge">{p.badge}</div>}
+                {p.badge ? (
+                  <div className="badge">{p.badge}</div>
+                ) : (
+                  <div className="badge is-placeholder" aria-hidden="true">
+                    &nbsp;
+                  </div>
+                )}
                 <div className="name">{p.name}</div>
                 <div className="price">
                   {p.price}

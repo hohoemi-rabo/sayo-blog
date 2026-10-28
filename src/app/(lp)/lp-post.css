@@ -610,6 +610,12 @@
   color: var(--soft);
   margin: 0 0 12px;
 }
+.lp-post .why-free a {
+  color: var(--magenta);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* ============================================================
    切り口診断 (/request/post/guide)
@@ -867,7 +873,7 @@
   margin: 0;
 }
 .lp-post .type-lead {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--magenta);
   font-weight: 700;
   margin: 2px 0 0;
@@ -879,7 +885,7 @@
   margin: 0;
 }
 .lp-post .type-card h4 {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--magenta);
   margin: 4px 0 0;
@@ -1055,7 +1061,7 @@
 }
 .lp-post .lp-angle-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   color: var(--magenta);
 }
@@ -1064,6 +1070,9 @@
 }
 .lp-post .lp-angle-redo {
   margin-left: auto;
+  /* スマホでタイトルが 2 行になると「やり直/す」に割れていた */
+  white-space: nowrap;
+  flex-shrink: 0;
   font-size: 13px;
   font-weight: 700;
   color: var(--soft);
@@ -1474,5 +1483,28 @@
   }
   .lp-post .maincopy {
     font-size: 20px;
+  }
+}
+
+/* 和文見出しを文節で折り返し、「い。」「ら」だけの行を作らない (未対応ブラウザは従来どおり) */
+.lp-post h1,
+.lp-post h2,
+.lp-post h3,
+.lp-post .guide-link b {
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+/* 見出し下の導入文も、最後の行が 1〜2 文字だけにならないように */
+.lp-post .section-title p {
+  text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  /* 押せる高さを 44px 前後に (文字だけだと 24px で押しにくかった) */
+  .lp-post .footer-links {
+    gap: 0 6px;
+  }
+  .lp-post .footer-links a {
+    padding: 10px 8px;
   }
 }
