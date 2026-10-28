@@ -1963,3 +1963,69 @@
     display: none;
   }
 }
+
+/* ============================================================
+   レスポンシブ補正 (プロトタイプのカスケードの穴埋め)
+   ⚠️ 必ずファイル末尾に置くこと。テーマ層 2 の `.planwrap { repeat(3,1fr) }` が
+   層 1 の 980px メディアクエリより後ろにあり、スマホでもプランが 3 列のままだった。
+   後ろの層で上書きされないよう、補正はすべてここに集める。
+   ============================================================ */
+
+/* サイト共通の h1〜h6 { color } (globals.css) がバナーの白文字の継承を潰すため */
+.lp-long .banner h2 {
+  color: inherit;
+}
+
+/* 和文見出しを文節で折り返し、「す。」だけの行を作らない (未対応ブラウザは従来どおり) */
+.lp-long .section-title h2,
+.lp-long .banner h2,
+.lp-long .cta-box h2 {
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+@media (max-width: 980px) {
+  .lp-long .planwrap {
+    grid-template-columns: 1fr;
+  }
+  /* PC では navlinks (flex:1) がボタンを右へ押していた。メニューを隠す幅では自前で右に寄せる */
+  .lp-long .actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .lp-long .section-title h2 {
+    font-size: 26px;
+  }
+  .lp-long .banner {
+    padding: 30px 20px;
+    border-radius: 28px;
+  }
+  .lp-long .banner h2 {
+    font-size: 24px;
+  }
+  .lp-long .plan-guide div {
+    padding: 18px 20px;
+  }
+  .lp-long .plan {
+    padding: 24px 22px;
+  }
+  .lp-long .price {
+    font-size: 36px;
+  }
+  /* CTA 枠とフォーム枠の余白が二重になり、入力欄が 200px 程度まで細っていた */
+  .lp-long .cta-box {
+    padding: 32px 14px;
+    border-radius: 28px;
+  }
+  .lp-long .cta-box h2 {
+    font-size: 28px;
+  }
+  .lp-long .lp-form-card {
+    padding: 24px 16px;
+  }
+  .lp-long .lp-plan-top {
+    flex-wrap: wrap;
+  }
+}
