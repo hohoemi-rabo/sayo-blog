@@ -49,7 +49,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '掲載した情報はSNSでも使われますか？',
-    a: 'Sayo’s Journalの記事掲載に加えて、InstagramなどのSNS投稿やイベントまとめ・特集記事の中で紹介する場合があります。写真や文章の使用範囲については、投稿フォームで確認します。',
+    a: `${SITE_CONFIG.name}の記事掲載に加えて、InstagramなどのSNS投稿やイベントまとめ・特集記事の中で紹介する場合があります。写真や文章の使用範囲については、投稿フォームで確認します。`,
   },
 ]
 
@@ -285,7 +285,7 @@ export default function MiniRequestLpPage() {
           <div className="reuse-box">
             <h2>掲載して終わりではなく、必要な人へ届け直します。</h2>
             <p>
-              Sayo’s Journalに集まった情報は、Web記事として残すだけでなく、InstagramなどのSNS投稿や、イベントまとめ・特集記事の中で紹介することがあります。
+              {SITE_CONFIG.name}に集まった情報は、Web記事として残すだけでなく、InstagramなどのSNS投稿や、イベントまとめ・特集記事の中で紹介することがあります。
             </p>
             <p>
               情報を一度掲載して終わりにせず、必要な人に届きやすい形へ整え、何度も見つけてもらえる導線をつくります。
@@ -323,13 +323,21 @@ export default function MiniRequestLpPage() {
           <div className="why-free">
             <h3>なんで無料で掲載できるの？</h3>
             <p>
-              Sayo’s Journalは、地域情報が集まる場所を育てていくため、投稿記事の掲載を無料にしています。
+              {SITE_CONFIG.name}は、地域情報が集まる場所を育てていくため、投稿記事の掲載を無料にしています。
             </p>
             <p>
               投稿記事が増えることで、サイト全体の情報量が増え、見に来る人にとっても、発信する人にとっても使いやすい場所になります。
             </p>
             <p>
-              また、より深く伝えたい方には有料の取材記事を、Web機能を導入したい企業・団体には機能導入の相談窓口を用意しています。投稿記事は、Sayo’s Journalを一緒に育てるための入口です。
+              また、より深く伝えたい方には有料の取材記事を用意しています。Web機能の導入を考えている企業・団体の方は、
+              <a
+                href={SITE_CONFIG.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagram の DM
+              </a>
+              でご相談ください。投稿記事は、{SITE_CONFIG.name}を一緒に育てるための入口です。
             </p>
           </div>
         </div>
@@ -377,7 +385,7 @@ export default function MiniRequestLpPage() {
             <div className="step">
               <div className="num">5</div>
               <b>残す</b>
-              <p>検索・カレンダーにも展開</p>
+              <p>検索・カレンダー（準備中）にも展開</p>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { AngleDiagnosis } from './_components/AngleDiagnosis'
 export const metadata: Metadata = {
   title: '投稿記事の切り口診断 — どの魅力を前に出す？',
   description:
-    '同じ5つの投稿でも、どれを選ぶかで記事の印象は変わります。お店・活動・イベントの「どの魅力を前に出すか」を診断して、Sayo’s Journal に送る投稿の選び方を見つけてください。',
+    `同じ5つの投稿でも、どれを選ぶかで記事の印象は変わります。お店・活動・イベントの「どの魅力を前に出すか」を診断して、${SITE_CONFIG.name} に送る投稿の選び方を見つけてください。`,
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post/guide`,
   },
