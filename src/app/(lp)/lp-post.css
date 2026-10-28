@@ -333,6 +333,8 @@
   font-size: 38px;
   margin: 0 0 12px;
   line-height: 1.5;
+  /* サイト共通の h1〜h6 { color } (globals.css) がバナーの白文字の継承を潰すため */
+  color: inherit;
 }
 .lp-post .banner p {
   max-width: 760px;
