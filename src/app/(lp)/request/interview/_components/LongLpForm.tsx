@@ -54,7 +54,7 @@ export function LongLpForm() {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="lp-form lp-form-card"
+      className="lp-form"
       noValidate
     >
       {/* ハニーポット (人には見えない / bot 対策) */}
