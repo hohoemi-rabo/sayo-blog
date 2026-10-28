@@ -208,6 +208,28 @@ Vercel Hobby の画像最適化は **月 5,000 変換**まで。超えると未�
 そのため **層を統合せず定義順をそのまま保持**している。整理したい場合はブラウザで実効スタイルを
 確認しながら行うこと。最終的に効くパレットは `--magenta:#C08B8B` / `--coral:#E7A1A1` / `--blush:#F6E6E2`。
 
+⚠️ **層をまたいだ上書きでメディアクエリが死ぬ**。層 2 の `.planwrap{grid-template-columns:repeat(3,1fr)}` が
+層 1 の `@media (max-width:980px){ .planwrap{1fr} }` より後ろにあるため、スマホでもプランが 3 列のままだった
+(2026-10-28 修正)。**レスポンシブの補正はファイル末尾の「レスポンシブ補正」ブロックに足す**こと
+(途中の層に書くと、また後ろの層に負ける)。
+
+### LP の CSS の落とし穴 (2026-10-28 の総点検で判明)
+
+- **見出しの色は明示する**。globals.css の `h1〜h6 { color: var(--color-text-primary) }` が親からの継承を潰す。
+  バナー (`.banner`) で親に `color:#fff` を置いただけだと、見出しだけ黒くなっていた → `.banner h2 { color: inherit }`
+- **`.cta-box p` のような子孫セレクタはフォームに漏れる**。導入文用の `margin: 0 auto 26px` がフォーム内の
+  `<p>` (ヒント・文字数カウンタ) に効き、中央寄せ + 余計な余白になっていた → 導入文は `.cta-box > p` で指定
+- **相談フォームは CTA 枠 (`.cta-box`) に直接置く** (内側の枠 `.lp-form-card` は廃止)。枠が二重 (投稿記事は
+  SNS/チラシの箱で三重) になるとスマホで入力欄が ~240px まで細る。区切りは `.lp-form` の上罫線 1 本
+- **フォームの文字は本文 (16px) に近づける**。ヒント・項目名 14px / 見出し 18px / 入力欄 **16px 以上**
+  (16px 未満だと iPhone がフォーカス時に画面を拡大する)
+- 見出しは `word-break: auto-phrase` + `text-wrap: pretty` で文節折り返し (両 CSS の h1〜h3 に一括指定)。
+  Safari は auto-phrase 非対応なので、iPhone では pretty による「最終行 1 文字」回避だけが効く
+- 取材記事のプランは、バッジの無いカードにも見えない `.badge.is-placeholder` を置いて 3 列の価格の高さを揃える
+  (1 列では `display:none`)
+- **サイト名は LP でも `SITE_CONFIG.name`**。旧名「Sayo’s Journal」は曲がったアポストロフィ `’` で書かれた
+  箇所だけ改名の置換を逃れ、本文・FAQ JSON-LD・meta description に残っていた。grep するなら `Sayo.s`
+
 ### フォーム
 
 LP のクラス (`.lp-form` `.lp-input` `.lp-choice` …) で組むが、**backend は既存 Server Action を

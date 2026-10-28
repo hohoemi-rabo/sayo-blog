@@ -74,6 +74,13 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - ファイル: `src/lib/image-variants.ts` (幅・URL 解析・保存キー。Client/Server 両用) / `src/lib/image-loader.ts` (loaderFile) / `src/app/api/img/route.ts` / `next.config.ts` (`loader: 'custom'`, `deviceSizes: [400, 800, 1200]`, `imageSizes: []`) / `supabase/migrations/20261019120000_add_image_variants_bucket.sql` (本番適用済み) / `package.json` に `sharp` を明示
 - ⚠️ 同日のデプロイが Google Fonts (Noto Serif JP) の一時的な応答不良でビルド失敗した。今回の変更とは無関係で Redeploy で通った
 
+### LP 総点検 (投稿記事 / 取材記事 / 切り口診断) — 2026-10-28
+スマホでの崩れの報告から 3 ページを 375px / 1280px で全セクション確認して修正 (コミット `0489a1e` `2dba4cc` `d5728c5` `cc7c3bd` `a768bf8`)。落とし穴の詳細は frontend.md「LP の CSS の落とし穴」。
+- 取材記事: プランがスマホで 3 列のまま → 1 列に (`lp-long.css` 末尾のレスポンシブ補正) / ヘッダーのボタンを 980px 以下で右寄せ / PC のプラン価格の高さ揃え (`.badge.is-placeholder`)
+- 両 LP: バナー見出しの黒文字を白に / 相談フォームの内側の枠 `.lp-form-card` を廃止 + 文字拡大 (入力欄 16px) / `.cta-box > p` / 見出しの文節折り返し / フッターリンクのタップ高 44px
+- 投稿記事: 旧名「Sayo’s Journal」5 か所 → `SITE_CONFIG.name` / 掲載方法 5「検索・カレンダー（準備中）にも展開」/「なんで無料で…」の企業向け相談先を Instagram の DM (リンク) に
+- 切り口診断: フォーム側の診断結果カードの「やり直す」を折り返さない / 型カードの小見出し 12→13px
+
 ### 画像ギャラリー (Gallery) — Complete
 チケット番号は付けず `docs/REQUIREMENTS-gallery.md` を仕様の正本とする。テキスト導線に対し「写真から記事に入る」導線を追加。
 - DB: `post_images` テーブル + RLS + 部分インデックス + RPC `get_gallery_images` ✅
