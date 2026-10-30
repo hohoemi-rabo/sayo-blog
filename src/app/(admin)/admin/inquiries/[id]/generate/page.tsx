@@ -83,11 +83,11 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
               <dt className="w-20 shrink-0 text-text-secondary">チラシ・写真</dt>
               <dd>
                 <InquiryAttachments urls={inquiry.image_urls} />
-                {inquiry.image_urls.some(isPdfAttachment) && (
-                  <p className="mt-1.5 text-xs text-text-secondary">
-                    ※ PDF は記事本文には差し込まれません。中身を読んで、下の本文欄に内容を書き起こしてください。
-                  </p>
-                )}
+                <p className="mt-1.5 text-xs text-text-secondary">
+                  ※ 書かれている文字は AI が読み取って記事に使います。
+                  {inquiry.image_urls.some(isPdfAttachment) &&
+                    'PDF は記事本文には差し込まれません (読み取りのみ)。'}
+                </p>
               </dd>
             </div>
           )}
@@ -117,6 +117,7 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
       <GenerateForm
         inquiryId={inquiry.id}
         snsUrls={inquiry.sns_urls}
+        hasAttachments={inquiry.image_urls.length > 0}
       />
     </div>
   )

@@ -20,6 +20,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   let body: {
     snsTexts?: Array<{ url: string; text: string }>
+    memoText?: string
     additionalImageUrls?: string[]
   }
   try {
@@ -38,9 +39,12 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     ? body.additionalImageUrls.filter((u): u is string => typeof u === 'string')
     : []
 
+  const memoText = typeof body.memoText === 'string' ? body.memoText : ''
+
   const input: GenerateMiniArticleInput = {
     inquiryId: id,
     snsTexts,
+    memoText,
     additionalImageUrls,
   }
 

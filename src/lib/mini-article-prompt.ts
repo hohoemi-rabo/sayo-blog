@@ -2,7 +2,7 @@
  * Prompt builder for ミニ記事生成 (Ticket 41).
  *
  * 入力ソースが「IG 投稿 1 件」(Ticket 37) から
- * 「地域の方が窓口に寄せた SNS 本文 最大 5 件 + 種別 + 画像枚数」に変わる。
+ * 「地域の方が窓口に寄せた SNS 本文 最大 5 件 + 添付 (チラシ等, vision) + 紗代さんの補足メモ + 種別」に変わる。
  * 出力 JSON スキーマは IG 記事生成と共通 (IgArticleAiOutput)。
  *
  * IG 記事との主な違い:
@@ -17,6 +17,9 @@ export interface BuildMiniArticlePromptInput {
   inquiryType: MiniInquiryType
   inquiryTypeOther: string | null
   snsTexts: Array<{ url: string; text: string }>
+  memoText: string
+  /** プロンプトの後ろに Part として添付するチラシ・写真・PDF の数 */
+  attachmentCount: number
   imageCount: number
   categories: Array<{ slug: string; name: string }>
   preferredPublishDate: string | null
@@ -44,7 +47,7 @@ export function buildMiniArticlePrompt(input: BuildMiniArticlePromptInput): stri
 
   const snsBlock =
     input.snsTexts.length === 0
-      ? '（本文は提供されていません。URL の情報のみ）'
+      ? '（本文は提供されていません）'
       : input.snsTexts
           .map(
             (s, i) =>
@@ -56,16 +59,29 @@ export function buildMiniArticlePrompt(input: BuildMiniArticlePromptInput): stri
     ? `\n公開希望日: ${input.preferredPublishDate}（記事の鮮度の参考に。本文には書かない）`
     : ''
 
+  const memoBlock = input.memoText
+    ? `\n\n【編集者の補足メモ】（依頼者に確認した事実。SNS 本文やチラシと食い違う場合はこちらを優先）\n${input.memoText}`
+    : ''
+
+  const attachmentBlock =
+    input.attachmentCount > 0
+      ? `\n\n【添付ファイル】
+このプロンプトの後ろに、依頼者が添付したファイルが ${input.attachmentCount} 点あります（チラシ画像・写真・PDF）。
+- チラシや告知画像に書かれた文字（タイトル・日時・会場・料金・対象・申込方法など）を読み取り、SNS 本文と同じ「提供された情報」として使う
+- 文字の無い写真は、写っているものを本文の雰囲気づくりの参考にする程度にとどめ、写真から推測した事実（場所・人数など）は書かない
+- 読み取れない・判別があやしい文字は使わない（日時や料金を推測で埋めない）`
+      : ''
+
   return `${PERSONA}
 
 以下は、地域の方が「HOISA で紹介してほしい」と寄せてくださった
-SNS 投稿の本文（最大 5 件）と種別情報です。
+SNS 投稿の本文（最大 5 件）・添付のチラシ等と種別情報です。
 これらを **ひとつのミニ記事（短めの紹介記事）** にまとめ、**JSON 形式のみ** で出力してください。
 
 【重要】
 - ミニ記事は無料公開される短い紹介記事です。長文にせず 400〜800 字程度にまとめる
 - セクション分割（h2 見出し）は使わず、1 本の流れる文章で書く（段落 <p> のみ。h2/h3 は使わない）
-- 提供された SNS 本文の情報のみを使用し、捏造しない
+- 提供された SNS 本文・添付ファイル・補足メモの情報のみを使用し、捏造しない
 - 複数の投稿がある場合は、共通テーマを軸にひとつの記事へ自然に統合する
 - 情報が薄い箇所は無理に膨らませず、必要なら「※ここに追加取材の内容を加筆してください」を挿入
 - クレジット表記や元 URL の引用は **入れない**（紗代さんが後で判断するため）
@@ -76,7 +92,7 @@ ${typeLabel}
 → トーン: ${TYPE_TONE[input.inquiryType]}
 
 【イベント情報の抽出ルール】
-本文中に開催日 + 会場 が含まれていればイベントとして扱い、is_event=true、関連フィールドを埋める。
+提供された情報（SNS 本文・添付・補足メモ）に開催日 + 会場 が含まれていればイベントとして扱い、is_event=true、関連フィールドを埋める。
 含まれていない（普通の紹介）なら is_event=false で関連フィールドはすべて null。
 
 - event_date_start / event_date_end: ISO 形式 YYYY-MM-DD
@@ -117,6 +133,6 @@ ${categoriesList}
 
 【提供された SNS 投稿】（画像 ${input.imageCount} 枚が記事に添付されます）${publishHint}
 
-${snsBlock}
+${snsBlock}${memoBlock}${attachmentBlock}
 `
 }

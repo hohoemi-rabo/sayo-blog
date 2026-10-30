@@ -18,12 +18,15 @@ const ADDITIONAL_IMAGE_MAX_COUNT = 8
 interface Props {
   inquiryId: string
   snsUrls: string[]
+  /** 依頼者の添付 (チラシ等) があるか。あれば AI が読むので、貼り付け無しでも生成できる */
+  hasAttachments: boolean
 }
 
-export function GenerateForm({ inquiryId, snsUrls }: Props) {
+export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
   const router = useRouter()
   const { addToast } = useToast()
   const [texts, setTexts] = useState<string[]>(() => snsUrls.map(() => ''))
+  const [memo, setMemo] = useState('')
   const [images, setImages] = useState<File[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -51,8 +54,8 @@ export function GenerateForm({ inquiryId, snsUrls }: Props) {
   }
 
   async function handleGenerate() {
-    if (texts.every((t) => t.trim() === '')) {
-      addToast('SNS 投稿の本文を 1 つ以上貼り付けてください', 'warning')
+    if (!hasAttachments && memo.trim() === '' && texts.every((t) => t.trim() === '')) {
+      addToast('SNS 投稿の本文か補足メモを入力してください', 'warning')
       return
     }
     setLoading(true)
@@ -76,7 +79,7 @@ export function GenerateForm({ inquiryId, snsUrls }: Props) {
       const res = await fetch(`/api/admin/inquiries/${inquiryId}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ snsTexts, additionalImageUrls }),
+        body: JSON.stringify({ snsTexts, memoText: memo, additionalImageUrls }),
       })
       const json = await res.json()
       if (res.ok && json.ok) {
@@ -95,29 +98,47 @@ export function GenerateForm({ inquiryId, snsUrls }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* SNS 投稿テキストの貼り付け */}
+      {/* SNS 投稿テキストの貼り付け (チラシだけの依頼は URL が無いので出さない) */}
+      {snsUrls.length > 0 && (
+        <section className="rounded-xl border border-border-decorative bg-white p-5">
+          <h2 className="mb-1 text-sm font-semibold text-text-primary">
+            SNS 投稿テキストを貼り付け
+          </h2>
+          <p className="mb-4 text-xs text-text-secondary">
+            各 URL を開いて、投稿本文をコピーして貼り付けてください。
+            {hasAttachments && '添付のチラシ・写真は AI が直接読むので、書き写す必要はありません。'}
+          </p>
+          <div className="space-y-4">
+            {snsUrls.map((url, i) => (
+              <div key={i}>
+                <label className="mb-1.5 block break-all text-xs text-text-secondary">
+                  URL {i + 1}: {url}
+                </label>
+                <Textarea
+                  value={texts[i]}
+                  onChange={(e) => updateText(i, e.target.value)}
+                  rows={4}
+                  placeholder="ここに投稿本文を貼り付け"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 補足メモ */}
       <section className="rounded-xl border border-border-decorative bg-white p-5">
-        <h2 className="mb-1 text-sm font-semibold text-text-primary">
-          SNS 投稿テキストを貼り付け
-        </h2>
+        <h2 className="mb-1 text-sm font-semibold text-text-primary">補足メモ（任意）</h2>
         <p className="mb-4 text-xs text-text-secondary">
-          各 URL を開いて、投稿本文をコピーして貼り付けてください。
+          電話で聞いた日時・会場・参加費など、URL にもチラシにも書かれていないことを書いてください。
+          {hasAttachments && snsUrls.length === 0 && '添付のチラシは AI が直接読みます。'}
         </p>
-        <div className="space-y-4">
-          {snsUrls.map((url, i) => (
-            <div key={i}>
-              <label className="mb-1.5 block break-all text-xs text-text-secondary">
-                URL {i + 1}: {url}
-              </label>
-              <Textarea
-                value={texts[i]}
-                onChange={(e) => updateText(i, e.target.value)}
-                rows={4}
-                placeholder="ここに投稿本文を貼り付け"
-              />
-            </div>
-          ))}
-        </div>
+        <Textarea
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
+          rows={4}
+          placeholder="例: 11/15(土) 10:00〜12:00、飯田市公民館、参加費 500 円"
+        />
       </section>
 
       {/* 追加画像 */}

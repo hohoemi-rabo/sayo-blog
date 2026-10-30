@@ -1,7 +1,8 @@
 /**
  * ミニ記事生成 (Ticket 41).
  *
- * 情報窓口フォーム (mini_inquiries) に紗代さんが貼り付けた SNS 本文 + 添付画像から
+ * 情報窓口フォーム (mini_inquiries) に紗代さんが貼り付けた SNS 本文 + 補足メモ +
+ * 依頼者の添付 (チラシ・写真・PDF。vision で読ませる) から
  * Gemini で記事の下書き (posts, is_published=false) を生成する。
  *
  * 既存 IG 記事生成 (Ticket 37) の純粋ヘルパーを article-ai-shared.ts 経由で再利用。
@@ -15,9 +16,11 @@ import { generateUniquePostSlug } from '@/lib/slug-utils'
 import { buildMiniArticlePrompt } from '@/lib/mini-article-prompt'
 import { isPdfAttachment } from '@/lib/inquiries'
 import { syncPostImages } from '@/lib/post-images-sync'
+import { loadInquiryAttachmentParts } from '@/lib/inquiry-attachment-reader'
 import {
   ArticleAiValidationError,
   callGeminiForArticle,
+  callGeminiForArticleParts,
   fetchCategories,
   linkHashtags,
   resolveCategoryId,
@@ -30,6 +33,8 @@ export interface GenerateMiniArticleInput {
   inquiryId: string
   /** 紗代さんが各 URL に貼り付けた本文 */
   snsTexts: Array<{ url: string; text: string }>
+  /** 紗代さんの補足 (電話で聞いた日時・会場など、URL にもチラシにも無い情報) */
+  memoText: string
   /** 記事化画面で追加アップロードした画像の公開 URL */
   additionalImageUrls: string[]
 }
@@ -76,28 +81,40 @@ export async function generateMiniArticle(
       ...input.additionalImageUrls,
     ]
 
-    // 4. 貼り付けテキストが空でないか
+    // 4. 素材が 1 つはあるか (チラシだけの依頼は URL が無いので、添付があれば貼り付け無しでも可)
     const snsTexts = input.snsTexts.filter((s) => s.text.trim().length > 0)
-    if (snsTexts.length === 0) {
+    const memoText = input.memoText.trim()
+    const attachmentUrls = inquiry.image_urls ?? []
+    if (snsTexts.length === 0 && memoText.length === 0 && attachmentUrls.length === 0) {
       throw new ArticleAiValidationError(
-        'SNS 投稿の本文を 1 つ以上貼り付けてください'
+        'SNS 投稿の本文か補足メモを入力してください'
       )
     }
 
-    // 5. カテゴリ取得 + プロンプト構築 + Gemini
+    // 5. カテゴリ取得 + 添付の読み込み + プロンプト構築 + Gemini
+    //    AI に読ませるのは依頼者の添付だけ。追加画像は紗代さんが記事に載せる写真なので読ませない。
     const categories = await fetchCategories(supabase)
     if (categories.length === 0) {
       throw new Error('カテゴリが 1 件も登録されていません')
     }
+    const attachmentParts = await loadInquiryAttachmentParts(attachmentUrls)
     const prompt = buildMiniArticlePrompt({
       inquiryType: inquiry.inquiry_type,
       inquiryTypeOther: inquiry.inquiry_type_other,
       snsTexts,
+      memoText,
+      attachmentCount: attachmentParts.length,
       imageCount: imageUrls.length,
       categories: categories.map((c) => ({ slug: c.slug, name: c.name })),
       preferredPublishDate: inquiry.publish_target_date,
     })
-    const ai = await callGeminiForArticle(prompt, 'mini-article-generator')
+    const ai =
+      attachmentParts.length > 0
+        ? await callGeminiForArticleParts(
+            [prompt, ...attachmentParts],
+            'mini-article-generator'
+          )
+        : await callGeminiForArticle(prompt, 'mini-article-generator')
 
     // 6. カテゴリ解決
     const categoryId = resolveCategoryId(categories, ai.recommended_category_slug)
