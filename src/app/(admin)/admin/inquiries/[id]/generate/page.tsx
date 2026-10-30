@@ -35,7 +35,7 @@ export default async function GenerateMiniArticlePage({ params }: PageProps) {
       <div>
         <h1 className="text-2xl font-bold text-text-primary">ミニ記事の AI 生成</h1>
         <p className="mt-1 text-text-secondary">
-          各 URL の投稿本文を貼り付けて、たたき台を生成します
+          URL・チラシ・スクショの内容から、AI がたたき台を作ります
         </p>
       </div>
 

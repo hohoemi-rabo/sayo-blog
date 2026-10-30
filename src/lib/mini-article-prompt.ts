@@ -20,6 +20,8 @@ export interface BuildMiniArticlePromptInput {
   memoText: string
   /** プロンプトの後ろに Part として添付するチラシ・写真・PDF の数 */
   attachmentCount: number
+  /** スクショを添付した URL (自動取得できなかったページ) */
+  screenshotUrls: string[]
   imageCount: number
   categories: Array<{ slug: string; name: string }>
   preferredPublishDate: string | null
@@ -66,10 +68,20 @@ export function buildMiniArticlePrompt(input: BuildMiniArticlePromptInput): stri
   const attachmentBlock =
     input.attachmentCount > 0
       ? `\n\n【添付ファイル】
-このプロンプトの後ろに、依頼者が添付したファイルが ${input.attachmentCount} 点あります（チラシ画像・写真・PDF）。
+このプロンプトの後ろの「依頼者の添付ファイル」に ${input.attachmentCount} 点あります（チラシ画像・写真・PDF）。
 - チラシや告知画像に書かれた文字（タイトル・日時・会場・料金・対象・申込方法など）を読み取り、SNS 本文と同じ「提供された情報」として使う
 - 文字の無い写真は、写っているものを本文の雰囲気づくりの参考にする程度にとどめ、写真から推測した事実（場所・人数など）は書かない
 - 読み取れない・判別があやしい文字は使わない（日時や料金を推測で埋めない）`
+      : ''
+
+  const screenshotBlock =
+    input.screenshotUrls.length > 0
+      ? `\n\n【ページのスクリーンショット】
+次の URL は文章を自動取得できなかったため、ページ全体のスクリーンショットを添付しています（このプロンプトの後ろ。縦長のページを上から順に分割した画像で、境目は少し重なっています）。
+${input.screenshotUrls.map((u) => `- ${u}`).join('\n')}
+- 画像に写っている文章を読み取り、SNS 本文と同じ「提供された情報」として使う
+- メニュー・ログイン案内・フッター・他の講座の一覧など、依頼の題材と関係ない部分は使わない
+- 読み取れない・判別があやしい文字は使わない`
       : ''
 
   return `${PERSONA}
@@ -81,7 +93,7 @@ SNS 投稿の本文（最大 5 件）・添付のチラシ等と種別情報で�
 【重要】
 - ミニ記事は無料公開される短い紹介記事です。長文にせず 400〜800 字程度にまとめる
 - セクション分割（h2 見出し）は使わず、1 本の流れる文章で書く（段落 <p> のみ。h2/h3 は使わない）
-- 提供された SNS 本文・添付ファイル・補足メモの情報のみを使用し、捏造しない
+- 提供された SNS 本文・添付ファイル・ページのスクリーンショット・補足メモの情報のみを使用し、捏造しない
 - 複数の投稿がある場合は、共通テーマを軸にひとつの記事へ自然に統合する
 - 投稿テキストは URL から自動取得したものが多く、メニュー・お知らせ一覧・ボタン文言などが混じる。依頼の題材に関係する部分だけを使い、無関係な講座やお知らせを記事に入れない
 - 情報が薄い箇所は無理に膨らませず、必要なら「※ここに追加取材の内容を加筆してください」を挿入
@@ -93,7 +105,7 @@ ${typeLabel}
 → トーン: ${TYPE_TONE[input.inquiryType]}
 
 【イベント情報の抽出ルール】
-提供された情報（SNS 本文・添付・補足メモ）に開催日 + 会場 が含まれていればイベントとして扱い、is_event=true、関連フィールドを埋める。
+提供された情報（SNS 本文・添付・スクリーンショット・補足メモ）に開催日 + 会場 が含まれていればイベントとして扱い、is_event=true、関連フィールドを埋める。
 含まれていない（普通の紹介）なら is_event=false で関連フィールドはすべて null。
 
 - event_date_start / event_date_end: ISO 形式 YYYY-MM-DD
@@ -134,6 +146,6 @@ ${categoriesList}
 
 【提供された SNS 投稿】（画像 ${input.imageCount} 枚が記事に添付されます）${publishHint}
 
-${snsBlock}${memoBlock}${attachmentBlock}
+${snsBlock}${memoBlock}${attachmentBlock}${screenshotBlock}
 `
 }

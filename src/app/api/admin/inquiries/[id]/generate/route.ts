@@ -5,6 +5,12 @@ import {
   type GenerateMiniArticleInput,
 } from '@/lib/mini-article-generator'
 import { ArticleAiValidationError } from '@/lib/article-ai-shared'
+import {
+  SCREENSHOT_MAX_SLICES_PER_PAGE,
+  SCREENSHOT_MAX_TOTAL_BASE64,
+  totalScreenshotBase64Length,
+  type PageScreenshot,
+} from '@/lib/page-screenshots'
 
 export const maxDuration = 60
 
@@ -22,6 +28,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     snsTexts?: Array<{ url: string; text: string }>
     memoText?: string
     additionalImageUrls?: string[]
+    screenshots?: PageScreenshot[]
   }
   try {
     body = await req.json()
@@ -41,11 +48,30 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   const memoText = typeof body.memoText === 'string' ? body.memoText : ''
 
+  const screenshots = Array.isArray(body.screenshots)
+    ? body.screenshots.filter(
+        (s): s is PageScreenshot =>
+          !!s &&
+          typeof s.url === 'string' &&
+          Array.isArray(s.slices) &&
+          s.slices.length > 0 &&
+          s.slices.length <= SCREENSHOT_MAX_SLICES_PER_PAGE &&
+          s.slices.every((b) => typeof b === 'string' && b.length > 0)
+      )
+    : []
+  if (totalScreenshotBase64Length(screenshots) > SCREENSHOT_MAX_TOTAL_BASE64) {
+    return NextResponse.json(
+      { ok: false, error: 'スクショが大きすぎます。枚数を減らしてください' },
+      { status: 400 }
+    )
+  }
+
   const input: GenerateMiniArticleInput = {
     inquiryId: id,
     snsTexts,
     memoText,
     additionalImageUrls,
+    screenshots,
   }
 
   try {

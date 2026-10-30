@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ExternalLink, ImagePlus, Sparkles, X } from 'lucide-react'
+import { Camera, ExternalLink, ImagePlus, Sparkles, X } from 'lucide-react'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
@@ -11,6 +11,12 @@ import {
   INQUIRY_IMAGE_MAX_BYTES,
 } from '@/lib/inquiry-schema'
 import type { UrlTextResult } from '@/lib/url-text-extractor'
+import {
+  SCREENSHOT_MAX_TOTAL_BASE64,
+  totalScreenshotBase64Length,
+  type PageScreenshot,
+} from '@/lib/page-screenshots'
+import { sliceScreenshot } from '@/lib/screenshot-slicer'
 import { fetchInquiryUrlTexts, uploadAdditionalInquiryImages } from '../../../actions'
 
 const ACCEPT_ATTR = INQUIRY_IMAGE_ACCEPT.join(',')
@@ -33,6 +39,11 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
   const [fetching, setFetching] = useState(snsUrls.length > 0)
   const [urlResults, setUrlResults] = useState<UrlTextResult[] | null>(null)
   const autoFetched = useRef(false)
+  // URL の index → スクショ (保存せず、生成のときに AI へ直接渡すだけ)
+  const [screenshots, setScreenshots] = useState<
+    Record<number, { fileName: string; slices: string[] }>
+  >({})
+  const [slicingIndex, setSlicingIndex] = useState<number | null>(null)
 
   // URL の中身を取りに行き、空の貼り付け欄だけ埋める (紗代さんが手で書いた分は上書きしない)
   const fetchUrlTexts = useCallback(async () => {
@@ -65,6 +76,36 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
     setTexts((prev) => prev.map((t, i) => (i === index ? value : t)))
   }
 
+  async function onPickScreenshot(index: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      addToast('画像ファイルを選んでください', 'warning')
+      return
+    }
+    setSlicingIndex(index)
+    try {
+      const { slices, truncated } = await sliceScreenshot(file)
+      setScreenshots((prev) => ({ ...prev, [index]: { fileName: file.name, slices } }))
+      if (truncated) {
+        addToast('ページが長すぎるため、下の方は読み取りません', 'warning')
+      }
+    } catch (err) {
+      console.error(err)
+      addToast('スクショを読み込めませんでした。別の画像でお試しください', 'error')
+    } finally {
+      setSlicingIndex(null)
+    }
+  }
+  function removeScreenshot(index: number) {
+    setScreenshots((prev) => {
+      const next = { ...prev }
+      delete next[index]
+      return next
+    })
+  }
+
   function onPickImages(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? [])
     e.target.value = ''
@@ -85,8 +126,20 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
   }
 
   async function handleGenerate() {
-    if (!hasAttachments && memo.trim() === '' && texts.every((t) => t.trim() === '')) {
-      addToast('SNS 投稿の本文か補足メモを入力してください', 'warning')
+    const pageScreenshots: PageScreenshot[] = Object.entries(screenshots).map(
+      ([i, s]) => ({ url: snsUrls[Number(i)], slices: s.slices })
+    )
+    if (
+      !hasAttachments &&
+      pageScreenshots.length === 0 &&
+      memo.trim() === '' &&
+      texts.every((t) => t.trim() === '')
+    ) {
+      addToast('URL の本文・スクショ・補足メモのどれかを入れてください', 'warning')
+      return
+    }
+    if (totalScreenshotBase64Length(pageScreenshots) > SCREENSHOT_MAX_TOTAL_BASE64) {
+      addToast('スクショが大きすぎます。枚数を減らしてください', 'warning')
       return
     }
     setLoading(true)
@@ -110,7 +163,12 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
       const res = await fetch(`/api/admin/inquiries/${inquiryId}/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ snsTexts, memoText: memo, additionalImageUrls }),
+        body: JSON.stringify({
+          snsTexts,
+          memoText: memo,
+          additionalImageUrls,
+          screenshots: pageScreenshots,
+        }),
       })
       const json = await res.json()
       if (res.ok && json.ok) {
@@ -145,7 +203,7 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
             )}
           </div>
           <p className="mb-4 text-xs text-text-secondary">
-            URL の中身を自動で取得して下の欄に入れます。取得できなかった URL だけ、開いて本文を貼り付けてください。
+            URL の中身を自動で取得して下の欄に入れます。取得できなかった URL は、ページ全体のスクショを添付してください（Edge なら「Web キャプチャ」→「ページ全体」）。
             {hasAttachments && '添付のチラシ・写真は AI が直接読みます。'}
           </p>
           <div className="space-y-4">
@@ -163,6 +221,14 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
                   </a>
                 </label>
                 <UrlFetchStatus fetching={fetching} result={urlResults?.[i]} />
+                {!fetching && urlResults?.[i]?.status !== 'ok' && (
+                  <ScreenshotPicker
+                    screenshot={screenshots[i]}
+                    slicing={slicingIndex === i}
+                    onPick={(e) => void onPickScreenshot(i, e)}
+                    onRemove={() => removeScreenshot(i)}
+                  />
+                )}
                 <Textarea
                   value={texts[i]}
                   onChange={(e) => updateText(i, e.target.value)}
@@ -196,7 +262,7 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
           追加画像（任意・最大 {ADDITIONAL_IMAGE_MAX_COUNT} 枚）
         </h2>
         <p className="mb-4 text-xs text-text-secondary">
-          SNS のスクリーンショットなどをここに追加できます（フォーム提供画像と合わせて本文に挿入されます）。
+          記事に載せる写真を追加できます（フォームで届いた画像と合わせて本文に入ります）。ここの画像は AI は読みません。読み取らせたいページは、上の URL 欄からスクショを添付してください。
         </p>
         {images.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-3">
@@ -246,7 +312,7 @@ export function GenerateForm({ inquiryId, snsUrls, hasAttachments }: Props) {
           variant="primary"
           size="lg"
           onClick={handleGenerate}
-          disabled={loading || fetching}
+          disabled={loading || fetching || slicingIndex !== null}
         >
           <Sparkles className="mr-1.5 h-4 w-4" />
           {loading ? '生成中…' : fetching ? 'URL を取得中…' : 'AI でたたき台を生成する'}
@@ -286,8 +352,45 @@ function UrlFetchStatus({
     <p className="mb-1.5 text-xs text-amber-700">
       ⚠ {result.reason}
       {result.status === 'partial'
-        ? '。足りない分は URL を開いて貼り足してください。'
-        : '。URL を開いて本文を貼り付けてください。'}
+        ? '。ページ全体のスクショを添付すると、AI が残りを読み取ります。'
+        : '。ページ全体のスクショを添付してください（本文を貼り付けても大丈夫です）。'}
     </p>
+  )
+}
+
+function ScreenshotPicker({
+  screenshot,
+  slicing,
+  onPick,
+  onRemove,
+}: {
+  screenshot: { fileName: string; slices: string[] } | undefined
+  slicing: boolean
+  onPick: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onRemove: () => void
+}) {
+  if (screenshot) {
+    return (
+      <div className="mb-2 flex items-center gap-2 text-xs text-emerald-700">
+        <Camera className="h-3.5 w-3.5 shrink-0" />
+        <span className="break-all">
+          スクショを添付しました（{screenshot.fileName}）。AI が読み取ります。
+        </span>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="shrink-0 text-text-secondary hover:text-primary hover:underline"
+        >
+          取り消す
+        </button>
+      </div>
+    )
+  }
+  return (
+    <label className="mb-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-border-decorative px-3 py-1.5 text-xs text-text-secondary hover:border-primary hover:text-primary">
+      <Camera className="h-3.5 w-3.5" />
+      {slicing ? '読み込み中…' : 'スクショを添付（AI が読むだけで保存しません）'}
+      <input type="file" accept="image/*" onChange={onPick} disabled={slicing} className="sr-only" />
+    </label>
   )
 }

@@ -2,7 +2,7 @@
  * ミニ記事生成 (Ticket 41).
  *
  * 情報窓口フォーム (mini_inquiries) に紗代さんが貼り付けた SNS 本文 + 補足メモ +
- * 依頼者の添付 (チラシ・写真・PDF。vision で読ませる) から
+ * 依頼者の添付 (チラシ・写真・PDF) + 読めなかったページのスクショ (どちらも vision で読ませる) から
  * Gemini で記事の下書き (posts, is_published=false) を生成する。
  *
  * 既存 IG 記事生成 (Ticket 37) の純粋ヘルパーを article-ai-shared.ts 経由で再利用。
@@ -11,12 +11,14 @@
 
 import { revalidatePath } from 'next/cache'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Part } from '@google/generative-ai'
 import { createAdminClient } from '@/lib/supabase'
 import { generateUniquePostSlug } from '@/lib/slug-utils'
 import { buildMiniArticlePrompt } from '@/lib/mini-article-prompt'
 import { isPdfAttachment } from '@/lib/inquiries'
 import { syncPostImages } from '@/lib/post-images-sync'
 import { loadInquiryAttachmentParts } from '@/lib/inquiry-attachment-reader'
+import type { PageScreenshot } from '@/lib/page-screenshots'
 import {
   ArticleAiValidationError,
   callGeminiForArticle,
@@ -37,6 +39,8 @@ export interface GenerateMiniArticleInput {
   memoText: string
   /** 記事化画面で追加アップロードした画像の公開 URL */
   additionalImageUrls: string[]
+  /** 自動取得できなかったページのスクショ。AI が読むだけで保存しない */
+  screenshots: PageScreenshot[]
 }
 
 export interface GenerateMiniArticleResult {
@@ -85,7 +89,14 @@ export async function generateMiniArticle(
     const snsTexts = input.snsTexts.filter((s) => s.text.trim().length > 0)
     const memoText = input.memoText.trim()
     const attachmentUrls = inquiry.image_urls ?? []
-    if (snsTexts.length === 0 && memoText.length === 0 && attachmentUrls.length === 0) {
+    // スクショは依頼の URL のものだけ受け付ける (別ページの内容が紛れ込まないように)
+    const screenshots = input.screenshots.filter((s) => inquiry.sns_urls.includes(s.url))
+    if (
+      snsTexts.length === 0 &&
+      memoText.length === 0 &&
+      attachmentUrls.length === 0 &&
+      screenshots.length === 0
+    ) {
       throw new ArticleAiValidationError(
         'SNS 投稿の本文か補足メモを入力してください'
       )
@@ -98,22 +109,30 @@ export async function generateMiniArticle(
       throw new Error('カテゴリが 1 件も登録されていません')
     }
     const attachmentParts = await loadInquiryAttachmentParts(attachmentUrls)
+    const visionParts: Array<string | Part> = []
+    if (attachmentParts.length > 0) {
+      visionParts.push('=== 依頼者の添付ファイル ===', ...attachmentParts)
+    }
+    for (const s of screenshots) {
+      visionParts.push(
+        `=== ${s.url} のページのスクリーンショット (上から順に ${s.slices.length} 枚) ===`,
+        ...s.slices.map((data): Part => ({ inlineData: { data, mimeType: 'image/jpeg' } }))
+      )
+    }
     const prompt = buildMiniArticlePrompt({
       inquiryType: inquiry.inquiry_type,
       inquiryTypeOther: inquiry.inquiry_type_other,
       snsTexts,
       memoText,
       attachmentCount: attachmentParts.length,
+      screenshotUrls: screenshots.map((s) => s.url),
       imageCount: imageUrls.length,
       categories: categories.map((c) => ({ slug: c.slug, name: c.name })),
       preferredPublishDate: inquiry.publish_target_date,
     })
     const ai =
-      attachmentParts.length > 0
-        ? await callGeminiForArticleParts(
-            [prompt, ...attachmentParts],
-            'mini-article-generator'
-          )
+      visionParts.length > 0
+        ? await callGeminiForArticleParts([prompt, ...visionParts], 'mini-article-generator')
         : await callGeminiForArticle(prompt, 'mini-article-generator')
 
     // 6. カテゴリ解決
