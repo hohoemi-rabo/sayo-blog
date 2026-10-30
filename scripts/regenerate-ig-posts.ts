@@ -49,7 +49,7 @@ const TARGETS: Array<{
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const geminiKey = process.env.GEMINI_API_KEY
-const geminiModelName = process.env.GEMINI_MODEL || 'gemini-3-flash-preview'
+const geminiModelName = process.env.GEMINI_MODEL || 'gemini-3.6-flash'
 
 if (!supabaseUrl || !serviceKey || !geminiKey) {
   console.error('❌ Missing env: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / GEMINI_API_KEY')

@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3-flash-preview'
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash'
 const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || 'gemini-embedding-2'
 
 let genAI: GoogleGenerativeAI | null = null

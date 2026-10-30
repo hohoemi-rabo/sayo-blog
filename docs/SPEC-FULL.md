@@ -28,7 +28,7 @@ Phase 4 では「3 つの記事のかたち（自由記事 / ミニ記事 / ロ�
 | TypeScript | 5 | 型安全性 |
 | Tailwind CSS | 3.4.17 | スタイリング |
 | Supabase | 2.81.1 | PostgreSQL + pgvector + Storage |
-| Google Gemini | 0.24.1 | AI 生成 (gemini-3-flash-preview) + 埋め込み (gemini-embedding-2, 3072次元) |
+| Google Gemini | 0.24.1 | AI 生成 (gemini-3.6-flash) + 埋め込み (gemini-embedding-2, 3072次元) |
 | Tiptap | 3.14.0 | リッチテキストエディタ (Admin) |
 | Nodemailer | 8.x | Gmail SMTP で情報窓口の通知メール送信 |
 | Zod | 4.x | 公開フォームの入力バリデーション |
@@ -503,7 +503,7 @@ post-sections (h2 分割) / ig-caption-prompt / ig-caption-generator / ig-settin
 | `ADMIN_PASSWORD` | 必須 | 管理者パスワード |
 | `CRON_SECRET` | 必須 | Vercel Cron keepalive 認証用 (`openssl rand -hex 32`)。Vercel Cron が Bearer で自動付与 |
 | `GEMINI_API_KEY` | 必須 | Gemini API キー |
-| `GEMINI_MODEL` | 任意 | テキストモデル (default: gemini-3-flash-preview) |
+| `GEMINI_MODEL` | 任意 | テキストモデル (default: gemini-3.6-flash) |
 | `EMBEDDING_MODEL` | 任意 | 埋め込みモデル (default: gemini-embedding-2) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | 任意 | GA4 測定 ID |
 | `GMAIL_SMTP_USER` | 情報窓口で必須 | 送信元 Gmail |

@@ -23,7 +23,7 @@ npm run lint        # Run ESLint
 - **Database**: Supabase (PostgreSQL + pgvector)
 - **Storage**: Supabase Storage (for images: `thumbnails` / `ig-posts` / `inquiry-images` / `image-variants` = next/image 用の縮小版)
 - **Images**: Vercel の画像最適化は不使用 (Hobby の月 5,000 変換超えで 402 になったため)。next/image はカスタムローダー → `/api/img` が縮小版を作って Storage から配る (詳細 frontend.md)
-- **AI**: Google Gemini (gemini-3-flash-preview + gemini-embedding-2)
+- **AI**: Google Gemini (gemini-3.6-flash + gemini-embedding-2)
 - **Language**: TypeScript 5
 - **React**: 19.1.0
 
@@ -102,7 +102,7 @@ ADMIN_PASSWORD=your-secure-admin-password
 CRON_SECRET=your-random-secret  # Vercel Cron keepalive 認証用 (openssl rand -hex 32)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=  # GA4 (optional, set when available)
 GEMINI_API_KEY=your-gemini-api-key
-GEMINI_MODEL=gemini-3-flash-preview        # default: gemini-3-flash-preview
+GEMINI_MODEL=gemini-3.6-flash        # default: gemini-3.6-flash
 EMBEDDING_MODEL=gemini-embedding-2 # default: gemini-embedding-2
 # 情報窓口フォーム メール通知 (Gmail SMTP / Nodemailer)
 GMAIL_SMTP_USER=your-gmail-address@gmail.com         # 送信元 Gmail
