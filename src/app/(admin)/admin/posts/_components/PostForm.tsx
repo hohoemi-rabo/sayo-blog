@@ -468,11 +468,9 @@ export function PostForm({
 
       {/* Bottom Action Buttons */}
       <div className="flex items-center justify-end gap-3 pt-6 border-t border-border-decorative">
-        {mode === 'edit' && initialData && categoryId && (
-          <Link
-            href={`/${categories.find((c) => c.id === categoryId)?.slug}/${slug}`}
-            target="_blank"
-          >
+        {/* 公開 URL ではなく管理用プレビューへ (公開 URL だと下書きは 404 になる。上のボタンと同じ) */}
+        {mode === 'edit' && initialData && (
+          <Link href={`/admin/posts/${initialData.id}/preview`} target="_blank">
             <Button type="button" variant="outline" className="gap-2">
               <Eye className="h-4 w-4" />
               プレビュー

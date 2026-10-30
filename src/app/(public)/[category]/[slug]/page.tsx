@@ -31,8 +31,21 @@ interface ArticlePageProps {
   }>
 }
 
+/**
+ * URL の slug は日本語だとパーセントエンコードされたまま届く (例: %E8%87%AA…)。
+ * DB には日本語のまま入っているので戻してから探す。AI 生成記事の slug はタイトル由来の日本語になる。
+ */
+function decodeSlug(slug: string): string {
+  try {
+    return decodeURIComponent(slug)
+  } catch {
+    return slug
+  }
+}
+
 // Cached post fetch — deduplicates across generateMetadata and ArticlePage
-const getPost = cache(async (slug: string) => {
+const getPost = cache(async (rawSlug: string) => {
+  const slug = decodeSlug(rawSlug)
   const supabase = createClient()
   const { data, error } = await supabase
     .from('posts')
@@ -183,7 +196,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // 記事ごとの対応表を持たずにここで一括して吸収する (同じ記事が複数 URL で表示される重複も防ぐ)。
   const firstCategory = categories[0] as Category | undefined
   if (firstCategory && firstCategory.slug !== resolvedParams.category) {
-    permanentRedirect(`/${firstCategory.slug}/${post.slug}`)
+    permanentRedirect(`/${firstCategory.slug}/${encodeURIComponent(post.slug)}`)
   }
 
   // Build JSON-LD structured data
