@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase'
 import { assertAdminAuth } from '@/lib/admin-auth'
 import { uploadInquiryImages, InquiryImageError } from '@/lib/inquiry-images'
+import { extractUrlText, type UrlTextResult } from '@/lib/url-text-extractor'
 import {
   INQUIRY_IMAGE_ACCEPT,
   INQUIRY_IMAGE_MAX_BYTES,
@@ -80,6 +81,32 @@ export async function getMiniInquiry(id: string): Promise<MiniInquiry | null> {
     .maybeSingle()
   if (error) throw new Error(error.message)
   return (data as MiniInquiry | null) ?? null
+}
+
+/**
+ * 記事化画面用: 依頼の URL を全部取りに行き、本文テキストを返す。
+ * URL はクライアントから受け取らず DB の値を使う (任意 URL の取得台にさせない)。
+ */
+export async function fetchInquiryUrlTexts(
+  inquiryId: string
+): Promise<{ ok: true; results: UrlTextResult[] } | { ok: false; error: string }> {
+  try {
+    await assertAdminAuth()
+  } catch {
+    return { ok: false, error: '認証が必要です' }
+  }
+
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('mini_inquiries')
+    .select('sns_urls')
+    .eq('id', inquiryId)
+    .maybeSingle()
+  if (error) return { ok: false, error: `依頼の取得に失敗しました: ${error.message}` }
+  if (!data) return { ok: false, error: '依頼が見つかりません' }
+
+  const results = await Promise.all((data.sns_urls as string[]).map(extractUrlText))
+  return { ok: true, results }
 }
 
 /** ミニ記事依頼のステータスを更新 */
