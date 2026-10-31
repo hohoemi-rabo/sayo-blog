@@ -1,5 +1,5 @@
 import { SITE_CONFIG } from '@/lib/site-config'
-import { generateCanonicalUrl } from '@/lib/seo-utils'
+import { articlePath, generateCanonicalUrl } from '@/lib/seo-utils'
 import type { Post } from '@/lib/types'
 
 /**
@@ -14,7 +14,7 @@ export function generateArticleSchema(
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt || post.title,
-    image: post.thumbnail_url || `${SITE_CONFIG.url}/og-image.png`,
+    image: post.thumbnail_url || `${SITE_CONFIG.url}${SITE_CONFIG.ogImage.path}`,
     datePublished: post.published_at || post.updated_at,
     dateModified: post.updated_at,
     author: {
@@ -29,7 +29,7 @@ export function generateArticleSchema(
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': generateCanonicalUrl(`/${categorySlug}/${post.slug}/`),
+      '@id': generateCanonicalUrl(articlePath(categorySlug, post.slug)),
     },
   }
 }

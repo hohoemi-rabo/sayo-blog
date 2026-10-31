@@ -1,6 +1,11 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { articlePath } from '@/lib/seo-utils'
+
+// 何もしないとデプロイ時に 1 回作ったきりになり、公開した記事が次のデプロイまで載らない。
+// 記事の保存・削除時は posts/actions.ts が作り直すので、これは取りこぼしの保険。
+export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient()
@@ -33,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const categorySlug = post.post_categories[0]?.categories.slug
 
       return {
-        url: `${SITE_CONFIG.url}/${categorySlug}/${post.slug}/`,
+        url: `${SITE_CONFIG.url}${articlePath(categorySlug, post.slug)}`,
         lastModified: new Date(post.updated_at),
         changeFrequency: 'weekly' as const,
         priority: 0.8,

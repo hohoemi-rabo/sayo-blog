@@ -4,7 +4,14 @@ import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
 import { Category, Hashtag } from '@/lib/types'
 import { SITE_CONFIG } from '@/lib/site-config'
-import { truncateDescription, generateCanonicalUrl, extractKeywords } from '@/lib/seo-utils'
+import {
+  truncateDescription,
+  generateCanonicalUrl,
+  extractKeywords,
+  withSiteOpenGraph,
+  DEFAULT_OG_IMAGES,
+  articlePath,
+} from '@/lib/seo-utils'
 import { generateArticleSchema, generateBreadcrumbSchema, JsonLd } from '@/lib/structured-data'
 import { processArticleContent } from '@/lib/article-utils'
 import ArticleHero from '@/components/ArticleHero'
@@ -125,8 +132,11 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   }
 
   const description = truncateDescription(post.excerpt || post.title)
-  const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}/og-image.png`
-  const canonicalUrl = `/${getPostCategorySlug(post) ?? category}/${slug}/`
+  const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}${SITE_CONFIG.ogImage.path}`
+  // サムネイルの実寸は DB に無いので書かない (決め打ちの 1200×630 だと小さい写真でも
+  // 大きいと伝えてしまう)。サイト共通の OG 画像だけは実寸が決まっている
+  const ogImages = post.thumbnail_url ? [{ url: imageUrl, alt: post.title }] : DEFAULT_OG_IMAGES
+  const canonicalUrl = articlePath(getPostCategorySlug(post) ?? category, post.slug)
   const hashtags = (
     post.post_hashtags as Array<{ hashtags: { name: string } }>
   ).map((ph) => ph.hashtags)
@@ -139,22 +149,16 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     alternates: {
       canonical: canonicalUrl,
     },
-    openGraph: {
+    openGraph: withSiteOpenGraph({
       title: post.title,
       description,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      url: canonicalUrl,
+      images: ogImages,
       type: 'article',
       publishedTime: post.published_at || undefined,
       modifiedTime: post.updated_at,
       authors: [SITE_CONFIG.author.name],
-    },
+    }),
     twitter: {
       card: 'summary_large_image',
       title: post.title,
@@ -207,9 +211,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const breadcrumbItems = [
     { name: 'ホーム', url: SITE_CONFIG.url },
     ...(firstCategory
-      ? [{ name: firstCategory.name, url: generateCanonicalUrl(`/${firstCategory.slug}/`) }]
+      ? [{ name: firstCategory.name, url: generateCanonicalUrl(`/${firstCategory.slug}`) }]
       : []),
-    { name: post.title, url: generateCanonicalUrl(`/${resolvedParams.category}/${post.slug}/`) },
+    { name: post.title, url: generateCanonicalUrl(articlePath(resolvedParams.category, post.slug)) },
   ]
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems)
 

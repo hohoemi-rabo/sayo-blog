@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { withSiteOpenGraph } from '@/lib/seo-utils'
 import { JsonLd } from '@/lib/structured-data'
 import { LongLpForm } from './_components/LongLpForm'
 
@@ -11,13 +12,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/interview`,
   },
-  openGraph: {
+  openGraph: withSiteOpenGraph({
     title: `取材記事を相談する | ${SITE_CONFIG.name}`,
     description:
       '伝えたい想いを、読み返せる記事に。お店や活動の魅力を、言葉と写真で残します。',
     url: `${SITE_CONFIG.url}/request/interview`,
-    type: 'website',
-  },
+  }),
 }
 
 // FAQ 構造化データ (リッチリザルト候補)

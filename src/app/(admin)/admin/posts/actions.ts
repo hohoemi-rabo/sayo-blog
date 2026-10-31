@@ -289,6 +289,7 @@ export async function createPost(
   revalidatePath('/admin/posts')
   revalidatePath('/')
   revalidatePath('/gallery')
+  revalidatePath('/sitemap.xml')
   revalidateArticlePath(await getCategorySlug(supabase, data.category_id), data.slug)
 
   if (data.is_published && post?.id) {
@@ -418,6 +419,7 @@ export async function updatePost(id: string, data: PostFormData) {
   revalidatePath(`/admin/posts/${id}`)
   revalidatePath('/')
   revalidatePath('/gallery')
+  revalidatePath('/sitemap.xml')
   revalidateArticlePath(await getCategorySlug(supabase, data.category_id), data.slug)
   // slug・カテゴリを変えたときは古い URL のページも作り直す (同じ URL なら二重に呼ぶだけで無害)
   revalidateArticlePath(previousCategorySlug, previousSlug)
@@ -481,6 +483,7 @@ export async function deletePost(id: string) {
 
   revalidatePath('/admin/posts')
   revalidatePath('/')
+  revalidatePath('/sitemap.xml')
 
   return { success: true }
 }

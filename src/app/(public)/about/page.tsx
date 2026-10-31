@@ -19,6 +19,7 @@ import {
   Repeat,
 } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { withSiteOpenGraph } from '@/lib/seo-utils'
 
 const ABOUT_DESCRIPTION =
   'HOISA は、飯田下伊那を中心に地域の「あれこれ」を運ぶ情報サイトです。SNS やチラシに流れていく情報を、あとから探せる記事として残していきます。運営はライター・編集者の本岡紗代 (FUNE)。'
@@ -29,11 +30,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_CONFIG.url}/about`,
   },
-  openGraph: {
+  openGraph: withSiteOpenGraph({
     title: `HOISA について | ${SITE_CONFIG.name}`,
     description: ABOUT_DESCRIPTION,
     url: `${SITE_CONFIG.url}/about`,
-  },
+  }),
 }
 
 /**

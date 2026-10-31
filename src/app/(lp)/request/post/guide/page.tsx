@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { withSiteOpenGraph } from '@/lib/seo-utils'
 import { ARTICLE_ANGLES } from '@/lib/article-angles'
 import { AngleDiagnosis } from './_components/AngleDiagnosis'
 
@@ -11,13 +12,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post/guide`,
   },
-  openGraph: {
+  openGraph: withSiteOpenGraph({
     title: `投稿記事の切り口診断 | ${SITE_CONFIG.name}`,
     description:
       '同じ5つの投稿でも、どれを選ぶかで記事の印象は変わります。あなたに合う切り口を診断します。',
     url: `${SITE_CONFIG.url}/request/post/guide`,
-    type: 'website',
-  },
+  }),
 }
 
 const creamGradient = {

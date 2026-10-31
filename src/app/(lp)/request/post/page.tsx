@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { withSiteOpenGraph } from '@/lib/seo-utils'
 import { JsonLd } from '@/lib/structured-data'
 import { MiniLpForm } from './_components/MiniLpForm'
 
@@ -12,13 +13,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/post`,
   },
-  openGraph: {
+  openGraph: withSiteOpenGraph({
     title: `投稿記事を掲載する | ${SITE_CONFIG.name}`,
     description:
       '飯田下伊那の情報を、あとから見つかる記事に。SNS 投稿の URL か、チラシ 1 枚から。告知・イベント・ご近所の話まで、無料で掲載できます。',
     url: `${SITE_CONFIG.url}/request/post`,
-    type: 'website',
-  },
+  }),
 }
 
 // FAQ 構造化データ (リッチリザルト候補)

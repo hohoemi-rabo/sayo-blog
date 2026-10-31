@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase'
 import { SITE_CONFIG } from '@/lib/site-config'
+import { withSiteOpenGraph } from '@/lib/seo-utils'
 import {
   GALLERY_PAGE_SIZE,
   galleryImageAlt,
@@ -22,12 +23,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: `${SITE_CONFIG.url}/gallery`,
   },
-  openGraph: {
+  openGraph: withSiteOpenGraph({
     title: `ギャラリー | ${SITE_CONFIG.name}`,
     description: '記事の写真から、その物語へ。',
     url: `${SITE_CONFIG.url}/gallery`,
-    type: 'website',
-  },
+  }),
 }
 
 export default async function GalleryPage() {

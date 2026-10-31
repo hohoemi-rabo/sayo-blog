@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { DEFAULT_OG_IMAGES } from "@/lib/seo-utils";
 import { cormorant, hoisaMincho, klee } from "@/lib/fonts";
 import { generateWebSiteSchema, generateOrganizationSchema, JsonLd } from "@/lib/structured-data";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -56,20 +57,13 @@ export const metadata: Metadata = {
     siteName: SITE_CONFIG.name,
     title: SITE_CONFIG.title,
     description: SITE_CONFIG.description,
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: SITE_CONFIG.name,
-      },
-    ],
+    images: DEFAULT_OG_IMAGES,
   },
   twitter: {
     card: 'summary_large_image',
     title: SITE_CONFIG.name,
     description: SITE_CONFIG.description,
-    images: ['/og-image.png'],
+    images: [SITE_CONFIG.ogImage.path],
   },
   robots: {
     index: true,
