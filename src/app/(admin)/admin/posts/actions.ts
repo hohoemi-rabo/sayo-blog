@@ -13,7 +13,7 @@ import {
   type Summaries,
 } from '@/lib/summary-generator'
 import type { ArticleType } from '@/lib/types'
-import { isNewArticleType, type ArticleTypeTab } from '@/lib/article-types'
+import { isArticleType, type ArticleTypeTab } from '@/lib/article-types'
 import { PICKUP_COUNT } from '@/lib/home-slots'
 import { RELATED_POSTS_COUNT, rankRelatedOptions } from '@/lib/related-posts'
 
@@ -38,7 +38,7 @@ export type PostFormData = {
   event_address: string | null
   event_fee: string | null
   event_url: string | null
-  // 記事の種類。新規作成は mini / long のみ (自由記事は既存の記事だけ)
+  // 記事の種類 (投稿記事 / 取材記事 / 自由記事)
   article_type?: ArticleType
   // AI 3段階要約 — 未生成は null
   summary_short?: string | null
@@ -166,9 +166,8 @@ export async function createPost(
 
   // 依頼から作るときは、記事の種類を依頼に合わせる (画面の選択は信用しない)。
   // 投稿記事は元の SNS URL を source_urls に控える (AI 記事化と同じ)。
-  // 自由記事は新しく作らない (既存の記事だけ)。種類は 投稿記事 / 取材記事 のどちらか
-  if (!isNewArticleType(data.article_type)) {
-    return { success: false, error: '記事の種類 (投稿記事 / 取材記事) を選んでください' }
+  if (!isArticleType(data.article_type)) {
+    return { success: false, error: '記事の種類 (投稿記事 / 取材記事 / 自由記事) を選んでください' }
   }
   let articleType: ArticleType = data.article_type
   let sourceUrls: string[] | null = null
@@ -318,12 +317,8 @@ export async function updatePost(id: string, data: PostFormData) {
   const previousSlug = (current?.slug as string | undefined) ?? null
 
   if (data.article_type && data.article_type !== current?.article_type) {
-    // 自由記事は新しく増やさない (既存の自由記事をそのまま保存するのは可)
-    if (data.article_type === 'free') {
-      return {
-        success: false,
-        error: '自由記事には変えられません (投稿記事 / 取材記事 を選んでください)',
-      }
+    if (!isArticleType(data.article_type)) {
+      return { success: false, error: '記事の種類が正しくありません' }
     }
     // 依頼と紐付いた記事は種類を変えない (依頼一覧と記事一覧で食い違うため)
     const link = await findLinkedInquiry(supabase, id)

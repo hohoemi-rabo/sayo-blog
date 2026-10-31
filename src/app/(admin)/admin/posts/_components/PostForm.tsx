@@ -20,8 +20,8 @@ import Link from 'next/link'
 import {
   ARTICLE_TYPE_HINTS,
   ARTICLE_TYPE_LABELS,
-  DEFAULT_NEW_ARTICLE_TYPE,
-  NEW_ARTICLE_TYPES,
+  DEFAULT_ARTICLE_TYPE,
+  ARTICLE_TYPE_CHOICES,
 } from '@/lib/article-types'
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
@@ -144,15 +144,9 @@ export function PostForm({
   })
   // 記事の種類。依頼と紐付く記事は依頼に合わせて固定 (電話・DM など
   // フォームを通らない依頼は、ここで投稿記事 / 取材記事を選ぶ)
-  // 自由記事は新しく作らないので、新規は 投稿 / 取材 の 2 択。
-  // 既存の自由記事を編集するときだけ「自由記事」も残す (保存しても勝手に種類が変わらないように)
   const [articleType, setArticleType] = useState<ArticleType>(
-    inquiryLink?.kind ?? initialData?.article_type ?? DEFAULT_NEW_ARTICLE_TYPE
+    inquiryLink?.kind ?? initialData?.article_type ?? DEFAULT_ARTICLE_TYPE
   )
-  const selectableArticleTypes: ArticleType[] =
-    initialData?.article_type === 'free'
-      ? [...NEW_ARTICLE_TYPES, 'free']
-      : [...NEW_ARTICLE_TYPES]
   const [relatedPosts, setRelatedPosts] = useState<RelatedPostOption[]>(
     initialRelatedPosts ?? []
   )
@@ -442,7 +436,7 @@ export function PostForm({
               </div>
             ) : (
               <div className="space-y-3" role="radiogroup" aria-label="記事の種類">
-                {selectableArticleTypes.map((type) => (
+                {ARTICLE_TYPE_CHOICES.map((type) => (
                   <label
                     key={type}
                     className="flex cursor-pointer items-start gap-3"

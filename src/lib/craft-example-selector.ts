@@ -11,6 +11,13 @@
  * - 対象は article_type='free' のみ（ミニ/ロングや AI 生成物をお手本にしない）。
  */
 
+/**
+ * お手本にする自由記事の作成日の上限。2026-10-31 からは AI（このクラフト機能）でも自由記事を
+ * 作れるようになったので、それ以前の自由記事（＝紗代さん本人の原稿）だけをお手本にする。
+ * 本人が書いた新しい記事もお手本に加えたくなったら、AI 生成かどうかを記録する列を足して置き換える。
+ */
+const STYLE_EXAMPLE_CUTOFF = '2026-10-31T00:00:00+09:00'
+
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
 
@@ -99,6 +106,7 @@ async function fetchCandidates(
     )
     .eq('is_published', true)
     .eq('article_type', 'free')
+    .lt('created_at', STYLE_EXAMPLE_CUTOFF)
     .order('view_count', { ascending: false })
     .limit(CANDIDATE_LIMIT)
 

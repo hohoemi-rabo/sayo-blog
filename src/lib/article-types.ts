@@ -2,7 +2,7 @@ import type { ArticleType } from '@/lib/types'
 
 /**
  * 記事の種類 (posts.article_type) の管理画面向け表示名。
- * 内部コード名は free / mini / long のまま、表示は公開名 (投稿記事 / 取材記事) にそろえる。
+ * 内部コード名は free / mini / long のまま、表示は公開名 (投稿記事 / 取材記事 / 自由記事) にそろえる。
  * Server / Client 両用。
  */
 export const ARTICLE_TYPE_LABELS: Record<ArticleType, string> = {
@@ -13,21 +13,20 @@ export const ARTICLE_TYPE_LABELS: Record<ArticleType, string> = {
 
 /** 記事編集画面の「記事の種類」欄で選択肢の下に出す説明 */
 export const ARTICLE_TYPE_HINTS: Record<ArticleType, string> = {
-  free: 'これまでの記事 (新しくは作りません)',
+  free: '依頼ではなく、自分で見つけて書く記事',
   mini: '読者から寄せられた情報 (フォーム・電話・DM など) をもとにした紹介記事',
   long: '依頼を受けて取材した記事',
 }
 
 /**
- * 新しく作る記事で選べる種類。
- * 自由記事は 2026-10-31 に新規作成をやめた (紗代さんの方針。既存の記事は自由記事のまま残る)。
+ * 記事の作成・編集画面で選べる種類 (並びは記事一覧のタブと同じ)。
+ * 2026-10-31 に一度「自由記事は新しく作らない」にしたが、同日に「自由記事も必要」となり 3 択に戻した。
  */
-export const NEW_ARTICLE_TYPES = ['mini', 'long'] as const satisfies readonly ArticleType[]
-export type NewArticleType = (typeof NEW_ARTICLE_TYPES)[number]
-export const DEFAULT_NEW_ARTICLE_TYPE: NewArticleType = 'mini'
+export const ARTICLE_TYPE_CHOICES = ['mini', 'long', 'free'] as const satisfies readonly ArticleType[]
+export const DEFAULT_ARTICLE_TYPE: ArticleType = 'mini'
 
-export function isNewArticleType(value: unknown): value is NewArticleType {
-  return (NEW_ARTICLE_TYPES as readonly unknown[]).includes(value)
+export function isArticleType(value: unknown): value is ArticleType {
+  return (ARTICLE_TYPE_CHOICES as readonly unknown[]).includes(value)
 }
 
 /** 記事一覧のタブ。「すべて」が既定で、並びは紗代さん指定 */

@@ -5,8 +5,8 @@
  * 1. 抽出パス（vision）: チラシ画像/PDF + メモを忠実に読み取り、カテゴリ・キーワード・整理済みの事実へ。
  * 2. お手本選定: 題材が近い自由記事を全 96 件から 2〜3 本自動選択。
  * 3. 執筆パス: 文体プロファイル + お手本 + 事実で、FUNE の語り口の通常記事（h2 構造）を生成。
- * 4. 下書き保存: posts（article_type=画面で選んだ投稿記事/取材記事, is_published=false）へ INSERT → 編集画面へ。
- *    （自由記事は 2026-10-31 に新規作成をやめた。お手本は既存の自由記事 = 紗代さん本人の文章のまま）
+ * 4. 下書き保存: posts（article_type=画面で選んだ種類, is_published=false）へ INSERT → 編集画面へ。
+ *    （ここで作った自由記事はお手本に使わない = craft-example-selector の STYLE_EXAMPLE_CUTOFF）
  *
  * 写真の自動配置は行わない（次フェーズ）。生成本文は img を含まず、編集画面で人が挿入する。
  * 既存のミニ記事生成（mini-article-generator.ts）と同じ保存パターンを踏襲。
@@ -19,7 +19,7 @@ import { generateUniquePostSlug } from '@/lib/slug-utils'
 import { getWritingStyleProfile } from '@/lib/writing-style'
 import { selectStyleExamples } from '@/lib/craft-example-selector'
 import { syncPostImages } from '@/lib/post-images-sync'
-import type { NewArticleType } from '@/lib/article-types'
+import type { ArticleType } from '@/lib/types'
 import {
   buildCraftArticlePrompt,
   buildCraftExtractPrompt,
@@ -45,8 +45,8 @@ export interface GenerateCraftArticleInput {
   images: CraftImageInput[]
   /** メモ（入力テキスト。補足指示・追加情報にも使う） */
   memoText: string
-  /** 記事の種類（投稿記事 / 取材記事） */
-  articleType: NewArticleType
+  /** 記事の種類（投稿記事 / 取材記事 / 自由記事） */
+  articleType: ArticleType
 }
 
 export interface GenerateCraftArticleResult {

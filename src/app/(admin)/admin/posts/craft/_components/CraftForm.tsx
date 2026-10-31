@@ -15,10 +15,10 @@ import {
 import {
   ARTICLE_TYPE_HINTS,
   ARTICLE_TYPE_LABELS,
-  DEFAULT_NEW_ARTICLE_TYPE,
-  NEW_ARTICLE_TYPES,
-  type NewArticleType,
+  DEFAULT_ARTICLE_TYPE,
+  ARTICLE_TYPE_CHOICES,
 } from '@/lib/article-types'
+import type { ArticleType } from '@/lib/types'
 
 interface Props {
   mode: 'flyer' | 'memo'
@@ -29,7 +29,7 @@ export function CraftForm({ mode }: Props) {
   const { addToast } = useToast()
   const [files, setFiles] = useState<File[]>([])
   const [memo, setMemo] = useState('')
-  const [articleType, setArticleType] = useState<NewArticleType>(DEFAULT_NEW_ARTICLE_TYPE)
+  const [articleType, setArticleType] = useState<ArticleType>(DEFAULT_ARTICLE_TYPE)
   const [loading, setLoading] = useState(false)
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -192,8 +192,8 @@ export function CraftForm({ mode }: Props) {
   const typeSection = (
     <section className="rounded-xl border border-border-decorative bg-white p-5">
       <h2 className="mb-3 text-sm font-semibold text-text-primary">記事の種類</h2>
-      <div className="flex flex-col gap-3 sm:flex-row sm:gap-8" role="radiogroup" aria-label="記事の種類">
-        {NEW_ARTICLE_TYPES.map((type) => (
+      <div className="grid gap-3 sm:grid-cols-3 sm:gap-6" role="radiogroup" aria-label="記事の種類">
+        {ARTICLE_TYPE_CHOICES.map((type) => (
           <label key={type} className="flex cursor-pointer items-start gap-3">
             <input
               type="radio"
