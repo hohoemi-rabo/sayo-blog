@@ -9,9 +9,10 @@ import { PICKUP_COUNT } from '@/lib/home-slots'
  * - report (みんなの投稿): 公開中の投稿記事 (article_type='mini') の最新 1 件。無ければ枠ごと出さない
  * - feature (特集): 取材記事 (long) の最新 1 件。取材記事が無いうちは新しい記事。
  *   ★は Pick Up に全部並べるため、特集には★の記事を使わない
- * - randomPosts (右枠): 上の 3 枠に出ていない記事からランダムに 3 件。
- *   終了イベント (event_ended) は除く。ISR なので並びは再生成 (1 時間) ごとに変わる
+ * - randomPosts (右枠): 上の 3 枠に出ていない記事からランダムに 3 件。ISR なので並びは再生成 (1 時間) ごとに変わる
  *   (記事の保存・削除でもトップは作り直されるので、そのときも変わる)
+ *
+ * 終了したイベント (event_ended) はどの枠にも出さない (★を付けていても出さない)。
  *
  * 紗代さんの指定は「★は Pick Up に 6 件」「みんなの投稿は常に最新の投稿記事」。
  * 最新の投稿記事に★が付いているときだけ、両方を守るため同じ記事が 2 枠に出る (それ以外は重複しない)。
@@ -43,7 +44,9 @@ export interface HomePosts {
 
 export async function getHomePosts(): Promise<HomePosts> {
   const supabase = createClient()
-  const published = () => supabase.from('posts').select(SELECT).eq('is_published', true)
+  // 固定枠の候補 = 公開中 かつ 終了イベントではない記事
+  const published = () =>
+    supabase.from('posts').select(SELECT).eq('is_published', true).eq('event_ended', false)
 
   const [starredRes, latestRes, longRes, miniRes, candidateRes] = await Promise.all([
     published()

@@ -62,7 +62,7 @@ interface PostListProps {
   articleType: ArticleTypeTab
   typeCounts: Record<ArticleTypeTab, number>
   /** ★の件数 (全記事。見ているタブに関係なく数える) */
-  featuredCounts: { total: number; drafts: number }
+  featuredCounts: { total: number; drafts: number; ended: number }
 }
 
 
@@ -198,9 +198,16 @@ export function PostList({
             {featuredCounts.total} / {PICKUP_COUNT} 件
           </span>
           ）
-          {featuredCounts.drafts > 0 && (
+          {(featuredCounts.drafts > 0 || featuredCounts.ended > 0) && (
             <span className="text-amber-700">
-              ・うち下書き {featuredCounts.drafts} 件はトップに出ません
+              ・うち
+              {[
+                featuredCounts.drafts > 0 && `下書き ${featuredCounts.drafts} 件`,
+                featuredCounts.ended > 0 && `終了イベント ${featuredCounts.ended} 件`,
+              ]
+                .filter(Boolean)
+                .join('・')}
+              はトップに出ません
             </span>
           )}
         </p>

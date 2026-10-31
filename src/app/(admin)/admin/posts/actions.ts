@@ -487,23 +487,29 @@ export async function getPostTypeCounts(): Promise<Record<ArticleTypeTab, number
 }
 
 /**
- * ★ (Pick Up に載せる) の件数。上限チェックは下書きも含めた件数で行うので、表示も同じ数え方にする。
- * drafts = ★が付いているがトップには出ない (非公開の) 記事の数
+ * ★ (Pick Up に載せる) の件数。上限チェックは下書き等も含めた件数で行うので、表示も同じ数え方にする。
+ * drafts / ended = ★が付いているがトップには出ない記事 (非公開 / 終了イベント) の数
  */
-export async function getFeaturedCounts(): Promise<{ total: number; drafts: number }> {
+export async function getFeaturedCounts(): Promise<{
+  total: number
+  drafts: number
+  ended: number
+}> {
   await assertAdminAuth()
   const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('posts')
-    .select('is_published')
+    .select('is_published, event_ended')
     .eq('is_featured', true)
   if (error) {
     console.error('Featured count error:', error)
-    return { total: 0, drafts: 0 }
+    return { total: 0, drafts: 0, ended: 0 }
   }
   return {
     total: data.length,
     drafts: data.filter((p) => !p.is_published).length,
+    // 下書きと重なる記事は drafts 側で数える (二重に数えない)
+    ended: data.filter((p) => p.is_published && p.event_ended).length,
   }
 }
 
