@@ -22,8 +22,8 @@ export const SITE_CONFIG = {
   // 連絡窓口 (Contact ページは無く、仕事・システムの相談は Instagram の DM で受ける)。フッターと About で共用
   instagramUrl: 'https://www.instagram.com/fune.iida.toyooka.odekake/',
   themeColor: '#FF6B9D',
-  // サムネイルの無いページの共有画像 (public/og-image.jpg)。仮 = ヒーロー写真 + ロゴ文字。
-  // 正式な OG 画像が来たらファイルを差し替える (1200×630 を保つこと。サイズを変えたらここも)
+  // サムネイルの無いページの共有画像 (public/og-image.jpg)。ヒーローと同じ構成 = 写真 + キャッチ + ロゴ。
+  // 差し替えるときは 1200×630 を保つこと (サイズを変えたらここも)
   ogImage: { path: '/og-image.jpg', width: 1200, height: 630 },
   keywords: ['HOISA', '飯田', '下伊那', '南信州', '地域情報', 'イベント', 'グルメ', 'おでかけ', 'インタビュー', 'ライター'],
 } as const
