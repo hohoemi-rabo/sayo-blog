@@ -56,7 +56,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **カテゴリ再編** (同日・先行): 6 本 = food / event / outing / culture / life / people。migration `20261014120000_reorganize_categories.sql` (既存行を UPDATE で転用 + people 新設 + 記事ごとの対応表で振り分け + トランザクション内検証)。控え `supabase/backups/20261014_category_reorg_backup.md`。旧 URL: 一覧は next.config.ts の redirects、記事は `[category]/[slug]/page.tsx` が**カテゴリ不一致なら正規 URL へ permanentRedirect** (記事ごとの対応表は持たない)。バッジ色 `category-colors.ts`、AI のフォールバックカテゴリ `life`
 - **サイト名**: `SITE_CONFIG.name = 'HOISA'` / `tagline` / title / description。直書きは全廃 (LP・同意文・通知メール件名・AI プロンプト含む)。ページ title のサイト名二重表示も修正 (layout の template に任せる。トップは `{ absolute }`)
 - **フォント**: `src/lib/fonts.ts`。Cormorant (欧文ロゴ, Google) + **和文はサブセットの local font** (Shippori Mincho 400 / Klee One)。`npm run fonts:subset` (`scripts/build-font-subsets.mjs`) で固定文言の文字だけ取得。LP の Shippori は `(lp)/layout.tsx` で従来どおり Google から (LP 限定)。⚠️ 和文を next/font/google でサイト全体に読んだ版は**トップで 13MB / 482 リクエスト・モバイル LCP 89 秒**になった
-- **ロゴ**: `HoisaLogo.tsx` (header / hero。文字 + SVG 枝飾り、em 基準配置)。正式ロゴが来たら中身だけ差し替え
+- **ロゴ**: `HoisaLogo.tsx` (header / hero。文字 + SVG 枝飾り、em 基準配置)。**このロゴで確定** (2026-10-31 紗代さん。画像ファイルのロゴは来ない)
 - **ヘッダー**: `Header.tsx` (Server: `getNavCategories`) → `HeaderClient.tsx`。メニュー定義は `src/lib/site-nav.ts` (フッターと共有。'use client' に置くと Server から読めない)。詳細は frontend.md
 - **ヒーロー**: `HeroSection.tsx` (Server)。写真は仮 = 記事「天竜峡」の写真 (`HERO_PHOTO`)
 - **枠の役割の変更 (2026-10-31, 紗代さん指定)**: Pick Up = **★の記事を全部** (最大 6, 足りない分は新しい記事) / 「レポート」→「**みんなの投稿**」= 公開中の投稿記事 (mini) の最新 1 件、無ければ枠ごと出さない / 特集 = **取材記事 (long) の最新**、無いうちは★以外の新しい記事 (★は Pick Up に全部並べるため特集に使わない)。最新の投稿記事に★が付いているときだけ同じ記事が 2 枠に出る (両方の指定を守るため)。**終了イベント (`event_ended`) はどの枠にも出さない** (★付きでも)。管理の記事一覧には「★ = トップページの Pick Up に載せる記事 (n / 6 件)」を常に表示 (全記事で数える。下書き・終了イベントの★は上限に数えるがトップに出ないので件数を警告)。枠数は `src/lib/home-slots.ts::PICKUP_COUNT` で一覧とトップが共有。以下は変更前の記録
@@ -77,7 +77,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 紗代さんの依頼「今後の記事が公開時点で Google 検索・Discover に拾われやすく、成果を確認できる状態に」への対応。Search Console はドメインプロパティ `sayo-kotoba.com` (DNS は Vercel、TXT で認証)。サイトマップは**完全な URL** `https://www.sayo-kotoba.com/sitemap.xml` で送る (ドメインプロパティは `sitemap.xml` だけだと「無効」になる)。
 - **サイトマップが記事公開で更新されなかった**: `sitemap.ts` は静的に 1 回作られたきり (次のデプロイまで新記事が載らない) → `revalidate = 3600` + 記事の作成・更新・削除で `revalidatePath('/sitemap.xml')`
 - **⚠️ 末尾スラッシュ**: 本番は `/{cat}/{slug}/` を `/{cat}/{slug}` へ 308 する。なのに canonical・サイトマップ・Article の `mainEntityOfPage`・パンくずが**スラッシュ付き**だった (= 全記事が Search Console で「リダイレクトあり」になる) → `seo-utils.ts::articlePath()` に統一 (スラッシュ無し + slug をエンコード)。記事 URL を作るときはこれを使う
-- **共有画像**: `/og-image.png` が無く (404) トップ等の共有画像が壊れていた → 仮の `public/og-image.jpg` (ヒーロー写真 + 「HOISA」+ キャッチ, 1200×630, playwright で描画)。正式素材が来たら差し替え (`SITE_CONFIG.ogImage`)
+- **共有画像**: `/og-image.png` が無く (404) トップ等の共有画像が壊れていた → `public/og-image.jpg` (1200×630)。トップのヒーローと同じ構成 = 淡いピンク地 + 右に天竜峡の写真 + キャッチ + **確定ロゴ** (`HoisaLogo` hero 版の SVG・色・em 配置を HTML で再現し playwright で描画 → sharp で JPEG)。ヒーロー写真を替えたら作り直す (`SITE_CONFIG.ogImage`)
 - **ページで openGraph を書くと layout の openGraph が丸ごと消える** (About / ギャラリー / LP 3 ページで og:image・og:site_name が出ていなかった) → ページの openGraph は必ず `withSiteOpenGraph({...})` で包む
 - 記事の og:image の幅・高さは決め打ち (1200×630) をやめ、サムネイルのときは書かない (実寸は DB に無い)
 - **Discover 用の画像の目安**: 記事編集のサムネイル欄に実寸を表示し、横 1200px 未満なら注意を出す (`ThumbnailSizeNotice.tsx`。止めはしない。既存記事は直さない = 紗代さんの方針)
@@ -166,7 +166,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - `src/components/Footer.tsx` - Server, 淡いローズ地 + 4 列リンク
 - `src/components/HeroSection.tsx` - トップのヒーロー (Server)。仮写真は `HERO_PHOTO`
 - `src/components/HomeHighlights.tsx` - 特集 / レポート / ランダム 3 件 (見出し無し + もっと見る)
-- `src/components/HoisaLogo.tsx` - ロゴ (header / hero)。正式ロゴが来たら中身を差し替え
+- `src/components/HoisaLogo.tsx` - ロゴ (header / hero)。これが正式ロゴ (2026-10-31 確定)
 - `src/lib/home-posts.ts` - `getHomePosts()` トップの枠ごとの記事決定 + 重複除外 / `postHref` / `formatDotDate`
 - `src/lib/site-nav.ts` - ヘッダー・フッター共通のメニュー定義 (Server/Client 両用のため 'use client' に置かない)
 - `src/lib/nav-categories.ts` - `getNavCategories()` (React.cache でヘッダー・フッター 1 回に)
