@@ -426,6 +426,8 @@ export async function getPosts(filter?: {
         categories(id, name, slug)
       )
     `, { count: 'exact' })
+    // 下書きを一番上に (書きかけを探しやすく)。その中と公開記事は公開日時 → 作成日の新しい順
+    .order('is_published', { ascending: true })
     .order('published_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
 
