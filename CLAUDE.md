@@ -37,7 +37,7 @@ src/
 │   ├── (lp)/                # 独立 LP × 2 (サイト共通 Header/Footer 不使用)。/request/post (投稿記事=mini) と /request/interview (取材記事=long)
 │   │                        # ⚠️ 両LPはクラス名が同一・パレットのみ差異。CSS はルート毎 layout で読み .lp-post / .lp-long にスコープ (frontend.md 参照)
 │   ├── (public)/            # Public pages (Header + Footer)
-│   │   ├── page.tsx         # Home (HOISA Hero + 特集/レポート/ランダム3件 + Pick Up 6 posts)
+│   │   ├── page.tsx         # Home (HOISA Hero + 特集/みんなの投稿/ランダム3件 + Pick Up 6 posts)
 │   │   ├── blog/page.tsx    # Blog listing ("もっと見る" button)
 │   │   ├── [category]/      # Category listing
 │   │   ├── [category]/[slug]/ # Article detail
@@ -56,7 +56,7 @@ src/
 ## URL Structure
 
 ```
-/                              → Home (HOISA ヒーロー + 特集 / レポート / ランダム3件 + Pick Up)
+/                              → Home (HOISA ヒーロー + 特集 (取材記事の最新・無ければ★以外の最新) / みんなの投稿 (投稿記事の最新) / ランダム3件 + Pick Up (★の記事 → 新しい記事で 6 件))
 /blog                          → Blog listing ("もっと見る" button)
 /blog?category=food            → Category filter
 /blog?hashtags=tag1,tag2       → Hashtag filter

@@ -9,7 +9,7 @@ import { formatDotDate, postHref } from '@/lib/home-posts'
 /**
  * 注: globals.css が素の <a> をピンクにするため、カード内のリンクは文字色を明示している。
  *
- * トップのヒーロー直下の 3 枠 (デザイン案 s1.png): 特集 / レポート / ランダムな記事 (見出し無し)。
+ * トップのヒーロー直下の 3 枠 (デザイン案 s1.png): 特集 / みんなの投稿 (最新の投稿記事, 内部名 report) / ランダムな記事 (見出し無し)。
  * どの記事を出すかは `getHomePosts()` が決める (Pick Up との重複除外もそちら)。
  */
 export default function HomeHighlights({
@@ -162,7 +162,7 @@ function ReportCard({ post, className }: { post: PostWithRelations; className?: 
             )}
           />
         )}
-        <Label className="absolute left-4 top-4">レポート</Label>
+        <Label className="absolute left-4 top-4">みんなの投稿</Label>
       </div>
 
       <div className="flex flex-1 flex-col p-5">

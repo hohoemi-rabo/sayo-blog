@@ -2,18 +2,20 @@ import { createClient } from '@/lib/supabase'
 import { PostWithRelations } from '@/lib/types'
 
 /**
- * トップページに並べる記事をまとめて決める (Ticket 44)。
+ * トップページに並べる記事をまとめて決める (Ticket 44 / 2026-10-31 に枠の役割を変更)。
  *
- * - feature (特集): おすすめ (is_featured) の最新 1 件。無ければ最新記事
- * - report (レポート): 特集に出ていない最新記事 1 件
- * - pickup (Pick Up): 上の 2 枠に出ていない記事を、おすすめ → 最新の順で 6 件
+ * - pickup (Pick Up): ★ (is_featured, 最大 6 件) の記事を新しい順に全部。6 件に満たない分は新しい記事で埋める
+ * - report (みんなの投稿): 公開中の投稿記事 (article_type='mini') の最新 1 件。無ければ枠ごと出さない
+ * - feature (特集): 取材記事 (long) の最新 1 件。取材記事が無いうちは新しい記事。
+ *   ★は Pick Up に全部並べるため、特集には★の記事を使わない
  * - randomPosts (右枠): 上の 3 枠に出ていない記事からランダムに 3 件。
  *   終了イベント (event_ended) は除く。ISR なので並びは再生成 (1 時間) ごとに変わる
  *   (記事の保存・削除でもトップは作り直されるので、そのときも変わる)
  *
- * 同じ記事が複数の枠に出ないよう、決める順に「使用済み」を積んでいく。
- * ランダム枠は固定枠を決めてから選ぶ (先に選ぶと特集・レポート・Pick Up が抽選結果でずれる)。
- * そのため 1 回目は 3 本を並列 (ランダム候補は id だけ)、2 回目で当選した 3 件の本体を取る。
+ * 紗代さんの指定は「★は Pick Up に 6 件」「みんなの投稿は常に最新の投稿記事」。
+ * 最新の投稿記事に★が付いているときだけ、両方を守るため同じ記事が 2 枠に出る (それ以外は重複しない)。
+ * ランダム枠は固定枠を決めてから選ぶ (先に選ぶと固定枠が抽選結果でずれる)。
+ * そのため 1 回目は並列 (ランダム候補は id だけ)、2 回目で当選した 3 件の本体を取る。
  */
 
 const SELECT = `
@@ -28,9 +30,12 @@ const SELECT = `
 
 const RANDOM_COUNT = 3
 const PICKUP_COUNT = 6
+/** ★の上限 (管理画面の toggleFeatured と同じ) = Pick Up の枠数 */
+const FEATURED_MAX = PICKUP_COUNT
 
 export interface HomePosts {
   feature: PostWithRelations | null
+  /** みんなの投稿 (投稿記事の最新) */
   report: PostWithRelations | null
   randomPosts: PostWithRelations[]
   pickup: PostWithRelations[]
@@ -38,21 +43,26 @@ export interface HomePosts {
 
 export async function getHomePosts(): Promise<HomePosts> {
   const supabase = createClient()
+  const published = () => supabase.from('posts').select(SELECT).eq('is_published', true)
 
-  const [featuredRes, latestRes, candidateRes] = await Promise.all([
-    supabase
-      .from('posts')
-      .select(SELECT)
-      .eq('is_published', true)
+  const [starredRes, latestRes, longRes, miniRes, candidateRes] = await Promise.all([
+    published()
       .eq('is_featured', true)
       .order('published_at', { ascending: false })
-      .limit(PICKUP_COUNT + 2),
-    supabase
-      .from('posts')
-      .select(SELECT)
-      .eq('is_published', true)
+      .limit(FEATURED_MAX),
+    // 特集 (取材記事が無いとき) と Pick Up の穴埋め用。★・みんなの投稿と重なっても足りる件数
+    published()
       .order('published_at', { ascending: false })
-      .limit(PICKUP_COUNT + 4),
+      .limit(PICKUP_COUNT + FEATURED_MAX + 2),
+    // ★の取材記事は特集に使わないので、★の上限 + 1 件あれば必ず 1 件は残る
+    published()
+      .eq('article_type', 'long')
+      .order('published_at', { ascending: false })
+      .limit(FEATURED_MAX + 1),
+    published()
+      .eq('article_type', 'mini')
+      .order('published_at', { ascending: false })
+      .limit(1),
     // 本文 (content) まで全件取ると重いので、抽選用には id だけ。
     // inner join は SELECT と揃える (カテゴリ無しの記事が当選して 2 回目で消えないように)
     supabase
@@ -62,26 +72,42 @@ export async function getHomePosts(): Promise<HomePosts> {
       .eq('event_ended', false),
   ])
 
-  for (const [name, res] of [['featured', featuredRes], ['latest', latestRes], ['random candidate', candidateRes]] as const) {
+  for (const [name, res] of [
+    ['starred', starredRes],
+    ['latest', latestRes],
+    ['interview', longRes],
+    ['user post', miniRes],
+    ['random candidate', candidateRes],
+  ] as const) {
     if (res.error) console.error(`Error fetching home ${name} posts:`, res.error)
   }
 
-  const featured = (featuredRes.data ?? []) as PostWithRelations[]
+  const starred = (starredRes.data ?? []) as PostWithRelations[]
   const latest = (latestRes.data ?? []) as PostWithRelations[]
+  const longPosts = (longRes.data ?? []) as PostWithRelations[]
+  const miniPosts = (miniRes.data ?? []) as PostWithRelations[]
   const candidateIds = (candidateRes.data ?? []).map((p) => p.id as string)
 
   const used = new Set<string>()
-  const take = (post: PostWithRelations | undefined) => {
-    if (!post) return null
-    used.add(post.id)
-    return post
-  }
   const unused = (posts: PostWithRelations[]) => posts.filter((p) => !used.has(p.id))
 
-  const feature = take(featured[0] ?? latest[0])
-  const report = take(unused(latest)[0])
-  const pickup = dedupeById([...unused(featured), ...unused(latest)]).slice(0, PICKUP_COUNT)
-  pickup.forEach((p) => used.add(p.id))
+  // 1. ★は全部 Pick Up へ (他の枠より先に確保する)
+  const starredIds = new Set(starred.map((p) => p.id))
+  starred.forEach((p) => used.add(p.id))
+
+  // 2. みんなの投稿 = 最新の投稿記事 (★でも出す)
+  const report = miniPosts[0] ?? null
+  if (report) used.add(report.id)
+
+  // 3. 特集 = 取材記事の最新。無ければ新しい記事 (どちらも★と他の枠に出たものは除く)
+  const feature =
+    unused(longPosts).find((p) => !starredIds.has(p.id)) ?? unused(latest)[0] ?? null
+  if (feature) used.add(feature.id)
+
+  // 4. Pick Up の残りを新しい記事で埋める
+  const fill = unused(latest).slice(0, Math.max(0, PICKUP_COUNT - starred.length))
+  fill.forEach((p) => used.add(p.id))
+  const pickup = [...starred, ...fill]
 
   const randomIds = shuffle(candidateIds.filter((id) => !used.has(id))).slice(0, RANDOM_COUNT)
   const randomPosts = await fetchPostsByIds(supabase, randomIds)
@@ -112,11 +138,6 @@ function shuffle<T>(items: T[]): T[] {
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
-}
-
-function dedupeById(posts: PostWithRelations[]): PostWithRelations[] {
-  const seen = new Set<string>()
-  return posts.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)))
 }
 
 /** 記事の URL (/{カテゴリ}/{slug}) */
