@@ -364,6 +364,9 @@ LP のターゲットを **①SNS に投稿している人 + ②チラシで宣�
   - Vercel の本文上限 4.5MB に収めるため、**ブラウザ側で縦 2000px ずつ (重なり 120px) に分割 + 幅 1600px まで縮小 + JPEG 0.82** (`src/lib/screenshot-slicer.ts`)。巨大な canvas は作らず分割 1 枚ぶんずつ描く (Safari の canvas 面積上限対策)。上限: 1 ページ 10 枚 (約 2 万 px、超えた分は切り捨て) / 全体 base64 3.8MB (`src/lib/page-screenshots.ts`、API 側でも再検査)
   - 実測: machino.club の講座ページ (1280×5170) → 3 枚・計 1.4MB。1 枚のままでも分割でも 4 回分の日時・会場・料金を正確に読めた。分割は「もっと長いページで AI 側の縮小に潰されない」ための保険
   - スクショは依頼の `sns_urls` に含まれる URL のものだけ受け付ける。記事化画面の「追加画像」は記事に載せる写真で、AI は読まない (説明文もそう書いた)
+- **テストで見つかった不具合** (同日, `9f10951`): ①記事編集画面の下の「プレビュー」が公開 URL (`/{category}/{slug}`) に飛んでいて下書きは必ず 404 → 上のボタンと同じ `/admin/posts/{id}/preview` に。②AI 生成記事の slug は `slugifyTitle` でタイトル由来の日本語になるが、Next 15 の params は**パーセントエンコードのまま**届き、`[category]/[slug]/page.tsx` がそのまま DB を検索して公開後も 404 → `getPost` 内で `decodeURIComponent`。カテゴリ不一致の `permanentRedirect` 先は `encodeURIComponent`
+- **モデル変更** (同日): 生成 `gemini-3.6-flash` / 埋め込み `gemini-embedding-2` (GA)。埋め込みは preview と同一ベクトル (cos 1.0) で知識データの作り直し不要。3.6 で URL+チラシ+スクショ → 記事 16 秒・要約 12 秒を確認。違い: 定期活動と判断すると体験会の日付をイベント欄に入れないことがある (紗代さんが手で入れる)
+- 動作確認の手順: 依頼を service role で複製 (画像は別フォルダへ copy、admin_notes に【テスト用コピー】) → 記事化 → 確認後に複製と画像を削除。生成ボタンを押さずに確かめたいときは playwright で `/api/admin/inquiries/*/generate` を route で止めて送信内容だけ取る (ローカル dev も本番 DB なので押すと実記事ができる)
 
 #### 「伝えたいこと」自由記述欄の廃止 (2026-07-07)
 ターゲットを「SNS に投稿している人」= 紹介したい SNS 投稿の URL を送る人に絞る方針変更。一度追加した自由記述欄 (message) を撤去し、SNS URL を必須に戻した。
