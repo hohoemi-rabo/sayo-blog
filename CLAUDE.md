@@ -81,9 +81,9 @@ src/
 /admin/inquiries/[id]/generate → 投稿記事の AI 記事化 (URL 本文の自動取得 + 依頼者の添付を AI が読む + 取れない URL はスクショ添付 (保存しない) + 補足メモ + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
 /admin/gallery                 → ギャラリー管理 (画像の表示 ON/OFF + ピン留め, アップロード/削除はしない)
-/admin/posts                   → 記事一覧 (種類タブ: すべて (既定) / 投稿記事 / 取材記事 / 自由記事。自由記事は 2026-10-31 から新規作成しない)
+/admin/posts                   → 記事一覧 (種類タブ: すべて (既定) / 投稿記事 / 取材記事 / 自由記事。新規作成も 3 種類から選ぶ)
 /admin/posts/create            → 新規作成の作り方選択 (3枚カード: チラシから / メモから / 自分で書く)
-/admin/posts/craft             → 記事クラフト (?mode=flyer|memo, チラシ画像/PDF vision + メモ → AI下書き生成。記事の種類 = 投稿/取材 を選ぶ)
+/admin/posts/craft             → 記事クラフト (?mode=flyer|memo, チラシ画像/PDF vision + メモ → AI下書き生成。記事の種類 = 投稿/取材/自由 を選ぶ)
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```
@@ -149,7 +149,8 @@ Context-specific rules are loaded based on file paths being worked on:
 ---
 
 **Created**: 2025-11-13
-**Updated**: 2026-10-31c (**Search Console の準備**: ①サイトマップが記事公開で更新されず次のデプロイまで新記事が載らなかった → revalidate + 記事保存時に作り直し。②⚠️ 本番は記事 URL の末尾スラッシュを 308 で外すのに canonical・サイトマップ・構造化データがスラッシュ付きだった → `seo-utils.ts::articlePath()` に統一。③共有画像 `/og-image.png` が 404 → 仮の `public/og-image.jpg`。④ページで openGraph を書くと layout の分 (og:image 等) が消える → `withSiteOpenGraph()` で包む。⑤記事編集のサムネイル欄に実寸 + 横 1200px 未満の注意 (Discover 向け)。詳細 implementation-status.md「Search Console 準備」)
+**Updated**: 2026-10-31d (**記事の種類を 3 択に戻した**: 同日に一度「自由記事は新しく作らない」(2 択) にしたが、紗代さんから「自由記事も必要」と言われ、記事の作成・編集画面とチラシ・メモ作成で 投稿記事 / 取材記事 / 自由記事 を選べるように (`ARTICLE_TYPE_CHOICES`)。AI の文体お手本は **10-31 より前の自由記事だけ** (AI で作った自由記事が混ざらないように)。詳細 admin.md「記事の種類」。あわせて**ロゴは今の `HoisaLogo.tsx` で確定**、共有画像もそのロゴで作り直し)
+**Prev00000000**: 2026-10-31c (**Search Console の準備**: ①サイトマップが記事公開で更新されず次のデプロイまで新記事が載らなかった → revalidate + 記事保存時に作り直し。②⚠️ 本番は記事 URL の末尾スラッシュを 308 で外すのに canonical・サイトマップ・構造化データがスラッシュ付きだった → `seo-utils.ts::articlePath()` に統一。③共有画像 `/og-image.png` が 404 → 仮の `public/og-image.jpg`。④ページで openGraph を書くと layout の分 (og:image 等) が消える → `withSiteOpenGraph()` で包む。⑤記事編集のサムネイル欄に実寸 + 横 1200px 未満の注意 (Discover 向け)。詳細 implementation-status.md「Search Console 準備」)
 **Prev0000000**: 2026-10-31b (**関連記事 = Ticket 45** 完了: 記事編集画面で最大 3 件を手動で選べる (選んだ順) + 空き枠は改善した自動選定 (同カテゴリ全件から共通ハッシュタグ数 → 新しい順、終了イベント・非公開は除外、足りなければ他カテゴリの新しい記事)。新テーブル `post_related_posts` (migration `20261031120000`)。選び方は `src/lib/related-posts.ts` + テスト (`npm test`)。記事の保存・削除時は、その記事を手動で選んでいる記事のページも再生成。管理画面の検索候補は同じカテゴリ → 共通ハッシュタグ → 新しい順。見直しで `deletePost` / `getPost` / `getPosts` / `getPostTypeCounts` に管理者チェックが無かったのを修正。全部本番反映済み。⚠️ **管理画面の「保存」から関連記事を保存する操作は本番でまだ未確認** (DB に直接入れた選択の表示・読み込みは確認済み)。詳細 implementation-status.md)
 **Prev000000**: 2026-10-31 (**記事の種類の整理とトップの枠の役割変更** (紗代さん指定)。①**自由記事は新規作成しない** = 新しい記事は投稿記事 / 取材記事の 2 択 (編集画面の「記事の種類」、チラシ・メモ作成も同じ)。電話・DM の依頼もここで分ける。フォームの投稿記事の依頼に「自分で書く」(AI 不使用) を追加。②記事一覧のタブ = すべて / 投稿記事 / 取材記事 / 自由記事、下書きが一番上。③トップ: 特集 = 取材記事の最新 (無いうちは★以外の最新) / 「レポート」→「**みんなの投稿**」= 投稿記事の最新 / Pick Up = ★の記事 (最大 6) / **終了イベントはどの枠にも出さない**。④★ = Pick Up の印として件数・上限を一覧に常時表示。⑤投稿記事フォームの注意書きに「イベント告知は 10 日前まで」。詳細 admin.md「記事の種類」/ implementation-status.md。⑥**関連記事の手動選択 + 自動改善は Ticket 45 (`docs/45_related-articles.md`) で次セッション**)
 **Prev00000**: 2026-10-30 (**投稿記事の記事化を「紗代さんは画面を開いてボタンを押すだけ」に近づける** = 無料掲載なので記事化の手間を減らすことが目的。①**依頼者の添付 (チラシ画像・PDF) を AI (vision) が直接読む** (`inquiry-attachment-reader.ts`)。②**記事化画面を開くと URL の中身を自動取得**して貼り付け欄を埋める (`url-text-extractor.ts`, SSRF 対策つき)。Instagram 等のログイン壁・表示後に JS で中身を作るページ (例 machino.club) は取れない → ③**取れなかった URL の下に「スクショを添付」** (Edge の「Web キャプチャ → ページ全体」を想定)。**スクショは保存しない** (紗代さん指定) = ブラウザで 2000px ずつ分割 + JPEG にして生成 API へ直接渡す (Vercel の本文上限 4.5MB 対策)。④補足メモ欄 + チラシだけの依頼 (URL 0 件) も記事化可能に (以前は止まっていた)。⑤**プレビュー 404 の修正**: 記事編集画面の**下の**「プレビュー」が公開 URL に飛んでいた → 管理用プレビューへ。⑥⚠️ **AI 生成記事の slug は日本語** (タイトル由来) で、記事ページは slug をパーセントエンコードのまま検索して**公開しても 404** だった → `decodeURIComponent` してから検索 (既存 96 記事は英字 slug なので表面化していなかった)。⑦**モデル変更**: `gemini-3.6-flash` + `gemini-embedding-2` (preview と GA の埋め込みは同一ベクトル = 知識データ 27 件は作り直し不要。Vercel に GEMINI_MODEL / EMBEDDING_MODEL の設定は無く既定値で動く)。詳細 implementation-status.md「記事化で添付を AI に読ませる」。全部本番反映済み)
