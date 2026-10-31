@@ -12,10 +12,16 @@ import { Card } from '@/components/ui/Card'
 import { RichTextEditor } from '@/components/admin/editor/RichTextEditor'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { createPost, updatePost, PostFormData } from '../actions'
-import type { ImportedOrigin } from '../actions'
+import type { ImportedOrigin, InquiryLink } from '../actions'
 import type { ArticleType } from '@/lib/types'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
+import {
+  ARTICLE_TYPE_HINTS,
+  ARTICLE_TYPE_LABELS,
+  DEFAULT_NEW_ARTICLE_TYPE,
+  NEW_ARTICLE_TYPES,
+} from '@/lib/article-types'
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import { SummarySection, type SummaryState } from './SummarySection'
@@ -59,6 +65,7 @@ interface PostFormProps {
     summary_short?: string | null
     summary_medium?: string | null
     summary_long?: string | null
+    article_type?: ArticleType
     post_categories?: Array<{ categories: Category }>
     post_hashtags?: Array<{ hashtags: Hashtag }>
   }
@@ -67,12 +74,11 @@ interface PostFormProps {
     totalIgPosts: number
     importedOrigin: ImportedOrigin | null
   }
-  /** ロング記事依頼から作成するときに紐付ける依頼 ID (Ticket 42) */
-  linkLongInquiryId?: string
-  /** 紐付けバナーに表示する依頼者ラベル */
-  linkLongInquiryLabel?: string
-  /** 作成時に強制する article_type (例: 取材依頼経由なら 'long') */
-  forcedArticleType?: ArticleType
+  /**
+   * 依頼との紐付け。create = 保存時に紐付ける依頼 (依頼管理の「自分で書く」等から来た)、
+   * edit = すでに紐付いている依頼。どちらも記事の種類は依頼に合わせて固定する。
+   */
+  inquiryLink?: InquiryLink
 }
 
 function generateSlug(title: string): string {
@@ -89,9 +95,7 @@ export function PostForm({
   hashtags,
   initialData,
   igSection,
-  linkLongInquiryId,
-  linkLongInquiryLabel,
-  forcedArticleType,
+  inquiryLink,
 }: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -133,6 +137,17 @@ export function PostForm({
     event_fee: initialData?.event_fee ?? null,
     event_url: initialData?.event_url ?? null,
   })
+  // 記事の種類。依頼と紐付く記事は依頼に合わせて固定 (電話・DM など
+  // フォームを通らない依頼は、ここで投稿記事 / 取材記事を選ぶ)
+  // 自由記事は新しく作らないので、新規は 投稿 / 取材 の 2 択。
+  // 既存の自由記事を編集するときだけ「自由記事」も残す (保存しても勝手に種類が変わらないように)
+  const [articleType, setArticleType] = useState<ArticleType>(
+    inquiryLink?.kind ?? initialData?.article_type ?? DEFAULT_NEW_ARTICLE_TYPE
+  )
+  const selectableArticleTypes: ArticleType[] =
+    initialData?.article_type === 'free'
+      ? [...NEW_ARTICLE_TYPES, 'free']
+      : [...NEW_ARTICLE_TYPES]
   const [summary, setSummary] = useState<SummaryState>({
     summary_short: initialData?.summary_short ?? null,
     summary_medium: initialData?.summary_medium ?? null,
@@ -201,7 +216,7 @@ export function PostForm({
       summary_short: summary.summary_short,
       summary_medium: summary.summary_medium,
       summary_long: summary.summary_long,
-      article_type: forcedArticleType,
+      article_type: articleType,
     }
 
     try {
@@ -209,7 +224,9 @@ export function PostForm({
         mode === 'create'
           ? await createPost(
               formData,
-              linkLongInquiryId ? { linkLongInquiryId } : undefined
+              inquiryLink
+                ? { linkInquiry: { kind: inquiryLink.kind, id: inquiryLink.id } }
+                : undefined
             )
           : await updatePost(initialData!.id, formData)
 
@@ -229,17 +246,17 @@ export function PostForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* 取材依頼からの作成バナー (Ticket 42) */}
-      {linkLongInquiryId && (
+      {/* 依頼管理から作成するときのバナー */}
+      {mode === 'create' && inquiryLink && (
         <div className="rounded-lg border border-primary/40 bg-primary/5 px-4 py-3 text-sm text-text-primary">
-          <span className="font-medium text-primary">✍️ 取材記事として作成</span>
-          {linkLongInquiryLabel && (
-            <span className="ml-2 text-text-secondary">
-              依頼 #{linkLongInquiryId.slice(0, 8)} ・ {linkLongInquiryLabel}
-            </span>
-          )}
+          <span className="font-medium text-primary">
+            {inquiryLink.kind === 'mini' ? '📩' : '✍️'} {ARTICLE_TYPE_LABELS[inquiryLink.kind]}として作成
+          </span>
+          <span className="ml-2 break-all text-text-secondary">
+            依頼 #{inquiryLink.id.slice(0, 8)} ・ {inquiryLink.label}
+          </span>
           <p className="mt-1 text-xs text-text-secondary">
-            保存すると、この依頼と紐付けされ <code>article_type=long</code> がセットされます。
+            保存すると、この依頼と紐付きます。
           </p>
         </div>
       )}
@@ -388,6 +405,62 @@ export function PostForm({
                 </p>
               </div>
             </div>
+          </Card>
+
+          {/* 記事の種類 (記事一覧のタブ・公開ページのバッジに使う) */}
+          <Card className="p-6 bg-white">
+            <h3 className="font-semibold text-text-primary mb-4">記事の種類</h3>
+            {inquiryLink ? (
+              <div className="space-y-1 text-sm">
+                <p className="font-medium text-text-primary">
+                  {ARTICLE_TYPE_LABELS[inquiryLink.kind]}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {mode === 'create' ? '依頼から作成するため' : '依頼と紐付いているため'}
+                  、種類は変えられません。
+                  {mode === 'edit' && (
+                    <>
+                      {' '}
+                      <Link
+                        href={`/admin/inquiries?tab=${inquiryLink.kind}&open=${inquiryLink.id}`}
+                        className="text-primary hover:underline"
+                      >
+                        依頼を開く
+                      </Link>
+                    </>
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3" role="radiogroup" aria-label="記事の種類">
+                {selectableArticleTypes.map((type) => (
+                  <label
+                    key={type}
+                    className="flex cursor-pointer items-start gap-3"
+                  >
+                    <input
+                      type="radio"
+                      name="article_type"
+                      value={type}
+                      checked={articleType === type}
+                      onChange={() => setArticleType(type)}
+                      className="mt-1 h-4 w-4 accent-primary"
+                    />
+                    <span>
+                      <span className="block text-sm font-medium text-text-primary">
+                        {ARTICLE_TYPE_LABELS[type]}
+                      </span>
+                      <span className="block text-xs text-text-secondary">
+                        {ARTICLE_TYPE_HINTS[type]}
+                      </span>
+                    </span>
+                  </label>
+                ))}
+                <p className="border-t border-border-decorative pt-3 text-xs text-text-secondary">
+                  投稿記事・取材記事は、公開ページの記事の上にバッジが出ます。
+                </p>
+              </div>
+            )}
           </Card>
 
           {/* Event Info (Ticket 37) */}

@@ -10,6 +10,7 @@ import {
   CRAFT_MAX_FILES,
   isCraftAcceptMime,
 } from '@/lib/craft-inputs'
+import { isNewArticleType } from '@/lib/article-types'
 
 // 抽出パス(vision) + 執筆パスの 2 回 Gemini を叩くため余裕を持たせる
 export const maxDuration = 60
@@ -27,6 +28,13 @@ export async function POST(req: NextRequest) {
 
   const memoRaw = form.get('memo')
   const memoText = typeof memoRaw === 'string' ? memoRaw : ''
+  const articleType = form.get('article_type')
+  if (!isNewArticleType(articleType)) {
+    return NextResponse.json(
+      { ok: false, error: '記事の種類 (投稿記事 / 取材記事) を選んでください' },
+      { status: 400 }
+    )
+  }
   const rawFiles = form.getAll('flyers').filter((f): f is File => f instanceof File)
 
   if (rawFiles.length > CRAFT_MAX_FILES) {
@@ -55,7 +63,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await generateCraftArticle({ images, memoText })
+    const result = await generateCraftArticle({ images, memoText, articleType })
     return NextResponse.json({
       ok: true,
       post_id: result.post_id,

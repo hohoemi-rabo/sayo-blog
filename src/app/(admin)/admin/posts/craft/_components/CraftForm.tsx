@@ -12,6 +12,13 @@ import {
   CRAFT_MAX_FILES,
   isCraftAcceptMime,
 } from '@/lib/craft-inputs'
+import {
+  ARTICLE_TYPE_HINTS,
+  ARTICLE_TYPE_LABELS,
+  DEFAULT_NEW_ARTICLE_TYPE,
+  NEW_ARTICLE_TYPES,
+  type NewArticleType,
+} from '@/lib/article-types'
 
 interface Props {
   mode: 'flyer' | 'memo'
@@ -22,6 +29,7 @@ export function CraftForm({ mode }: Props) {
   const { addToast } = useToast()
   const [files, setFiles] = useState<File[]>([])
   const [memo, setMemo] = useState('')
+  const [articleType, setArticleType] = useState<NewArticleType>(DEFAULT_NEW_ARTICLE_TYPE)
   const [loading, setLoading] = useState(false)
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -62,6 +70,7 @@ export function CraftForm({ mode }: Props) {
       const fd = new FormData()
       files.forEach((f) => fd.append('flyers', f))
       fd.append('memo', memo)
+      fd.append('article_type', articleType)
 
       const res = await fetch('/api/admin/posts/craft', {
         method: 'POST',
@@ -179,9 +188,40 @@ export function CraftForm({ mode }: Props) {
   const sections =
     mode === 'memo' ? [memoSection, flyerSection] : [flyerSection, memoSection]
 
+  // 記事一覧のどのタブに入るかを決める。あとから記事の編集画面でも変えられる
+  const typeSection = (
+    <section className="rounded-xl border border-border-decorative bg-white p-5">
+      <h2 className="mb-3 text-sm font-semibold text-text-primary">記事の種類</h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-8" role="radiogroup" aria-label="記事の種類">
+        {NEW_ARTICLE_TYPES.map((type) => (
+          <label key={type} className="flex cursor-pointer items-start gap-3">
+            <input
+              type="radio"
+              name="article_type"
+              value={type}
+              checked={articleType === type}
+              onChange={() => setArticleType(type)}
+              disabled={loading}
+              className="mt-1 h-4 w-4 accent-primary"
+            />
+            <span>
+              <span className="block text-sm font-medium text-text-primary">
+                {ARTICLE_TYPE_LABELS[type]}
+              </span>
+              <span className="block text-xs text-text-secondary">
+                {ARTICLE_TYPE_HINTS[type]}
+              </span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </section>
+  )
+
   return (
     <div className="space-y-6">
       {sections}
+      {typeSection}
 
       <div className="flex flex-wrap items-center gap-3">
         <Button

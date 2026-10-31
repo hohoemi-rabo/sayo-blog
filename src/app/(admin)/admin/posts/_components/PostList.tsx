@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/Dialog'
 import { useToast } from '@/components/ui/Toast'
 import { deletePost, toggleFeatured } from '../actions'
+import { ARTICLE_TYPE_TABS, type ArticleTypeTab } from '@/lib/article-types'
 
 interface Category {
   id: string
@@ -57,15 +58,10 @@ interface PostListProps {
     status?: string
     articleType?: string
   }
-  articleType: string
-  typeCounts: { free: number; mini: number; long: number }
+  articleType: ArticleTypeTab
+  typeCounts: Record<ArticleTypeTab, number>
 }
 
-const ARTICLE_TYPE_TABS: Array<{ key: 'free' | 'mini' | 'long'; label: string }> = [
-  { key: 'free', label: '自由記事' },
-  { key: 'mini', label: '投稿記事' },
-  { key: 'long', label: '取材記事' },
-]
 
 const ARTICLE_TYPE_BADGE: Record<string, { label: string; className: string }> = {
   mini: { label: '投稿', className: 'bg-blue-100 text-blue-700' },
@@ -143,7 +139,7 @@ export function PostList({
 
   return (
     <div className="space-y-4">
-      {/* 出自タブ (自由 / 投稿 / 取材) */}
+      {/* 出自タブ (すべて / 投稿 / 取材 / 自由) */}
       <div className="flex gap-1 border-b border-border-decorative">
         {ARTICLE_TYPE_TABS.map((tab) => {
           const isActive = tab.key === articleType
@@ -151,7 +147,7 @@ export function PostList({
             <button
               key={tab.key}
               type="button"
-              onClick={() => updateFilter('type', tab.key)}
+              onClick={() => updateFilter('type', tab.key === 'all' ? '' : tab.key)}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
                 isActive
                   ? 'border-b-2 border-primary text-primary'

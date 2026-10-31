@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ExternalLink, Sparkles, Trash2 } from 'lucide-react'
+import { ExternalLink, PenLine, Sparkles, Trash2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -99,6 +99,9 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
   }
 
   const goGenerate = () => router.push(`/admin/inquiries/${inquiry.id}/generate`)
+  // AI を使わず白紙の編集画面で書く。保存時にこの依頼と紐付き、投稿記事になる
+  const goWriteByHand = () =>
+    router.push(`/admin/posts/new?from_inquiry=mini&id=${inquiry.id}`)
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -246,7 +249,18 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
                   disabled={isPending}
                 >
                   <Sparkles className="mr-1.5 h-4 w-4" />
-                  {inquiry.status === 'generating' ? '記事化を続ける' : '記事化する'}
+                  {inquiry.status === 'generating' ? '記事化を続ける' : 'AI で記事化'}
+                </Button>
+              )}
+              {inquiry.status === 'pending' && !inquiry.generated_post_id && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={goWriteByHand}
+                  disabled={isPending}
+                >
+                  <PenLine className="mr-1.5 h-4 w-4" />
+                  自分で書く
                 </Button>
               )}
               {inquiry.status === 'pending' && (

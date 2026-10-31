@@ -6,7 +6,7 @@
 import type { ArticleAngleKey } from '@/lib/article-angles'
 
 // Post types
-/** 記事の出自 (Ticket 41) — free=紗代さんの自由記事 / mini=ミニ記事依頼 / long=ロング記事(取材) */
+/** 記事の種類 — free=自由記事 (既存のみ。2026-10-31 から新規作成しない) / mini=投稿記事 / long=取材記事。表示名は article-types.ts */
 export type ArticleType = 'free' | 'mini' | 'long'
 
 export interface Post {

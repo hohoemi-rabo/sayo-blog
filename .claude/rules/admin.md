@@ -68,9 +68,22 @@ paths:
 
 ロング記事は AI 生成せず、紗代さんが現地取材して書く。依頼レコード (`long_inquiries`) と post を後から紐付ける運用:
 
-- **新規作成導線**: 詳細ダイアログの「新規記事を作成」→ `/admin/posts/new?from_inquiry=long&id={inquiryId}` で取材バナー表示 + 保存時に依頼レコードへ自動紐付け + `posts.article_type='long'` がセットされる (PostForm の `linkLongInquiryId` / `forcedArticleType`)
+- **新規作成導線**: 詳細ダイアログの「新規記事を作成」→ `/admin/posts/new?from_inquiry=long&id={inquiryId}` で取材バナー表示 + 保存時に依頼レコードへ自動紐付け + `posts.article_type='long'` がセットされる (PostForm の `inquiryLink` → `createPost(data, { linkInquiry })`)
 - **既存記事の紐付け**: 詳細ダイアログの Select で `getLinkablePosts()` (article_type IN ('free','long') かつ他依頼に未紐付け) から選んで紐付け。free → long に自動フリップ、mini 記事は紐付け不可
 - **自動公開連動**: 紐付いた post の `is_published` が false→true になると、`updatePost` 内で対応する `long_inquiries.status='published'` に自動更新 (依頼を新規作成経路で公開状態で保存した場合も同じ)
+
+### 記事の種類 (article_type) の決まり方 — 2026-10-31
+
+紗代さんの要望「自由記事 / 投稿記事 / 取材記事を分けて管理したい」+「**自由記事はもう増やさない**」への対応。以前は投稿記事 (mini) になる道が「フォームの依頼を AI で記事化」の 1 本だけで、AI を使わずに書く記事や電話・DM で来た依頼は自由記事に入るしかなかった。
+- **新しい記事は 投稿記事 / 取材記事 の 2 択** (既定は投稿記事)。自由記事は既存の 97 件だけ。定数は `src/lib/article-types.ts` (`NEW_ARTICLE_TYPES` / 表示名 / 一覧タブ)
+  - 記事編集画面 (新規・編集) のサイドバーに「記事の種類」ラジオ。**既存の自由記事を編集するときだけ「自由記事」も出す** (保存で勝手に種類が変わらないように)
+  - チラシ・メモから作成 (`/admin/posts/craft`) も画面で種類を選ぶ → API (`article_type` を検証) → `craft-article-generator` が保存
+  - サーバー側でも拒否: `createPost` は mini/long 以外を拒否、`updatePost` は自由記事への変更を拒否
+  - AI の文体お手本 (`craft-example-selector`) は**既存の自由記事のまま** (= 紗代さん本人の原稿。AI 生成物をお手本にしない)
+- **記事一覧のタブ**: すべて (既定, `?type` 無し) / 投稿記事 / 取材記事 / 自由記事
+- **依頼と紐付いた記事は種類を固定** (`getPostInquiryLink` が mini/long 両方の `generated_post_id` を探す → 画面は固定表示 + 「依頼を開く」、`updatePost` もサーバー側で拒否)
+- **投稿記事の依頼にも「自分で書く」** (詳細ダイアログ, status=pending のとき): `/admin/posts/new?from_inquiry=mini&id=` → 保存時に依頼へ紐付け (`generated_post_id` + status='published' = AI 記事化と同じ扱い) + `source_urls` に依頼の SNS URL を控える。取材記事の「新規記事を作成」と同じ `createPost(data, { linkInquiry })` 経路。種類は依頼に合わせてサーバー側で決める (画面の値は信用しない)。記事が紐付き済みの依頼では紐付けしない
+- ⚠️ About ページ (公開) の「3 つの記事のかたち」には自由記事が残っている (公開文言なので紗代さんの判断待ち)
 
 ### ミニ記事の画像・依頼の寿命モデル (Ticket 41 — 重要)
 

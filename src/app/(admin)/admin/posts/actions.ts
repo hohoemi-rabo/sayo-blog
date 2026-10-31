@@ -13,6 +13,7 @@ import {
   type Summaries,
 } from '@/lib/summary-generator'
 import type { ArticleType } from '@/lib/types'
+import { isNewArticleType, type ArticleTypeTab } from '@/lib/article-types'
 
 export type PostFormData = {
   title: string
@@ -35,7 +36,7 @@ export type PostFormData = {
   event_address: string | null
   event_fee: string | null
   event_url: string | null
-  // 出自 (Ticket 41/42) — 未指定なら DB 既定の 'free'
+  // 記事の種類。新規作成は mini / long のみ (自由記事は既存の記事だけ)
   article_type?: ArticleType
   // AI 3段階要約 — 未生成は null
   summary_short?: string | null
@@ -43,16 +44,75 @@ export type PostFormData = {
   summary_long?: string | null
 }
 
+/** 依頼の種類 = 紐付く記事の article_type (投稿記事 = mini / 取材記事 = long) */
+export type InquiryKind = 'mini' | 'long'
+
+/** 記事と依頼の紐付け。記事編集画面では「種類を変えられない」根拠として表示する */
+export interface InquiryLink {
+  kind: InquiryKind
+  id: string
+  /** 画面に出す依頼の説明 (依頼者名など) */
+  label: string
+}
+
 export interface CreatePostOptions {
-  /** ロング記事依頼から作成する場合、紐付け先の inquiry id */
-  linkLongInquiryId?: string
+  /** 依頼管理の「自分で書く」「新規記事を作成」から来たとき、保存時に紐付ける依頼 */
+  linkInquiry?: { kind: InquiryKind; id: string }
+}
+
+const INQUIRY_TABLES: Record<InquiryKind, string> = {
+  mini: 'mini_inquiries',
+  long: 'long_inquiries',
+}
+
+/** この記事を生成/紐付け元に持つ依頼を探す (無ければ null) */
+async function findLinkedInquiry(
+  supabase: ReturnType<typeof createAdminClient>,
+  postId: string
+): Promise<{ kind: InquiryKind; id: string } | null> {
+  for (const kind of ['mini', 'long'] as const) {
+    const { data } = await supabase
+      .from(INQUIRY_TABLES[kind])
+      .select('id')
+      .eq('generated_post_id', postId)
+      .limit(1)
+      .maybeSingle()
+    if (data) return { kind, id: data.id as string }
+  }
+  return null
 }
 
 export async function createPost(
   data: PostFormData,
   options?: CreatePostOptions
 ) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
+
+  // 依頼から作るときは、記事の種類を依頼に合わせる (画面の選択は信用しない)。
+  // 投稿記事は元の SNS URL を source_urls に控える (AI 記事化と同じ)。
+  // 自由記事は新しく作らない (既存の記事だけ)。種類は 投稿記事 / 取材記事 のどちらか
+  if (!isNewArticleType(data.article_type)) {
+    return { success: false, error: '記事の種類 (投稿記事 / 取材記事) を選んでください' }
+  }
+  let articleType: ArticleType = data.article_type
+  let sourceUrls: string[] | null = null
+  const link = options?.linkInquiry
+  if (link) {
+    const { data: inquiry, error: inqErr } = await supabase
+      .from(INQUIRY_TABLES[link.kind])
+      .select(link.kind === 'mini' ? 'id, generated_post_id, sns_urls' : 'id, generated_post_id')
+      .eq('id', link.id)
+      .maybeSingle()
+    if (inqErr) return { success: false, error: inqErr.message }
+    if (!inquiry) return { success: false, error: '紐付け先の依頼が見つかりません' }
+    const row = inquiry as unknown as { generated_post_id: string | null; sns_urls?: string[] }
+    if (row.generated_post_id) {
+      return { success: false, error: 'この依頼にはすでに記事が紐付いています' }
+    }
+    articleType = link.kind
+    if (link.kind === 'mini') sourceUrls = row.sns_urls ?? null
+  }
 
   // Insert post
   const { data: post, error: postError } = await supabase
@@ -75,7 +135,8 @@ export async function createPost(
       event_address: data.event_address,
       event_fee: data.event_fee,
       event_url: data.event_url,
-      article_type: data.article_type ?? 'free',
+      article_type: articleType,
+      source_urls: sourceUrls,
       summary_short: data.summary_short ?? null,
       summary_medium: data.summary_medium ?? null,
       summary_long: data.summary_long ?? null,
@@ -119,18 +180,20 @@ export async function createPost(
     }
   }
 
-  // ロング記事依頼から作成された場合、依頼レコードに紐付け + 公開ならステータスも更新
-  if (options?.linkLongInquiryId && post?.id) {
+  // 依頼から作成された場合、依頼レコードに紐付ける。
+  // - 投稿記事: AI 記事化と同じく、記事ができた時点で依頼は「記事化済み」(published)
+  // - 取材記事: 依頼の進行管理は別にあるので、記事を公開状態で保存したときだけ published
+  if (link && post?.id) {
     const inquiryPatch: Record<string, unknown> = {
       generated_post_id: post.id,
     }
-    if (data.is_published) inquiryPatch.status = 'published'
+    if (link.kind === 'mini' || data.is_published) inquiryPatch.status = 'published'
     const { error: linkErr } = await supabase
-      .from('long_inquiries')
+      .from(INQUIRY_TABLES[link.kind])
       .update(inquiryPatch)
-      .eq('id', options.linkLongInquiryId)
+      .eq('id', link.id)
     if (linkErr) {
-      console.error('Long inquiry link error:', linkErr)
+      console.error('Inquiry link error:', linkErr)
     } else {
       revalidatePath('/admin/inquiries')
     }
@@ -154,15 +217,35 @@ export async function createPost(
 }
 
 export async function updatePost(id: string, data: PostFormData) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
 
   // Capture the current is_published so we can detect a false -> true transition
   // and trigger IG auto-generation after the save succeeds.
   const { data: current } = await supabase
     .from('posts')
-    .select('is_published')
+    .select('is_published, article_type')
     .eq('id', id)
     .maybeSingle()
+
+  if (data.article_type && data.article_type !== current?.article_type) {
+    // 自由記事は新しく増やさない (既存の自由記事をそのまま保存するのは可)
+    if (data.article_type === 'free') {
+      return {
+        success: false,
+        error: '自由記事には変えられません (投稿記事 / 取材記事 を選んでください)',
+      }
+    }
+    // 依頼と紐付いた記事は種類を変えない (依頼一覧と記事一覧で食い違うため)
+    const link = await findLinkedInquiry(supabase, id)
+    if (link && link.kind !== data.article_type) {
+      return {
+        success: false,
+        error: '依頼と紐付いている記事なので、記事の種類は変えられません',
+      }
+    }
+  }
+
   const wasPublished = current?.is_published === true
 
   // Update post
@@ -189,6 +272,7 @@ export async function updatePost(id: string, data: PostFormData) {
       summary_short: data.summary_short ?? null,
       summary_medium: data.summary_medium ?? null,
       summary_long: data.summary_long ?? null,
+      ...(data.article_type ? { article_type: data.article_type } : {}),
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
@@ -350,7 +434,8 @@ export async function getPosts(filter?: {
     query = query.eq('is_published', false)
   }
 
-  if (filter?.articleType) {
+  // 'all' (すべて) は種類で絞らない
+  if (filter?.articleType && filter.articleType !== 'all') {
     query = query.eq('article_type', filter.articleType)
   }
 
@@ -376,11 +461,7 @@ export async function getPosts(filter?: {
 }
 
 /** 一覧タブのバッジ用に出自ごとの記事件数を取得 */
-export async function getPostTypeCounts(): Promise<{
-  free: number
-  mini: number
-  long: number
-}> {
+export async function getPostTypeCounts(): Promise<Record<ArticleTypeTab, number>> {
   const supabase = createAdminClient()
   const [free, mini, long] = await Promise.all([
     supabase
@@ -396,11 +477,12 @@ export async function getPostTypeCounts(): Promise<{
       .select('id', { count: 'exact', head: true })
       .eq('article_type', 'long'),
   ])
-  return {
+  const counts = {
     free: free.count ?? 0,
     mini: mini.count ?? 0,
     long: long.count ?? 0,
   }
+  return { all: counts.free + counts.mini + counts.long, ...counts }
 }
 
 export async function toggleFeatured(postId: string, currentValue: boolean) {
@@ -556,4 +638,18 @@ export async function generateAISingleSummary(
           : '要約の生成に失敗しました。時間をおいて再度お試しください。',
     }
   }
+}
+
+/**
+ * 記事に紐付いた依頼を、記事編集画面の表示用に返す (無ければ null)。
+ * 紐付いている記事は「記事の種類」を変えられない。
+ */
+export async function getPostInquiryLink(
+  postId: string
+): Promise<InquiryLink | null> {
+  await assertAdminAuth()
+  const supabase = createAdminClient()
+  const link = await findLinkedInquiry(supabase, postId)
+  if (!link) return null
+  return { ...link, label: `依頼 #${link.id.slice(0, 8)}` }
 }

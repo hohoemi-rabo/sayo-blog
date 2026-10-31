@@ -3,7 +3,7 @@ import { getPosts, getCategories, getPostTypeCounts } from './actions'
 import { PostList } from './_components/PostList'
 import { Button } from '@/components/ui/Button'
 import { Plus } from 'lucide-react'
-import type { ArticleType } from '@/lib/types'
+import { parseArticleTypeTab } from '@/lib/article-types'
 
 interface PageProps {
   searchParams: Promise<{
@@ -13,13 +13,9 @@ interface PageProps {
   }>
 }
 
-function parseArticleType(value: string | undefined): ArticleType {
-  return value === 'mini' || value === 'long' ? value : 'free'
-}
-
 export default async function PostsPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const articleType = parseArticleType(params.type)
+  const articleType = parseArticleTypeTab(params.type)
   const filter = {
     category: params.category,
     status: params.status,

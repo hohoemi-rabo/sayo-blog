@@ -81,9 +81,9 @@ src/
 /admin/inquiries/[id]/generate → 投稿記事の AI 記事化 (URL 本文の自動取得 + 依頼者の添付を AI が読む + 取れない URL はスクショ添付 (保存しない) + 補足メモ + 追加画像 → 下書き生成)
 /admin/instagram/posts         → IG 下書き管理 (セクション選択式生成 + 編集)
 /admin/gallery                 → ギャラリー管理 (画像の表示 ON/OFF + ピン留め, アップロード/削除はしない)
-/admin/posts                   → 記事一覧 (出自タブ: 自由記事 / ミニ記事 / ロング記事)
+/admin/posts                   → 記事一覧 (種類タブ: すべて (既定) / 投稿記事 / 取材記事 / 自由記事。自由記事は 2026-10-31 から新規作成しない)
 /admin/posts/create            → 新規作成の作り方選択 (3枚カード: チラシから / メモから / 自分で書く)
-/admin/posts/craft             → 記事クラフト (?mode=flyer|memo, チラシ画像/PDF vision + メモ → AI下書き生成)
+/admin/posts/craft             → 記事クラフト (?mode=flyer|memo, チラシ画像/PDF vision + メモ → AI下書き生成。記事の種類 = 投稿/取材 を選ぶ)
 /admin/posts/[id]              → 記事編集 (タイトル + 本文 + イベント情報 + 公開設定)
 /admin/posts/[id]/preview      → 下書きプレビュー (chromeless layout, is_published 関係なく表示)
 ```

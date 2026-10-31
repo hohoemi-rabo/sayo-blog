@@ -300,6 +300,9 @@ ChatGPT/Gemini/Claude 風の体感に揃えるため、以下の挙動を追加�
 - `src/app/(admin)/admin/layout.tsx` - Sidebar へ pending 件数を注入
 - `src/lib/ig-article-generator.ts` (+ `ig-article-prompt`/`ig-article-credit`/`ig-article-images`) - 不使用化 (純粋ヘルパーは article-ai-shared に集約)
 
+#### 記事の種類の整理 (2026-10-31)
+自由記事は新規作成をやめ、新しい記事は投稿記事 / 取材記事の 2 択に。記事一覧のタブは すべて / 投稿記事 / 取材記事 / 自由記事。電話・DM の依頼は記事編集画面の「記事の種類」で分け、フォームの投稿記事の依頼には「自分で書く」(AI を使わない) を追加。詳細は admin.md「記事の種類 (article_type) の決まり方」。ファイル: `src/lib/article-types.ts` / `posts/actions.ts` (`createPost` の `linkInquiry`・`getPostInquiryLink`) / `PostForm.tsx` / `posts/new/page.tsx` / `PostList.tsx` / `craft/_components/CraftForm.tsx` + craft API + `craft-article-generator.ts` / `MiniInquiryDetailDialog.tsx`
+
 #### 記事一覧の出自タブ (Ticket 41 追加 / Ticket 42 の article_type を前倒し導入)
 - `supabase/migrations/20260525150000_add_posts_article_type.sql` - posts.article_type (free/mini/long) + CHECK + idx + 既存ミニ記事のバックフィル
 - `src/app/(admin)/admin/posts/page.tsx` - type searchParam (既定 free) + getPostTypeCounts
