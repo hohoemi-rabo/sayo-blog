@@ -51,6 +51,9 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
     - 公開状態を非正規化するのは、ギャラリー取得を posts 結合なしでフラットに済ませ部分インデックスを効かせるため (既存 `idx_posts_*_partial` と同じ思想)。
     - RLS: 匿名 SELECT は `post_is_published = true AND is_visible = true` のみ / authenticated は ALL。公開 RPC でも WHERE 固定し二重で担保。
 
+### Related Posts (Ticket 45)
+16. **post_related_posts** - post_id FK posts (CASCADE), related_post_id FK posts (CASCADE), position smallint (0〜2, 表示順), created_at。PK (post_id, related_post_id) / UNIQUE (post_id, position) / CHECK 自分自身不可・position 0〜2 / idx related_post_id。RLS: anon SELECT 可 (非公開記事は posts 側の RLS で見えない) / authenticated ALL / 書き込みは service role。posts への FK が 2 本あるので埋め込みは `posts!post_related_posts_related_post_id_fkey(...)` と FK 名で指定する。migration `20261031120000`
+
 All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
 
 > **inquiries の書き込み方針**: 公開フォーム送信は Server Action 内で `createAdminClient()` (service role) を使い RLS をバイパスして INSERT する。匿名 INSERT ポリシーは付けない (Zod 検証 + Vercel BotID + レート制限を Server Action 側で実施予定)。
@@ -72,7 +75,7 @@ All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no ano
 
 ## RLS (Row Level Security)
 
-All 15 tables have RLS enabled.
+All 16 tables have RLS enabled.
 
 ### RLS Performance Rule
 **ALWAYS** wrap `auth.role()` / `auth.uid()` in a SELECT subquery to prevent per-row re-evaluation:

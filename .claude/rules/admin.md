@@ -106,6 +106,15 @@ paths:
   - PostForm の「プレビュー」ボタンはこの URL に飛ぶ (公開 URL 直叩きでは下書きが 404 になるため)
   - `EventInfoSection` で is_event チェック + 開催日 + 時刻 + 会場 + 住所 + 料金 + URL を編集可能
 
+### 関連記事の手動選択 (Ticket 45)
+- 記事編集サイドバーの「関連記事」カード (`RelatedPostsSection.tsx`)。タイトル検索 → 最大 3 件 / ↑↓ で並べ替え / × で外す。何も選ばなければ全部自動
+- 検索候補の並び (`searchRelatedPostOptions` → `rankRelatedOptions`): 公開ページに出る記事 → **編集中のカテゴリと同じ** → 共通ハッシュタグが多い → 新しい、の順で 20 件。カテゴリ・ハッシュタグは**保存前の画面の値**を使う (変えると候補も並び直す)。文字を入れたらタイトルの部分一致で絞る (並びは同じ)
+- 下書き・終了イベントも選べる (候補の最後に回る) がバッジ (「下書き」「終了」) + 「公開ページには出ない」注記を出す (公開側が表示時に外して自動で埋める)
+- 保存は `PostFormData.related_post_ids` → `createPost` / `updatePost` が delete → insert。**`related_post_ids` を渡さない呼び出し (AI 生成など) は既存の選択に触れない**
+- 記事の保存・削除時に、その記事を手動で選んでいる記事のページも revalidate する (`revalidatePagesPickingPost`。削除では CASCADE で行が消える前に呼ぶ)
+- `posts/actions.ts` の `deletePost` / `getPost` / `getPosts` / `getPostTypeCounts` にも `assertAdminAuth()` を付けた (2026-10-31。Server Action は外から直接呼べるため。以前は無かった)
+- 検索欄は記事フォームの中にあるので Enter で記事が保存されないよう preventDefault している
+
 ### Instagram Admin Pattern
 - `'use server'` ファイルは async 関数しか export できないため、同期ヘルパー
   (例: `parseIgPostStatus`) は別ファイル `filters.ts` に分離する

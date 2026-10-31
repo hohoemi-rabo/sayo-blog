@@ -83,13 +83,25 @@
 - **ユーザーの `next dev` 稼働中に `npm run build` しない** (.next が壊れる)。tsc + lint + dev への curl で確認
 - migration は本番 DB に直接効く。適用前にオーナーに確認する
 
+## 実装メモ (2026-10-31)
+
+- 選び方は純粋関数 `src/lib/related-posts.ts::selectRelatedPostIds` (テスト `related-posts.test.ts`, `npm test`)。`RelatedArticles.tsx` は取得と描画だけ
+- 公開側のクエリは 3 本並列 (手動選択 / 同カテゴリの軽い列 / 他カテゴリ補完用の新しい 12 件) → 当選した 3 件だけカード用に本体を取る
+- 手動選択の取得は `posts!post_related_posts_related_post_id_fkey(...)` (posts への FK が 2 本あるので FK 名で指定)。anon は非公開記事が RLS で見えず null になる → 表示しない
+- 管理: `RelatedPostsSection.tsx` (サイドバー, ハッシュタグの下)。検索は `searchRelatedPostOptions` (タイトル部分一致・自分を除く・並びは下記)、既存の選択は `getRelatedPostSelection`
+- 検索候補の並び: 公開ページに出る記事 → 編集中と同じカテゴリ → 共通ハッシュタグ数 → 新しい順 (`rankRelatedOptions`, テストあり)。下書き・終了イベントは最後 (選んでも表示されないため)。イベント・講座は全部終了なので、イベント記事では他カテゴリの新しい記事が上に来る
+- `createPost` で関連記事の保存に失敗しても記事作成は成功扱い (失敗にすると再保存で記事が二重にできる)。`updatePost` は公開連動・画像同期・再生成を済ませてから失敗を返す (途中で止めると、公開したのに記事ページ等が古いまま残るため)
+- 記事の保存・削除時に、その記事を**手動で関連記事に選んでいる記事のページ**も再生成 (`revalidatePagesPickingPost`)。非公開・削除・slug 変更が最大 1 時間残らないように。自動で選ばれた分は追えないので ISR 任せ
+- 記事保存時に公開 URL (`/{category}/{encodeURIComponent(slug)}`) を revalidate。slug・カテゴリを変えたときは古い URL も
+- 375px の管理画面は既存のレイアウト (サイドバー固定) のせいで全カードが 71px 幅に潰れる。今回の変更とは無関係 (別途)
+
 ## 完了条件
 
-- [ ] migration `post_related_posts` (+ RLS) を作成し、本番 DB に適用
-- [ ] 記事編集画面に「関連記事」選択 UI (検索・最大 3 件・並べ替え・外す)
-- [ ] `createPost` / `updatePost` で保存、編集画面で既存の選択を読み込む
-- [ ] `RelatedArticles` を「手動 → 自動で補完」に書き換え (終了イベント除外・全候補・同点は新しい順・他カテゴリ補完)
-- [ ] 選定ロジックの単体テスト (手動のみ / 手動 + 自動 / 手動の記事が非公開・終了 / 同カテゴリ不足 / イベント・講座のように全部終了)
-- [ ] 記事保存時に記事ページを revalidate
-- [ ] 画面確認 (375px / 1280px、イベント記事・食グルメ記事・人・活動 (2 件しかない) 記事)
-- [ ] ドキュメント更新 (`.claude/rules/implementation-status.md` / `admin.md` / `database.md` / CLAUDE.md の Updated)
+- [×] migration `post_related_posts` (+ RLS) を作成し、本番 DB に適用 (リモートの version は `20261031111706`)
+- [×] 記事編集画面に「関連記事」選択 UI (検索・最大 3 件・並べ替え・外す)
+- [×] `createPost` / `updatePost` で保存、編集画面で既存の選択を読み込む
+- [×] `RelatedArticles` を「手動 → 自動で補完」に書き換え (終了イベント除外・全候補・同点は新しい順・他カテゴリ補完)
+- [×] 選定ロジックの単体テスト (手動のみ / 手動 + 自動 / 手動の記事が非公開・終了 / 同カテゴリ不足 / イベント・講座のように全部終了)
+- [×] 記事保存時に記事ページを revalidate
+- [×] 画面確認 (375px / 1280px、イベント記事・食グルメ記事・人・活動 (2 件しかない) 記事) — 公開側 3 種 + 管理画面 1280px を確認。手動選択はテスト行を SQL で入れて表示・読み込みを確認後に削除 (保存ボタンは本番の記事が変わるので押していない)。管理画面 375px は既存レイアウトの問題で全カードが潰れる
+- [×] ドキュメント更新 (`.claude/rules/implementation-status.md` / `admin.md` / `database.md` / CLAUDE.md の Updated)

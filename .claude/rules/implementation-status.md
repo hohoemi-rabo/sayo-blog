@@ -66,6 +66,13 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **ノート PC 幅の修正** (同日, `1a19047`): 記事ページ右の固定目次は **1440px から** (本文 56rem + 両側 2rem + 14rem + 1rem = 90rem)。xl (1280px) から出していた頃は 1280〜1440px (15 インチノート) で本文・画像に重なっていた。ヘッダーのキャッチも同じ理由で 1440px から (1280px で検索欄がはみ出した)
 - 計測 (ローカル本番ビルド, Lighthouse 12 モバイル): Performance 84 / LCP 4.2s / CLS 0 (改修前の本番トップ 76)。残る重さは既存の Noto Serif/Sans JP の @font-face CSS (各 ~280KB) = 改修前からある技術的負債
 
+### 関連記事の手動選択 + 自動選定の改善 — Ticket 45 (2026-10-31)
+仕様: `docs/45_related-articles.md`。記事ページ下部の関連記事 3 件 = **手動 (最大 3 件, 選んだ順) → 空き枠は同カテゴリから自動 → 足りなければ他カテゴリの新しい記事**。どの段階でも自分・非公開・終了イベントは出さない。手動の記事が後で非公開 / 終了になったら表示時に外す (選択は DB に残る)。自動の並びは共通ハッシュタグ数 → 同点は新しい順 (候補は同カテゴリ全件、20 件で切らない)。
+- DB: `post_related_posts` (migration `20261031120000`)
+- ロジック: `src/lib/related-posts.ts` (純粋関数) + `related-posts.test.ts` (`npm test` = `node --experimental-strip-types --test src/lib/*.test.ts`)
+- 公開: `src/components/RelatedArticles.tsx` (取得 + 描画のみ)
+- 管理: `admin/posts/_components/RelatedPostsSection.tsx` + `posts/actions.ts` (`related_post_ids` / `saveRelatedPosts` / `getRelatedPostSelection` / `searchRelatedPostOptions`)。記事保存時に記事ページも revalidate
+
 ### 画像の自前縮小 (Vercel 画像最適化の置き換え) — 2026-10-19
 **経緯**: トップのランダム枠の写真が表示されず、本番の `/_next/image` が `402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED` を返していた。Vercel Hobby の画像最適化は**月 5,000 変換** (画像 × 幅ごとに 1 回) で、ギャラリー (約 1,200 枚)・トップ刷新・ランダム枠で表示する画像の種類が増えて使い切った。超えると課金ではなく**未キャッシュの画像だけ**が壊れる (キャッシュ済みは見えるので「一部だけ出ない」症状になる)。ルール改定ではない。
 - **仕組み**: next/image のカスタムローダー → Supabase の公開画像は `/api/img?src=…&w=` へ。`/api/img` は `image-variants` バケットに縮小版があれば 307、無ければ sharp で WebP (q75) を作って保存 → 307。リダイレクトは 1 年キャッシュで 2 回目以降は CDN HIT (関数は動かない)。失敗時は元画像へ `no-store` の 307 (壊れた画像にしない + 次回作り直す)。自プロジェクトの Supabase 公開 URL と決まった幅以外は 400 (任意 URL の変換台にさせない)
@@ -139,7 +146,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - `src/components/TableOfContents.tsx` - TOC with IntersectionObserver tracking。**1440px 以上は記事ページの固定 aside、未満は本文上の開閉式** (切替幅は `[category]/[slug]/page.tsx` の aside と揃える)
 - `src/components/ImageLightbox.tsx` - Native `<dialog>` lightbox
 - `src/components/ReactionBar.tsx` - Reaction buttons toggle (localStorage + Supabase)
-- `src/components/RelatedArticles.tsx` - Server Component, scoring-based
+- `src/components/RelatedArticles.tsx` - Server Component。手動選択 → 自動補完 (Ticket 45, 選び方は `src/lib/related-posts.ts`)
 - `src/components/ScrollFadeIn.tsx` - IntersectionObserver fade-in wrapper
 - `src/components/EventEndedOverlay.tsx` - イベント終了記事のサムネ/ヒーロー画像オーバーレイ (mode: card | hero)
 
