@@ -438,6 +438,7 @@ export async function updatePost(id: string, data: PostFormData) {
 }
 
 export async function deletePost(id: string) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
 
   // 削除で選択の行が消える前に、この記事を関連記事に選んでいるページを作り直す
@@ -485,6 +486,7 @@ export async function deletePost(id: string) {
 }
 
 export async function getPost(id: string) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
 
   const { data: post, error } = await supabase
@@ -514,6 +516,7 @@ export async function getPosts(filter?: {
   status?: string
   articleType?: string
 }) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
 
   let query = supabase
@@ -574,6 +577,7 @@ export async function getPosts(filter?: {
 
 /** 一覧タブのバッジ用に出自ごとの記事件数を取得 */
 export async function getPostTypeCounts(): Promise<Record<ArticleTypeTab, number>> {
+  await assertAdminAuth()
   const supabase = createAdminClient()
   const [free, mini, long] = await Promise.all([
     supabase
