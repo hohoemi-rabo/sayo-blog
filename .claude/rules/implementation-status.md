@@ -73,6 +73,17 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - 公開: `src/components/RelatedArticles.tsx` (取得 + 描画のみ)
 - 管理: `admin/posts/_components/RelatedPostsSection.tsx` + `posts/actions.ts` (`related_post_ids` / `saveRelatedPosts` / `getRelatedPostSelection` / `searchRelatedPostOptions`)。記事保存時に記事ページも revalidate
 
+### Search Console 準備 (SEO の土台) — 2026-10-31
+紗代さんの依頼「今後の記事が公開時点で Google 検索・Discover に拾われやすく、成果を確認できる状態に」への対応。Search Console はドメインプロパティ `sayo-kotoba.com` (DNS は Vercel、TXT で認証)。サイトマップは**完全な URL** `https://www.sayo-kotoba.com/sitemap.xml` で送る (ドメインプロパティは `sitemap.xml` だけだと「無効」になる)。
+- **サイトマップが記事公開で更新されなかった**: `sitemap.ts` は静的に 1 回作られたきり (次のデプロイまで新記事が載らない) → `revalidate = 3600` + 記事の作成・更新・削除で `revalidatePath('/sitemap.xml')`
+- **⚠️ 末尾スラッシュ**: 本番は `/{cat}/{slug}/` を `/{cat}/{slug}` へ 308 する。なのに canonical・サイトマップ・Article の `mainEntityOfPage`・パンくずが**スラッシュ付き**だった (= 全記事が Search Console で「リダイレクトあり」になる) → `seo-utils.ts::articlePath()` に統一 (スラッシュ無し + slug をエンコード)。記事 URL を作るときはこれを使う
+- **共有画像**: `/og-image.png` が無く (404) トップ等の共有画像が壊れていた → 仮の `public/og-image.jpg` (ヒーロー写真 + 「HOISA」+ キャッチ, 1200×630, playwright で描画)。正式素材が来たら差し替え (`SITE_CONFIG.ogImage`)
+- **ページで openGraph を書くと layout の openGraph が丸ごと消える** (About / ギャラリー / LP 3 ページで og:image・og:site_name が出ていなかった) → ページの openGraph は必ず `withSiteOpenGraph({...})` で包む
+- 記事の og:image の幅・高さは決め打ち (1200×630) をやめ、サムネイルのときは書かない (実寸は DB に無い)
+- **Discover 用の画像の目安**: 記事編集のサムネイル欄に実寸を表示し、横 1200px 未満なら注意を出す (`ThumbnailSizeNotice.tsx`。止めはしない。既存記事は直さない = 紗代さんの方針)
+- 元からできていたもの: title / description / canonical / article:published_time・modified_time / 著者 / Article + BreadcrumbList の JSON-LD / `max-image-preview:large` (layout の robots)
+- 「Sayo’s Journal」の FAQ 残り (紗代さん指摘) はコード上は 10-28 に修正済み。Google の古い保存内容なので URL 検査 → インデックス登録をリクエストで更新
+
 ### 画像の自前縮小 (Vercel 画像最適化の置き換え) — 2026-10-19
 **経緯**: トップのランダム枠の写真が表示されず、本番の `/_next/image` が `402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED` を返していた。Vercel Hobby の画像最適化は**月 5,000 変換** (画像 × 幅ごとに 1 回) で、ギャラリー (約 1,200 枚)・トップ刷新・ランダム枠で表示する画像の種類が増えて使い切った。超えると課金ではなく**未キャッシュの画像だけ**が壊れる (キャッシュ済みは見えるので「一部だけ出ない」症状になる)。ルール改定ではない。
 - **仕組み**: next/image のカスタムローダー → Supabase の公開画像は `/api/img?src=…&w=` へ。`/api/img` は `image-variants` バケットに縮小版があれば 307、無ければ sharp で WebP (q75) を作って保存 → 307。リダイレクトは 1 年キャッシュで 2 回目以降は CDN HIT (関数は動かない)。失敗時は元画像へ `no-store` の 307 (壊れた画像にしない + 次回作り直す)。自プロジェクトの Supabase 公開 URL と決まった幅以外は 400 (任意 URL の変換台にさせない)
