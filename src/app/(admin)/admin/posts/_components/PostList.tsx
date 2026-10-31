@@ -63,13 +63,13 @@ interface PostListProps {
 
 const ARTICLE_TYPE_TABS: Array<{ key: 'free' | 'mini' | 'long'; label: string }> = [
   { key: 'free', label: '自由記事' },
-  { key: 'mini', label: 'ミニ記事' },
-  { key: 'long', label: 'ロング記事' },
+  { key: 'mini', label: '投稿記事' },
+  { key: 'long', label: '取材記事' },
 ]
 
 const ARTICLE_TYPE_BADGE: Record<string, { label: string; className: string }> = {
-  mini: { label: 'ミニ', className: 'bg-blue-100 text-blue-700' },
-  long: { label: 'ロング', className: 'bg-purple-100 text-purple-700' },
+  mini: { label: '投稿', className: 'bg-blue-100 text-blue-700' },
+  long: { label: '取材', className: 'bg-purple-100 text-purple-700' },
 }
 
 export function PostList({
@@ -143,7 +143,7 @@ export function PostList({
 
   return (
     <div className="space-y-4">
-      {/* 出自タブ (自由 / ミニ / ロング) */}
+      {/* 出自タブ (自由 / 投稿 / 取材) */}
       <div className="flex gap-1 border-b border-border-decorative">
         {ARTICLE_TYPE_TABS.map((tab) => {
           const isActive = tab.key === articleType
