@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card'
 import { RichTextEditor } from '@/components/admin/editor/RichTextEditor'
 import { ImageUploader } from '@/components/admin/ImageUploader'
 import { createPost, updatePost, PostFormData } from '../actions'
-import type { ImportedOrigin, InquiryLink } from '../actions'
+import type { ImportedOrigin, InquiryLink, RelatedPostOption } from '../actions'
 import type { ArticleType } from '@/lib/types'
 import { ArrowLeft, Save, Eye } from 'lucide-react'
 import Link from 'next/link'
@@ -25,6 +25,7 @@ import {
 import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import { SummarySection, type SummaryState } from './SummarySection'
+import { RelatedPostsSection } from './RelatedPostsSection'
 import type { IgPostWithRelations } from '@/lib/types'
 
 interface Category {
@@ -79,6 +80,8 @@ interface PostFormProps {
    * edit = すでに紐付いている依頼。どちらも記事の種類は依頼に合わせて固定する。
    */
   inquiryLink?: InquiryLink
+  /** 保存済みの関連記事の手動選択 (表示順)。新規作成では無し */
+  initialRelatedPosts?: RelatedPostOption[]
 }
 
 function generateSlug(title: string): string {
@@ -96,6 +99,7 @@ export function PostForm({
   initialData,
   igSection,
   inquiryLink,
+  initialRelatedPosts,
 }: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -148,6 +152,9 @@ export function PostForm({
     initialData?.article_type === 'free'
       ? [...NEW_ARTICLE_TYPES, 'free']
       : [...NEW_ARTICLE_TYPES]
+  const [relatedPosts, setRelatedPosts] = useState<RelatedPostOption[]>(
+    initialRelatedPosts ?? []
+  )
   const [summary, setSummary] = useState<SummaryState>({
     summary_short: initialData?.summary_short ?? null,
     summary_medium: initialData?.summary_medium ?? null,
@@ -217,6 +224,7 @@ export function PostForm({
       summary_medium: summary.summary_medium,
       summary_long: summary.summary_long,
       article_type: articleType,
+      related_post_ids: relatedPosts.map((p) => p.id),
     }
 
     try {
@@ -526,6 +534,15 @@ export function PostForm({
               </p>
             )}
           </Card>
+
+          {/* 関連記事 (Ticket 45) */}
+          <RelatedPostsSection
+            value={relatedPosts}
+            onChange={setRelatedPosts}
+            postId={initialData?.id}
+            categoryId={categoryId || null}
+            hashtagIds={selectedHashtags}
+          />
 
           {mode === 'edit' && initialData && igSection && (
             <IgPostsSection

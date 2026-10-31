@@ -15,6 +15,7 @@ import {
 import type { ArticleType } from '@/lib/types'
 import { isNewArticleType, type ArticleTypeTab } from '@/lib/article-types'
 import { PICKUP_COUNT } from '@/lib/home-slots'
+import { RELATED_POSTS_COUNT, rankRelatedOptions } from '@/lib/related-posts'
 
 export type PostFormData = {
   title: string
@@ -43,6 +44,8 @@ export type PostFormData = {
   summary_short?: string | null
   summary_medium?: string | null
   summary_long?: string | null
+  /** 手動で選んだ関連記事 (最大 3 件, 表示順)。空なら公開側が全部自動で選ぶ (Ticket 45) */
+  related_post_ids?: string[]
 }
 
 /** 依頼の種類 = 紐付く記事の article_type (投稿記事 = mini / 取材記事 = long) */
@@ -81,6 +84,77 @@ async function findLinkedInquiry(
     if (data) return { kind, id: data.id as string }
   }
   return null
+}
+
+/**
+ * 関連記事の手動選択を保存する (delete → insert, post_hashtags と同じやり方)。
+ * 重複・自分自身は除き、最大 RELATED_POSTS_COUNT 件まで。
+ */
+async function saveRelatedPosts(
+  supabase: ReturnType<typeof createAdminClient>,
+  postId: string,
+  relatedPostIds: string[] | undefined
+): Promise<string | null> {
+  if (relatedPostIds === undefined) return null
+  const ids = [...new Set(relatedPostIds)]
+    .filter((rid) => rid !== postId)
+    .slice(0, RELATED_POSTS_COUNT)
+
+  const { error: delErr } = await supabase
+    .from('post_related_posts')
+    .delete()
+    .eq('post_id', postId)
+  if (delErr) return delErr.message
+
+  if (ids.length === 0) return null
+  const { error: insErr } = await supabase
+    .from('post_related_posts')
+    .insert(ids.map((rid, position) => ({ post_id: postId, related_post_id: rid, position })))
+  return insErr ? insErr.message : null
+}
+
+/** 記事の公開 URL を作り直す (日本語 slug は URL ではパーセントエンコードされる) */
+function revalidateArticlePath(categorySlug: string | null | undefined, slug: string | null | undefined) {
+  if (!categorySlug || !slug) return
+  revalidatePath(`/${categorySlug}/${encodeURIComponent(slug)}`)
+}
+
+/**
+ * この記事を関連記事に手動で選んでいる記事のページを作り直す。
+ * 記事ページは ISR (1 時間) なので、非公開・終了・削除・slug 変更がすぐ反映されないと
+ * 古いカードや 404 へのリンクが残る。自動で選ばれた分は追えないので ISR の更新に任せる。
+ * 記事を消す前に呼ぶこと (消すと CASCADE で選択の行も消える)。
+ */
+async function revalidatePagesPickingPost(
+  supabase: ReturnType<typeof createAdminClient>,
+  postId: string
+): Promise<void> {
+  const { data, error } = await supabase
+    .from('post_related_posts')
+    .select('post:posts!post_related_posts_post_id_fkey(slug, post_categories(categories(slug)))')
+    .eq('related_post_id', postId)
+  if (error) {
+    console.error('Related posts lookup error:', error)
+    return
+  }
+  for (const row of (data ?? []) as unknown as Array<{
+    post: { slug: string; post_categories: Array<{ categories: { slug: string } | null }> | null } | null
+  }>) {
+    revalidateArticlePath(row.post?.post_categories?.[0]?.categories?.slug, row.post?.slug)
+  }
+}
+
+async function getCategorySlug(
+  supabase: ReturnType<typeof createAdminClient>,
+  categoryId: string | null
+): Promise<string | null> {
+  if (!categoryId) return null
+  const { data } = await supabase
+    .from('categories')
+    .select('slug')
+    .eq('id', categoryId)
+    .maybeSingle()
+  return (data?.slug as string | undefined) ?? null
 }
 
 export async function createPost(
@@ -181,6 +255,13 @@ export async function createPost(
     }
   }
 
+  // 記事はもう作れているので、ここで失敗にすると再保存で記事が二重にできる。
+  // カテゴリ・ハッシュタグと同じくログだけ残して続ける (編集画面で選び直せる)
+  const relatedErr = await saveRelatedPosts(supabase, post.id as string, data.related_post_ids)
+  if (relatedErr) {
+    console.error('Related posts save error:', relatedErr)
+  }
+
   // 依頼から作成された場合、依頼レコードに紐付ける。
   // - 投稿記事: AI 記事化と同じく、記事ができた時点で依頼は「記事化済み」(published)
   // - 取材記事: 依頼の進行管理は別にあるので、記事を公開状態で保存したときだけ published
@@ -208,6 +289,7 @@ export async function createPost(
   revalidatePath('/admin/posts')
   revalidatePath('/')
   revalidatePath('/gallery')
+  revalidateArticlePath(await getCategorySlug(supabase, data.category_id), data.slug)
 
   if (data.is_published && post?.id) {
     const newPostId = post.id as string
@@ -225,9 +307,14 @@ export async function updatePost(id: string, data: PostFormData) {
   // and trigger IG auto-generation after the save succeeds.
   const { data: current } = await supabase
     .from('posts')
-    .select('is_published, article_type')
+    .select('is_published, article_type, slug, post_categories(categories(slug))')
     .eq('id', id)
     .maybeSingle()
+  // 保存前の公開 URL (slug・カテゴリを変えたとき、古い URL のページも作り直す)
+  const previousCategorySlug =
+    (current?.post_categories as unknown as Array<{ categories: { slug: string } | null }> | null)?.[0]
+      ?.categories?.slug ?? null
+  const previousSlug = (current?.slug as string | undefined) ?? null
 
   if (data.article_type && data.article_type !== current?.article_type) {
     // 自由記事は新しく増やさない (既存の自由記事をそのまま保存するのは可)
@@ -304,6 +391,13 @@ export async function updatePost(id: string, data: PostFormData) {
     await supabase.from('post_hashtags').insert(hashtagLinks)
   }
 
+  // 失敗しても記事本体はもう保存済みなので、公開連動・画像同期・再生成は続けてから知らせる
+  // (ここで return すると、公開したのにトップや記事ページが古いまま残る)
+  const relatedErr = await saveRelatedPosts(supabase, id, data.related_post_ids)
+  if (relatedErr) {
+    console.error('Related posts save error:', relatedErr)
+  }
+
   // false → true で公開化したとき、紐づくロング依頼を 'published' に自動更新
   if (!wasPublished && data.is_published) {
     const { error: inqErr } = await supabase
@@ -324,16 +418,31 @@ export async function updatePost(id: string, data: PostFormData) {
   revalidatePath(`/admin/posts/${id}`)
   revalidatePath('/')
   revalidatePath('/gallery')
+  revalidateArticlePath(await getCategorySlug(supabase, data.category_id), data.slug)
+  // slug・カテゴリを変えたときは古い URL のページも作り直す (同じ URL なら二重に呼ぶだけで無害)
+  revalidateArticlePath(previousCategorySlug, previousSlug)
+  // この記事を関連記事に選んでいる記事のページ (タイトル・URL・公開状態の変更を反映)
+  await revalidatePagesPickingPost(supabase, id)
 
   if (!wasPublished && data.is_published) {
     after(() => triggerIgAutoGenerate(id))
   }
 
+  if (relatedErr) {
+    return {
+      success: false,
+      error: `記事は保存しましたが、関連記事の保存に失敗しました。もう一度保存してください (${relatedErr})`,
+    }
+  }
   return { success: true }
 }
 
 export async function deletePost(id: string) {
   const supabase = createAdminClient()
+
+  // 削除で選択の行が消える前に、この記事を関連記事に選んでいるページを作り直す
+  // (削除が失敗しても再生成されるだけで害は無い)
+  await revalidatePagesPickingPost(supabase, id)
 
   // この記事が情報窓口の依頼から生成されたものか先に控える。
   // 記事削除で generated_post_id は FK (ON DELETE SET NULL) により自動で NULL になるため、
@@ -686,4 +795,92 @@ export async function getPostInquiryLink(
   const link = await findLinkedInquiry(supabase, postId)
   if (!link) return null
   return { ...link, label: `依頼 #${link.id.slice(0, 8)}` }
+}
+
+// ------------------------------------------------------------
+// 関連記事の手動選択 (Ticket 45)
+// ------------------------------------------------------------
+
+/** 関連記事の選択 UI に出す記事 1 件 */
+export interface RelatedPostOption {
+  id: string
+  title: string
+  is_published: boolean
+  event_ended: boolean
+  published_at: string | null
+}
+
+const RELATED_OPTION_COLUMNS = 'id, title, is_published, event_ended, published_at'
+
+/** 編集画面を開いたときの、保存済みの関連記事 (表示順) */
+export async function getRelatedPostSelection(postId: string): Promise<RelatedPostOption[]> {
+  await assertAdminAuth()
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('post_related_posts')
+    .select(`position, related:posts!post_related_posts_related_post_id_fkey(${RELATED_OPTION_COLUMNS})`)
+    .eq('post_id', postId)
+    .order('position')
+  if (error) {
+    console.error('Related posts fetch error:', error)
+    return []
+  }
+  return (data as unknown as Array<{ related: RelatedPostOption | null }>).flatMap((row) =>
+    row.related ? [row.related] : []
+  )
+}
+
+/** 関連記事の検索で一度に返す件数 */
+const RELATED_OPTIONS_LIMIT = 20
+
+/**
+ * 関連記事に選ぶ記事を探す。並びは 公開ページに出る記事 → 同じカテゴリ → 共通ハッシュタグが多い → 新しい
+ * (`rankRelatedOptions`)。query があればタイトルの部分一致で絞る。下書き・終了イベントも返す (画面でバッジを付ける)。
+ * current = 編集中の記事のカテゴリ・ハッシュタグ (保存前の値)。excludeId = 編集中の記事 (自分自身は選べない)
+ */
+export async function searchRelatedPostOptions(
+  query: string,
+  current: { excludeId?: string; categoryId: string | null; hashtagIds: string[] }
+): Promise<RelatedPostOption[]> {
+  await assertAdminAuth()
+  const supabase = createAdminClient()
+  // PostgREST の ilike で特別な意味を持つ文字は除く (検索語としては不要)
+  const q = query.replace(/[%_,()\\*]/g, ' ').trim().slice(0, 50)
+
+  // 並べ替えに全候補が要る。取るのは軽い列だけ (記事は数百件規模)
+  let req = supabase
+    .from('posts')
+    .select(`${RELATED_OPTION_COLUMNS}, post_categories(category_id), post_hashtags(hashtag_id)`)
+  if (q) req = req.ilike('title', `%${q}%`)
+  if (current.excludeId) req = req.neq('id', current.excludeId)
+
+  const { data, error } = await req
+  if (error) {
+    console.error('Related posts search error:', error)
+    return []
+  }
+
+  type Row = RelatedPostOption & {
+    post_categories: Array<{ category_id: string }> | null
+    post_hashtags: Array<{ hashtag_id: string }> | null
+  }
+  const ranked = rankRelatedOptions(
+    ((data ?? []) as unknown as Row[]).map((row) => ({
+      row,
+      id: row.id,
+      publishedAt: row.published_at,
+      isPublished: row.is_published,
+      eventEnded: row.event_ended,
+      categoryIds: (row.post_categories ?? []).map((pc) => pc.category_id),
+      hashtagIds: (row.post_hashtags ?? []).map((ph) => ph.hashtag_id),
+    })),
+    { categoryId: current.categoryId, hashtagIds: current.hashtagIds }
+  )
+  return ranked.slice(0, RELATED_OPTIONS_LIMIT).map(({ row }) => ({
+    id: row.id,
+    title: row.title,
+    is_published: row.is_published,
+    event_ended: row.event_ended,
+    published_at: row.published_at,
+  }))
 }

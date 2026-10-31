@@ -5,6 +5,7 @@ import {
   getImportedOrigin,
   getPost,
   getPostInquiryLink,
+  getRelatedPostSelection,
 } from '../actions'
 import { getIgPosts } from '../../instagram/posts/actions'
 import { PostForm } from '../_components/PostForm'
@@ -16,7 +17,7 @@ interface PageProps {
 export default async function EditPostPage({ params }: PageProps) {
   const { id } = await params
 
-  const [post, categories, hashtags, igPosts, importedOrigin, inquiryLink] =
+  const [post, categories, hashtags, igPosts, importedOrigin, inquiryLink, relatedPosts] =
     await Promise.all([
       getPost(id),
       getCategories(),
@@ -24,6 +25,7 @@ export default async function EditPostPage({ params }: PageProps) {
       getIgPosts({ post_id: id, limit: 3 }),
       getImportedOrigin(id),
       getPostInquiryLink(id),
+      getRelatedPostSelection(id),
     ])
 
   if (!post) {
@@ -37,6 +39,7 @@ export default async function EditPostPage({ params }: PageProps) {
       hashtags={hashtags}
       initialData={post}
       inquiryLink={inquiryLink ?? undefined}
+      initialRelatedPosts={relatedPosts}
       igSection={{
         initialIgPosts: igPosts.items,
         totalIgPosts: igPosts.totalCount,

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --experimental-strip-types --test src/lib/*.test.ts",
     "migrate:categories": "tsx scripts/migrate-categories.ts",
     "migrate:hashtags": "tsx scripts/migrate-hashtags.ts",
     "migrate:images": "tsx scripts/migrate-images.ts",
