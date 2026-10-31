@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/Checkbox'
 import { Card } from '@/components/ui/Card'
 import { RichTextEditor } from '@/components/admin/editor/RichTextEditor'
 import { ImageUploader } from '@/components/admin/ImageUploader'
+import { ThumbnailSizeNotice } from './ThumbnailSizeNotice'
 import { createPost, updatePost, PostFormData } from '../actions'
 import type { ImportedOrigin, InquiryLink, RelatedPostOption } from '../actions'
 import type { ArticleType } from '@/lib/types'
@@ -486,6 +487,7 @@ export function PostForm({
               value={thumbnailUrl}
               onChange={setThumbnailUrl}
             />
+            <ThumbnailSizeNotice url={thumbnailUrl} />
           </Card>
 
           {/* Category */}
