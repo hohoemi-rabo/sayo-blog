@@ -123,7 +123,15 @@ export function PostList({
     }
   }
 
+  // ★が上限に達したら、まだ★の無い記事は付けられない (押す前に見て分かるよう薄く表示する)
+  const isPickupFull = featuredCounts.total >= PICKUP_COUNT
+  const pickupFullMessage = `Pick Up は ${PICKUP_COUNT} 件までです。ほかの記事の★を外すと付けられます`
+
   const handleToggleFeatured = async (post: Post) => {
+    if (!post.is_featured && isPickupFull) {
+      addToast(pickupFullMessage, 'warning')
+      return
+    }
     setTogglingId(post.id)
     const result = await toggleFeatured(post.id, post.is_featured)
     setTogglingId(null)
@@ -210,6 +218,11 @@ export function PostList({
               はトップに出ません
             </span>
           )}
+          {isPickupFull && (
+            <span className="text-amber-700">
+              ・上限です。付け替えるときは先にほかの★を外してください
+            </span>
+          )}
         </p>
       </div>
 
@@ -245,21 +258,39 @@ export function PostList({
                 return (
                   <TableRow key={post.id}>
                     <TableCell className="text-center">
-                      <button
-                        onClick={() => handleToggleFeatured(post)}
-                        disabled={togglingId === post.id}
-                        className="p-1 rounded hover:bg-amber-50 transition-colors disabled:opacity-50"
-                        title={post.is_featured ? 'Pick Up から外す' : 'Pick Up に載せる'}
-                        aria-label={post.is_featured ? 'Pick Up から外す' : 'Pick Up に載せる'}
-                      >
-                        <Star
-                          className={`h-5 w-5 transition-colors ${
-                            post.is_featured
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-gray-300 hover:text-amber-300'
-                          }`}
-                        />
-                      </button>
+                      {(() => {
+                        // 上限のときの未選択の★: disabled にするとホバーの説明が出ないので、
+                        // aria-disabled + 押したら理由をトーストで出す
+                        const blocked = !post.is_featured && isPickupFull
+                        const label = post.is_featured
+                          ? 'Pick Up から外す'
+                          : blocked
+                            ? pickupFullMessage
+                            : 'Pick Up に載せる'
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeatured(post)}
+                            disabled={togglingId === post.id}
+                            aria-disabled={blocked || undefined}
+                            className={`p-1 rounded transition-colors disabled:opacity-50 ${
+                              blocked ? 'cursor-not-allowed' : 'hover:bg-amber-50'
+                            }`}
+                            title={label}
+                            aria-label={label}
+                          >
+                            <Star
+                              className={`h-5 w-5 transition-colors ${
+                                post.is_featured
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : blocked
+                                    ? 'text-gray-200'
+                                    : 'text-gray-300 hover:text-amber-300'
+                              }`}
+                            />
+                          </button>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell>
                       {post.thumbnail_url ? (
