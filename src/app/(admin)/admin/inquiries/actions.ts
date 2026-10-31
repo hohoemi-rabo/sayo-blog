@@ -343,7 +343,7 @@ export async function linkInquiryToPost(
   if (post.article_type === 'mini') {
     return {
       ok: false,
-      error: 'ミニ記事はロング記事として紐付けできません',
+      error: '投稿記事は取材記事として紐付けできません',
     }
   }
 

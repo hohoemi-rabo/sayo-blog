@@ -11,14 +11,14 @@ export function InquiriesTabs({ activeTab, counts }: Props) {
   const tabs = [
     {
       key: 'mini' as const,
-      label: 'ミニ記事',
+      label: '投稿記事',
       href: '/admin/inquiries?tab=mini',
       total: counts.miniTotal,
       pending: counts.miniPending,
     },
     {
       key: 'long' as const,
-      label: 'ロング記事',
+      label: '取材記事',
       href: '/admin/inquiries?tab=long',
       total: counts.longTotal,
       pending: counts.longPending,

@@ -104,7 +104,7 @@ export function MiniInquiryDetailDialog({ inquiry, open, onClose }: Props) {
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-2xl flex-col p-0">
         <DialogHeader className="border-b border-border-decorative px-6 py-4">
-          <DialogTitle>ミニ記事の依頼</DialogTitle>
+          <DialogTitle>投稿記事の依頼</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
