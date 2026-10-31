@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getPosts, getCategories, getPostTypeCounts } from './actions'
+import { getPosts, getCategories, getPostTypeCounts, getFeaturedCounts } from './actions'
 import { PostList } from './_components/PostList'
 import { Button } from '@/components/ui/Button'
 import { Plus } from 'lucide-react'
@@ -22,10 +22,11 @@ export default async function PostsPage({ searchParams }: PageProps) {
     articleType,
   }
 
-  const [{ posts, count }, categories, typeCounts] = await Promise.all([
+  const [{ posts, count }, categories, typeCounts, featuredCounts] = await Promise.all([
     getPosts(filter),
     getCategories(),
     getPostTypeCounts(),
+    getFeaturedCounts(),
   ])
 
   return (
@@ -51,6 +52,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
         filter={filter}
         articleType={articleType}
         typeCounts={typeCounts}
+        featuredCounts={featuredCounts}
       />
     </div>
   )

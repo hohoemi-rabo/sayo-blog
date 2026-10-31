@@ -26,6 +26,7 @@ import {
 import { useToast } from '@/components/ui/Toast'
 import { deletePost, toggleFeatured } from '../actions'
 import { ARTICLE_TYPE_TABS, type ArticleTypeTab } from '@/lib/article-types'
+import { PICKUP_COUNT } from '@/lib/home-slots'
 
 interface Category {
   id: string
@@ -60,6 +61,8 @@ interface PostListProps {
   }
   articleType: ArticleTypeTab
   typeCounts: Record<ArticleTypeTab, number>
+  /** ★の件数 (全記事。見ているタブに関係なく数える) */
+  featuredCounts: { total: number; drafts: number }
 }
 
 
@@ -74,6 +77,7 @@ export function PostList({
   filter,
   articleType,
   typeCounts,
+  featuredCounts,
 }: PostListProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -84,8 +88,6 @@ export function PostList({
   const [postToDelete, setPostToDelete] = useState<Post | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [togglingId, setTogglingId] = useState<string | null>(null)
-
-  const featuredCount = posts.filter((p) => p.is_featured).length
 
   const updateFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -188,6 +190,20 @@ export function PostList({
             <option value="draft">下書き</option>
           </Select>
         </div>
+        {/* ★の意味と件数。タブ・絞り込みに関係なく全記事で数える */}
+        <p className="ml-auto flex items-center gap-1.5 text-sm text-text-secondary">
+          <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+          = トップページの Pick Up に載せる記事（
+          <span className="font-medium text-text-primary">
+            {featuredCounts.total} / {PICKUP_COUNT} 件
+          </span>
+          ）
+          {featuredCounts.drafts > 0 && (
+            <span className="text-amber-700">
+              ・うち下書き {featuredCounts.drafts} 件はトップに出ません
+            </span>
+          )}
+        </p>
       </div>
 
       {/* Table */}
@@ -196,7 +212,7 @@ export function PostList({
           <TableHeader>
             <TableRow>
               <TableHead className="w-12 text-center">
-                <span title={`おすすめ (${featuredCount}/6)`}>
+                <span title={`Pick Up に載せる記事 (${featuredCounts.total}/${PICKUP_COUNT})`}>
                   <Star className="h-4 w-4 inline text-amber-400" />
                 </span>
               </TableHead>
@@ -226,7 +242,8 @@ export function PostList({
                         onClick={() => handleToggleFeatured(post)}
                         disabled={togglingId === post.id}
                         className="p-1 rounded hover:bg-amber-50 transition-colors disabled:opacity-50"
-                        title={post.is_featured ? 'おすすめを解除' : 'おすすめに追加'}
+                        title={post.is_featured ? 'Pick Up から外す' : 'Pick Up に載せる'}
+                        aria-label={post.is_featured ? 'Pick Up から外す' : 'Pick Up に載せる'}
                       >
                         <Star
                           className={`h-5 w-5 transition-colors ${

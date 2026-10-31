@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase'
 import { PostWithRelations } from '@/lib/types'
+import { PICKUP_COUNT } from '@/lib/home-slots'
 
 /**
  * トップページに並べる記事をまとめて決める (Ticket 44 / 2026-10-31 に枠の役割を変更)。
@@ -29,7 +30,6 @@ const SELECT = `
 `
 
 const RANDOM_COUNT = 3
-const PICKUP_COUNT = 6
 /** ★の上限 (管理画面の toggleFeatured と同じ) = Pick Up の枠数 */
 const FEATURED_MAX = PICKUP_COUNT
 

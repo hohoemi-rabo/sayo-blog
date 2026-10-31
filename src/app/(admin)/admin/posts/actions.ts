@@ -14,6 +14,7 @@ import {
 } from '@/lib/summary-generator'
 import type { ArticleType } from '@/lib/types'
 import { isNewArticleType, type ArticleTypeTab } from '@/lib/article-types'
+import { PICKUP_COUNT } from '@/lib/home-slots'
 
 export type PostFormData = {
   title: string
@@ -485,18 +486,43 @@ export async function getPostTypeCounts(): Promise<Record<ArticleTypeTab, number
   return { all: counts.free + counts.mini + counts.long, ...counts }
 }
 
+/**
+ * ★ (Pick Up に載せる) の件数。上限チェックは下書きも含めた件数で行うので、表示も同じ数え方にする。
+ * drafts = ★が付いているがトップには出ない (非公開の) 記事の数
+ */
+export async function getFeaturedCounts(): Promise<{ total: number; drafts: number }> {
+  await assertAdminAuth()
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select('is_published')
+    .eq('is_featured', true)
+  if (error) {
+    console.error('Featured count error:', error)
+    return { total: 0, drafts: 0 }
+  }
+  return {
+    total: data.length,
+    drafts: data.filter((p) => !p.is_published).length,
+  }
+}
+
 export async function toggleFeatured(postId: string, currentValue: boolean) {
+  await assertAdminAuth()
   const supabase = createAdminClient()
 
-  // おすすめに追加する場合、既に6件あるかチェック
+  // ★を付ける場合、Pick Up の枠数を超えないかチェック
   if (!currentValue) {
     const { count } = await supabase
       .from('posts')
       .select('id', { count: 'exact', head: true })
       .eq('is_featured', true)
 
-    if (count !== null && count >= 6) {
-      return { success: false, error: 'おすすめ記事は最大6件までです' }
+    if (count !== null && count >= PICKUP_COUNT) {
+      return {
+        success: false,
+        error: `Pick Up に載せられるのは ${PICKUP_COUNT} 件までです。ほかの記事の★を外してください`,
+      }
     }
   }
 
