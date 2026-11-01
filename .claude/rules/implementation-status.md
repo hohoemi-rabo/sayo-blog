@@ -84,6 +84,11 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - 元からできていたもの: title / description / canonical / article:published_time・modified_time / 著者 / Article + BreadcrumbList の JSON-LD / `max-image-preview:large` (layout の robots)
 - 「Sayo’s Journal」の FAQ 残り (紗代さん指摘) はコード上は 10-28 に修正済み。Google の古い保存内容なので URL 検査 → インデックス登録をリクエストで更新
 
+### 記事タグの付け直し — 2026-11-01
+全 98 記事のタグを `docs/tag-guidelines.md` の決まりで付け直した (地域 + 内容 2〜4 + 固有名。平均 1.1 個 → 4〜6 個)。記事の本文を読んで割り当て、豊丘村の記事に喬木村タグ等の誤りも修正。新しいタグ 47 種類。付け方の順番 = 内容 → 固有名 → 地区 → 市郡 (カードは先頭 3 つしか出ないため)。控え: `supabase/backups/20261101_hashtags_backup.md`。
+- 使われなくなった旧タグ 49 種類 (重複・AI 下書きの残り等) は同日削除済み。残りは 71 種類 (すべて 1 記事以上で使用)
+- ⚠️ AI 記事生成の `linkHashtags` は自由にタグを作るので、一覧から選ぶ形にするのが次の課題
+
 ### サイト内検索の作り直し — 2026-11-01
 旧検索は `to_tsvector('simple')` (スペース区切り前提 = 日本語の文が丸ごと 1 語) + タイトル・抜粋の trigram 類似度だけで、「飯田」7 件 (含む記事 97)・「下伊那」「子ども」「天竜峡」0 件だった。
 - **判定**: 「語を含むか」。DB 関数 `search_published_posts(text[])` (migration `20261101120000`)。対象はタイトル / タグ / カテゴリ / 抜粋 / 本文 (`posts.search_body` = HTML を除いた生成列)。複数語は AND、全角半角・大小文字はそろえる (NFKC + lower)。記事 ~100 件なので全件走査で十分 (索引なし)
