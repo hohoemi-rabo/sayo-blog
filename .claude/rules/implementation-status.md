@@ -84,6 +84,17 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - 元からできていたもの: title / description / canonical / article:published_time・modified_time / 著者 / Article + BreadcrumbList の JSON-LD / `max-image-preview:large` (layout の robots)
 - 「Sayo’s Journal」の FAQ 残り (紗代さん指摘) はコード上は 10-28 に修正済み。Google の古い保存内容なので URL 検査 → インデックス登録をリクエストで更新
 
+### サイト内検索の作り直し — 2026-11-01
+旧検索は `to_tsvector('simple')` (スペース区切り前提 = 日本語の文が丸ごと 1 語) + タイトル・抜粋の trigram 類似度だけで、「飯田」7 件 (含む記事 97)・「下伊那」「子ども」「天竜峡」0 件だった。
+- **判定**: 「語を含むか」。DB 関数 `search_published_posts(text[])` (migration `20261101120000`)。対象はタイトル / タグ / カテゴリ / 抜粋 / 本文 (`posts.search_body` = HTML を除いた生成列)。複数語は AND、全角半角・大小文字はそろえる (NFKC + lower)。記事 ~100 件なので全件走査で十分 (索引なし)
+- **並び**: タイトル > タグ > カテゴリ > 抜粋 > 本文 (+出現回数) → 新しい順
+- **結果カード**: 語が見つかった箇所を抜き出して `<mark>` で強調 (抜粋に語があれば抜粋、無ければ本文の前後)。`src/lib/search-text.ts` (`splitSearchTerms` / `buildSnippet` / `htmlToPlainText`) + テスト。`PostCard` の `snippet` prop
+- **0 件**: 複数語なら「「○○」で探す」(1 語ずつ) + よく使われているタグ 10 件
+- **入力候補** (`/api/search/suggest`): 記事は同じ関数の上位 5 件 (URL は `articlePath`)、タグは最初の語を名前に含むもの (`escapeLikePattern` で % _ を無効化)。旧版は PostgREST の `.or()` に入力を直接埋めていた
+- 効果: 飯田 97 / 下伊那 49 / 子ども 48 / 天竜峡 6 / 「飯田 カフェ」24
+- **できないこと**: 表記ゆれ (天竜峡 ↔ 天龍峡、ひらがな ↔ カタカナ)、意味の近い記事 (→ ② AI 意味検索 = 埋め込みで対応予定)
+- 旧 `search_posts` / `search_suggestions` / `search_vector` と title・excerpt の trigram 索引は、新コードのデプロイ後に別 migration で削除 (先に消すとデプロイまで本番の検索が壊れる)
+
 ### 画像の自前縮小 (Vercel 画像最適化の置き換え) — 2026-10-19
 **経緯**: トップのランダム枠の写真が表示されず、本番の `/_next/image` が `402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED` を返していた。Vercel Hobby の画像最適化は**月 5,000 変換** (画像 × 幅ごとに 1 回) で、ギャラリー (約 1,200 枚)・トップ刷新・ランダム枠で表示する画像の種類が増えて使い切った。超えると課金ではなく**未キャッシュの画像だけ**が壊れる (キャッシュ済みは見えるので「一部だけ出ない」症状になる)。ルール改定ではない。
 - **仕組み**: next/image のカスタムローダー → Supabase の公開画像は `/api/img?src=…&w=` へ。`/api/img` は `image-variants` バケットに縮小版があれば 307、無ければ sharp で WebP (q75) を作って保存 → 307。リダイレクトは 1 年キャッシュで 2 回目以降は CDN HIT (関数は動かない)。失敗時は元画像へ `no-store` の 307 (壊れた画像にしない + 次回作り直す)。自プロジェクトの Supabase 公開 URL と決まった幅以外は 400 (任意 URL の変換台にさせない)

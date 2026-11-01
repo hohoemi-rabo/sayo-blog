@@ -12,9 +12,9 @@ interface SearchSuggestion {
   posts: Array<{
     id: string
     title: string
-    slug: string
     thumbnail_url?: string | null
-    prefecture: string
+    /** 記事ページの URL (API が articlePath で作る) */
+    href: string
   }>
   hashtags: Array<{
     id: string
@@ -143,7 +143,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
               {suggestions.posts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/${post.prefecture}/${post.slug}`}
+                  href={post.href}
                   className="flex items-center gap-3 px-3 py-2 hover:bg-background-dark/5 rounded-lg transition-colors"
                   onClick={() => {
                     setIsOpen(false)

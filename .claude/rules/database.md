@@ -21,7 +21,7 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 ## Database Schema
 
 ### Core Tables
-1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, event_ended (イベント開催回終了フラグ — 公開側のサムネ/ヒーローを白黒化 + 終了案内オーバーレイ), is_event (Ticket 37: イベント記事フラグ → カード表示で日付バッジ大きく表示する将来予定), event_date_start, event_date_end (date), event_time_start, event_time_end (text 自由記述), event_venue, event_address, event_fee, event_url (text), article_type (Ticket 41: free/mini/long, default free, CHECK + idx_posts_article_type — /admin/posts のタブ切替用), source_urls (text[] NULL, Ticket 41: ミニ記事の元 SNS URL), summary_short / summary_medium / summary_long (text NULL, AI 3段階要約 = さくっと/ほどよく/じっくり。未生成 NULL は公開側で自動非表示), created_at, updated_at, search_vector (tsvector, generated)
+1. **posts** - id, title, slug, content (HTML), excerpt, thumbnail_url, view_count, published_at, is_published, is_featured, event_ended (イベント開催回終了フラグ — 公開側のサムネ/ヒーローを白黒化 + 終了案内オーバーレイ), is_event (Ticket 37: イベント記事フラグ → カード表示で日付バッジ大きく表示する将来予定), event_date_start, event_date_end (date), event_time_start, event_time_end (text 自由記述), event_venue, event_address, event_fee, event_url (text), article_type (Ticket 41: free/mini/long, default free, CHECK + idx_posts_article_type — /admin/posts のタブ切替用), source_urls (text[] NULL, Ticket 41: ミニ記事の元 SNS URL), summary_short / summary_medium / summary_long (text NULL, AI 3段階要約 = さくっと/ほどよく/じっくり。未生成 NULL は公開側で自動非表示), created_at, updated_at, search_body (text, generated = 本文から HTML を除き NFKC + 小文字にした検索用の文字列)
 2. **categories** - id, name, slug, description, order_num (flat structure: food, event, outing, culture, life, people — 2026-10 再編。旧 gourmet/spot/news)
 3. **post_categories** - Many-to-many junction (CASCADE DELETE on both FKs)
 4. **hashtags** - id, name, slug, count (auto-updated via triggers)
@@ -62,8 +62,8 @@ All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no ano
 - `increment_post_view_count(post_slug)` — SECURITY DEFINER
 - `increment_reaction_count(p_post_id, p_reaction_type)` — SECURITY DEFINER, UPSERT pattern
 - `decrement_reaction_count(p_post_id, p_reaction_type)` — SECURITY DEFINER
-- `search_posts(search_query, result_limit, result_offset)` — STABLE, trigram + full-text
-- `search_suggestions(search_query)` — STABLE, top 5 results
+- `search_published_posts(search_terms text[], result_limit, result_offset)` — STABLE, サイト内検索 (2026-11-01, migration `20261101120000`)。「語を含むか」(strpos) で判定。対象 = タイトル / タグ名 / カテゴリ名・slug / 抜粋 / 本文 (`posts.search_body`)。複数語は AND。並び = タイトル 10 > タグ 6 > カテゴリ 4 > 抜粋 3 > 本文 1 (+出現回数で最大 +2) → 新しい順。`total_count` (window) で総数も返す。語の分割・正規化は `src/lib/search-text.ts` と同じ規則 (NFKC + lower)
+- ~~`search_posts` / `search_suggestions`~~ — 旧検索 (`to_tsvector('simple')` = 日本語の文が丸ごと 1 語になり、ほぼ当たらなかった)。新コードのデプロイ後に削除
 - `match_articles(query_embedding, match_threshold, match_count)` — vector similarity search
 - `check_usage_limit(p_session_id)` — SECURITY DEFINER, returns jsonb
 - `log_ai_usage(...)` — SECURITY DEFINER

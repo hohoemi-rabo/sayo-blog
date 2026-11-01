@@ -1,42 +1,29 @@
 import PostCard from './PostCard'
 import { PostWithRelations } from '@/lib/types'
-import { FileText } from 'lucide-react'
+import type { SnippetSegment } from '@/lib/search-text'
 
 interface PostGridProps {
   posts: PostWithRelations[]
+  /** 記事 id → 検索語が見つかった箇所 (検索結果ページ用) */
+  snippets?: Map<string, SnippetSegment[] | null>
 }
 
-export default function PostGrid({ posts }: PostGridProps) {
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-16">
-        <FileText className="w-16 h-16 mx-auto text-text-secondary opacity-30 mb-4" />
-        <p className="text-lg text-text-secondary font-noto-sans-jp">
-          条件に一致する記事が見つかりませんでした
-        </p>
-      </div>
-    )
-  }
-
+/**
+ * 検索結果の記事グリッド (Server Component)。
+ * 件数と 0 件時の案内は検索ページ側で出す (全体の件数はページ送り前の総数なので、ここでは分からない)。
+ */
+export default function PostGrid({ posts, snippets }: PostGridProps) {
   return (
-    <div>
-      {/* Result count */}
-      <p className="text-text-secondary font-noto-sans-jp mb-6 animate-fade-in">
-        {posts.length}件の記事が見つかりました
-      </p>
-
-      {/* Grid with CSS stagger animation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post, index) => (
-          <div
-            key={post.id}
-            className="animate-fade-in-up"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <PostCard post={post} />
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {posts.map((post, index) => (
+        <div
+          key={post.id}
+          className="animate-fade-in-up"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <PostCard post={post} snippet={snippets?.get(post.id)} />
+        </div>
+      ))}
     </div>
   )
 }

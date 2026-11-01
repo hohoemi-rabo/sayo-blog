@@ -4,9 +4,13 @@ import CategoryBadge from './CategoryBadge'
 import EventEndedOverlay from './EventEndedOverlay'
 import HashtagList from './HashtagList'
 import { PostWithRelations } from '@/lib/types'
+import { articlePath } from '@/lib/seo-utils'
+import type { SnippetSegment } from '@/lib/search-text'
 
 interface PostCardProps {
   post: PostWithRelations
+  /** 検索結果用: 抜粋の代わりに出す「検索語が見つかった箇所」(一致部分を強調) */
+  snippet?: SnippetSegment[] | null
 }
 
 function formatDate(dateString: string): string {
@@ -42,7 +46,7 @@ const IMAGE_PLACEHOLDER = (
   </svg>
 )
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, snippet }: PostCardProps) {
   // Get the first category (flat structure now)
   const category = post.post_categories?.[0]?.categories
 
@@ -52,8 +56,7 @@ export default function PostCard({ post }: PostCardProps) {
       ?.map((ph) => ph.hashtags)
       .filter((h): h is NonNullable<typeof h> => h !== null) || []
 
-  // Generate post URL (category/slug)
-  const postUrl = category ? `/${category.slug}/${post.slug}` : `/${post.slug}`
+  const postUrl = articlePath(category?.slug, post.slug)
 
   return (
     <article className="group bg-background rounded-xl overflow-hidden shadow-decorative hover:shadow-decorative-lg transition-all duration-300">
@@ -93,10 +96,24 @@ export default function PostCard({ post }: PostCardProps) {
           </h3>
         </Link>
 
-        {post.excerpt && (
+        {snippet ? (
           <p className="text-text-secondary text-sm font-noto-serif-jp line-clamp-3 mb-3 leading-relaxed">
-            {post.excerpt}
+            {snippet.map((segment, i) =>
+              segment.hit ? (
+                <mark key={i} className="bg-primary/15 text-text-primary rounded-sm px-0.5">
+                  {segment.text}
+                </mark>
+              ) : (
+                <span key={i}>{segment.text}</span>
+              )
+            )}
           </p>
+        ) : (
+          post.excerpt && (
+            <p className="text-text-secondary text-sm font-noto-serif-jp line-clamp-3 mb-3 leading-relaxed">
+              {post.excerpt}
+            </p>
+          )
         )}
 
         {hashtags.length > 0 && <HashtagList hashtags={hashtags} maxDisplay={3} className="mb-3" />}
