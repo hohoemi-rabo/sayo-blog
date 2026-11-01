@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Calendar, Eye } from 'lucide-react'
 import { Category, Hashtag } from '@/lib/types'
 import CategoryBadge from './CategoryBadge'
+import { hashtagPath } from '@/lib/seo-utils'
 
 interface ArticleMetaProps {
   categories: Category[]
@@ -41,7 +42,7 @@ export default function ArticleMeta({
             {hashtags.map((hashtag) => (
               <Link
                 key={hashtag.id}
-                href={`/?hashtags=${hashtag.slug}`}
+                href={hashtagPath(hashtag.slug)}
                 className="inline-flex items-center px-3 py-1.5 bg-background-dark/5
                   hover:bg-primary/10 text-text-secondary hover:text-primary
                   rounded-full text-sm font-noto-sans-jp transition-colors"

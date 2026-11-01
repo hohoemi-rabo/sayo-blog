@@ -6,6 +6,7 @@ import { Search, X, Loader2 } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 import Link from 'next/link'
 import Image from 'next/image'
+import { hashtagPath } from '@/lib/seo-utils'
 
 interface SearchSuggestion {
   posts: Array<{
@@ -176,7 +177,7 @@ export default function SearchBar({ compact = false }: { compact?: boolean }) {
                 {suggestions.hashtags.map((hashtag) => (
                   <Link
                     key={hashtag.id}
-                    href={`/?hashtags=${hashtag.slug}`}
+                    href={hashtagPath(hashtag.slug)}
                     className="inline-flex items-center px-3 py-1.5 bg-background-dark/5
                       hover:bg-primary/10 text-text-secondary hover:text-primary
                       rounded-full text-sm font-noto-sans-jp transition-colors"

@@ -68,6 +68,14 @@ export function articlePath(categorySlug: string | null | undefined, slug: strin
   return categorySlug ? `/${categorySlug}/${encoded}` : `/${encoded}`
 }
 
+/**
+ * タグで絞り込んだ記事一覧の URL。タグの一覧は /blog にある (トップは ?hashtags= を読まない)。
+ * slug はほぼ日本語なのでエンコードする。タグのリンクは必ずこれで作ること。
+ */
+export function hashtagPath(slug: string): string {
+  return `/blog?hashtags=${encodeURIComponent(slug)}`
+}
+
 export function generateCanonicalUrl(path: string): string {
   const base = SITE_CONFIG.url.replace(/\/$/, '')
   const cleanPath = path.startsWith('/') ? path : `/${path}`

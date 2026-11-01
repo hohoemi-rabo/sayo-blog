@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Hashtag } from '@/lib/types'
+import { hashtagPath } from '@/lib/seo-utils'
 
 interface HashtagListProps {
   hashtags: Hashtag[]
@@ -22,7 +23,7 @@ export default function HashtagList({
       {displayHashtags.map((hashtag) => (
         <Link
           key={hashtag.slug}
-          href={`/?hashtags=${hashtag.slug}`}
+          href={hashtagPath(hashtag.slug)}
           className="inline-flex items-center px-2 py-1 rounded-md text-xs font-noto-sans-jp text-text-secondary border border-border-decorative hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-200"
         >
           #{hashtag.name}

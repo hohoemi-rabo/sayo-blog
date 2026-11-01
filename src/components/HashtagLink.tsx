@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { hashtagPath } from '@/lib/seo-utils'
 
 interface HashtagLinkProps {
   slug: string
@@ -23,12 +24,12 @@ export default function HashtagLink({ slug, name, count, fontSize, index }: Hash
     sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
 
     // Navigate without scrolling to top
-    router.push(`/blog?hashtags=${slug}`, { scroll: false })
+    router.push(hashtagPath(slug), { scroll: false })
   }
 
   return (
     <Link
-      href={`/blog?hashtags=${slug}`}
+      href={hashtagPath(slug)}
       onClick={handleClick}
       className="
         inline-block px-4 py-2 rounded-full
