@@ -422,6 +422,7 @@ LP のターゲットを **①SNS に投稿している人 + ②チラシで宣�
 - **削除**: `src/app/(public)/request/` 配下 (旧フォーム + 未使用の `ComingSoon.tsx`)
 
 #### 希望プラン (desired_plan) — 2026-07-08 追加
+> **初期モニター記事 (500円) をいったん取り下げ (2026-11-01, 紗代さん指定。復活の可能性あり)**: LP のプラン表・プラン案内・注記・FAQ「500円記事はいつまで」・写真の FAQ の 500円の一文・meta description、フォームの選択肢 (`LONG_PLAN_OPTIONS`)、Zod (`LONG_PLANS`) から外した。About の取材記事は「10,000円〜」。プランが 2 つになったので `lp-long.css` 末尾でプラン表を 2 列に。**型 `LongInquiryPlan`・`LONG_PLAN_LABELS`・DB の CHECK には `monitor` を残した** (戻しやすさ + 過去データの表示用。取り下げ時点で monitor の依頼は 0 件)。戻すときは `git log -S '初期モニター'` で取り下げのコミットを探して一式戻し、`lp-long.css` の 2 列指定を消す
 LP で 3 プランを明示したため、依頼時点の希望を控える。管理側の `fee_amount` (確定金額) とは役割が別。
 - `supabase/migrations/20260708120000_add_long_inquiries_desired_plan.sql` - `long_inquiries.desired_plan`
   (monitor/standard/deep/undecided + CHECK, default 'undecided')。テーブル 0 行のため無損失。本番適用済み

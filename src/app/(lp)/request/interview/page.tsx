@@ -8,7 +8,7 @@ import { LongLpForm } from './_components/LongLpForm'
 export const metadata: Metadata = {
   title: '取材記事を相談する',
   description:
-    '飯田下伊那のお店・活動・人物を、取材して記事にします。背景や想いまで聞き取り、あとから読み返せるWeb記事に。初期モニター500円 / 取材記事10,000円 / 深掘り記事30,000円。',
+    '飯田下伊那のお店・活動・人物を、取材して記事にします。背景や想いまで聞き取り、あとから読み返せるWeb記事に。取材記事10,000円 / 深掘り記事30,000円。',
   alternates: {
     canonical: `${SITE_CONFIG.url}/request/interview`,
   },
@@ -27,10 +27,6 @@ const FAQ_ITEMS = [
     a: '投稿記事は、いただいた情報をもとに掲載する入口です。取材記事は、取材を通して背景や想いを聞き取り、読み物として整える記事です。',
   },
   {
-    q: '500円記事はいつまで利用できますか？',
-    a: 'サイトオープンから半年限定の初期モニター価格です。サイト全体で月2本まで受け付けます。期間終了後は、同内容を5,000円記事として継続する予定です。',
-  },
-  {
     q: 'AI記事とはどういう意味ですか？',
     a: 'AIを活用して記事の下書きや整理を行い、運営側が確認・編集して掲載する記事です。AIが勝手に公開するものではありません。',
   },
@@ -40,7 +36,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '写真撮影は含まれますか？',
-    a: '1万円・3万円の現地取材プランには写真撮影を含みます。500円記事は原則として素材をご提供いただきます。',
+    a: '1万円・3万円のどちらのプランも現地取材で、写真撮影を含みます。',
   },
   {
     q: '原稿確認や修正はできますか？',
@@ -70,20 +66,11 @@ const creamGradient = {
   background: 'linear-gradient(180deg,#FFFFFF 0%, var(--cream) 100%)',
 }
 
+// 初期モニター記事 (500円) は 2026-11-01 にいったん取り下げ。復活させるときは
+// この配列・plan-guide・注記・FAQ・LONG_PLAN_OPTIONS・LONG_PLANS をまとめて戻す
+// (取り下げたコミットを git log -S '初期モニター' で探すと一式そろう)。
+// DB の CHECK と LONG_PLAN_LABELS には 'monitor' を残してある。
 const PLANS = [
-  {
-    badge: '半年限定・サイト全体で月2本まで',
-    name: '初期モニター記事',
-    price: '¥500',
-    unit: ' / 1本',
-    items: [
-      'サイトオープンから半年限定',
-      '電話・オンラインで簡単に聞き取り',
-      '写真・チラシなどの素材は先方提供',
-      '現地取材・写真撮影は含みません',
-      '期間終了後は5,000円記事として継続予定',
-    ],
-  },
   {
     badge: null,
     name: '取材記事',
@@ -109,6 +96,9 @@ const PLANS = [
     ],
   },
 ]
+
+// バッジのあるプランが 1 つも無いときは、高さ揃えの空きも要らない
+const HAS_PLAN_BADGE = PLANS.some((p) => p.badge)
 
 export default function LongRequestLpPage() {
   return (
@@ -240,10 +230,6 @@ export default function LongRequestLpPage() {
           </div>
           <div className="plan-guide">
             <div>
-              <b>まず試したい方</b>
-              <span>初期モニター記事 / 500円</span>
-            </div>
-            <div>
               <b>お店・活動を紹介したい方</b>
               <span>取材記事 / 10,000円</span>
             </div>
@@ -258,9 +244,11 @@ export default function LongRequestLpPage() {
                 {p.badge ? (
                   <div className="badge">{p.badge}</div>
                 ) : (
-                  <div className="badge is-placeholder" aria-hidden="true">
-                    &nbsp;
-                  </div>
+                  HAS_PLAN_BADGE && (
+                    <div className="badge is-placeholder" aria-hidden="true">
+                      &nbsp;
+                    </div>
+                  )
                 )}
                 <div className="name">{p.name}</div>
                 <div className="price">
@@ -275,9 +263,6 @@ export default function LongRequestLpPage() {
               </div>
             ))}
           </div>
-          <p className="note">
-            ※500円記事はサイトオープンから半年限定・サイト全体で月2本までの初期モニター価格です。期間終了後は、同内容を5,000円記事として継続する予定です。
-          </p>
         </div>
       </section>
 

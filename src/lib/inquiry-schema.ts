@@ -179,9 +179,11 @@ export const CLIENT_TYPES = [
   'group',
 ] as const satisfies readonly ClientType[]
 
-/** 取材記事の希望プラン (LP のプラン表と対応) */
+/**
+ * 取材記事の希望プラン (LP のプラン表と対応)。
+ * 'monitor' (初期モニター記事) は 2026-11-01 に取り下げたので新規の依頼では受け付けない。
+ */
 export const LONG_PLANS = [
-  'monitor',
   'standard',
   'deep',
   'undecided',

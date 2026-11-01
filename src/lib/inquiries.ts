@@ -47,19 +47,17 @@ export const LONG_PLAN_LABELS: Record<LongInquiryPlan, string> = {
   undecided: 'まだ決めていない / 相談したい',
 }
 
-/** フォームの選択肢用 (LP のプラン表と同じ並び) */
+/**
+ * フォームの選択肢用 (LP のプラン表と同じ並び)。
+ * 初期モニター記事 (monitor) は 2026-11-01 にいったん取り下げ = 選択肢から外した。
+ * 過去の依頼の表示用に LONG_PLAN_LABELS には残してある。
+ */
 export const LONG_PLAN_OPTIONS: Array<{
   value: LongInquiryPlan
   label: string
   price: string
   hint: string
 }> = [
-  {
-    value: 'monitor',
-    label: '初期モニター記事',
-    price: '¥500',
-    hint: '電話・オンラインで聞き取り / 素材は先方提供',
-  },
   {
     value: 'standard',
     label: '取材記事',

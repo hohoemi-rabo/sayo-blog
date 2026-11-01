@@ -61,7 +61,7 @@ const pillars = [
   {
     icon: PenLine,
     title: '取材記事',
-    price: '500円〜',
+    price: '10,000円〜',
     description:
       '私が直接取材にうかがって書く、じっくり丁寧な記事。お店・団体・活動の魅力を深くお伝えします。',
   },
