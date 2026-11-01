@@ -2057,3 +2057,11 @@
     padding: 10px 8px;
   }
 }
+
+/* ヒーローの飾りの丸 (:before / :after) はタップを受けない。
+   :after (幅 ~220px・右下) は本文より後に描かれるので、スマホ幅ではボタンの上に重なり、
+   「記事を掲載する」等のタップを横取りしてスクロールしなかった (PC は位置がずれていて無害) */
+.lp-long .hero:before,
+.lp-long .hero:after {
+  pointer-events: none;
+}
