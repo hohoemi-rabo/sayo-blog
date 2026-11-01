@@ -63,7 +63,7 @@ All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no ano
 - `increment_reaction_count(p_post_id, p_reaction_type)` — SECURITY DEFINER, UPSERT pattern
 - `decrement_reaction_count(p_post_id, p_reaction_type)` — SECURITY DEFINER
 - `search_published_posts(search_terms text[], result_limit, result_offset)` — STABLE, サイト内検索 (2026-11-01, migration `20261101120000`)。「語を含むか」(strpos) で判定。対象 = タイトル / タグ名 / カテゴリ名・slug / 抜粋 / 本文 (`posts.search_body`)。複数語は AND。並び = タイトル 10 > タグ 6 > カテゴリ 4 > 抜粋 3 > 本文 1 (+出現回数で最大 +2) → 新しい順。`total_count` (window) で総数も返す。語の分割・正規化は `src/lib/search-text.ts` と同じ規則 (NFKC + lower)
-- ~~`search_posts` / `search_suggestions`~~ — 旧検索 (`to_tsvector('simple')` = 日本語の文が丸ごと 1 語になり、ほぼ当たらなかった)。新コードのデプロイ後に削除
+- ~~`search_posts` / `search_suggestions`~~ — 旧検索 (`to_tsvector('simple')` = 日本語の文が丸ごと 1 語になり、ほぼ当たらなかった)。2026-11-01 に削除済み (migration `20261101130000`)
 - `match_articles(query_embedding, match_threshold, match_count)` — vector similarity search
 - `check_usage_limit(p_session_id)` — SECURITY DEFINER, returns jsonb
 - `log_ai_usage(...)` — SECURITY DEFINER
@@ -112,12 +112,10 @@ idx_post_images_gallery_partial ON post_images (is_featured DESC, post_published
 idx_post_images_post_id        ON post_images (post_id)  -- FK 用
 ```
 
-### Full-Text Search Indexes (GIN)
-```sql
-idx_posts_search_vector ON posts USING gin (search_vector)
-idx_posts_title_trgm    ON posts USING gin (title gin_trgm_ops)
-idx_posts_excerpt_trgm  ON posts USING gin (excerpt gin_trgm_ops)
-```
+### 検索用の索引
+無し (2026-11-01)。サイト内検索 `search_published_posts` は strpos による全件走査で、記事 ~100 件なら索引なしで十分速い。
+旧 `idx_posts_search_vector` / `idx_posts_title_trgm` / `idx_posts_excerpt_trgm` は旧検索とともに削除。
+記事が数千件規模になって遅くなったら、`search_body` 等に pg_trgm の GIN 索引 (3 文字以上の語に効く) を検討
 
 ### Index Rules
 - Do NOT create B-tree indexes that duplicate UNIQUE constraint indexes
@@ -131,7 +129,7 @@ migration `20260706150000_postgres_best_practices_hardening.sql` で適用:
   `check_usage_limit` / `log_ai_usage` / `get_today_usage_stats` / `get_monthly_usage_stats` /
   `get_daily_usage_breakdown` / `get_top_queries` / `list_storage_objects` / `match_articles`
 - **公開 RPC (anon キーで呼ぶ)**: `increment_post_view_count` / `increment_reaction_count` /
-  `decrement_reaction_count` / `get_gallery_images` / `search_posts` / `search_suggestions`
+  `decrement_reaction_count` / `get_gallery_images` / `search_published_posts`
 - 全アプリ関数は `SET search_path = public, extensions` を固定済み (hijack 対策。
   `extensions` は vector 演算子 `<=>` の解決に必要)。**新しい関数を作るときも必ず同様に固定する**
 - 新しい管理専用 RPC を作ったら同様に `REVOKE EXECUTE ... FROM public, anon, authenticated` +
@@ -140,7 +138,7 @@ migration `20260706150000_postgres_best_practices_hardening.sql` で適用:
 ## RPC Function Volatility
 
 - **VOLATILE** (default): Functions that write data (`log_ai_usage`, `increment_*`, `check_usage_limit`)
-- **STABLE**: Read-only functions within a transaction (`search_posts`, `search_suggestions`, analytics functions)
+- **STABLE**: Read-only functions within a transaction (`search_published_posts`, analytics functions)
 - **IMMUTABLE**: Never changes (not currently used)
 
 Mark read-only RPCs as `STABLE` for query planner optimization.

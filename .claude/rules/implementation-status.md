@@ -93,7 +93,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **入力候補** (`/api/search/suggest`): 記事は同じ関数の上位 5 件 (URL は `articlePath`)、タグは最初の語を名前に含むもの (`escapeLikePattern` で % _ を無効化)。旧版は PostgREST の `.or()` に入力を直接埋めていた
 - 効果: 飯田 97 / 下伊那 49 / 子ども 48 / 天竜峡 6 / 「飯田 カフェ」24
 - **できないこと**: 表記ゆれ (天竜峡 ↔ 天龍峡、ひらがな ↔ カタカナ)、意味の近い記事 (→ ② AI 意味検索 = 埋め込みで対応予定)
-- 旧 `search_posts` / `search_suggestions` / `search_vector` と title・excerpt の trigram 索引は、新コードのデプロイ後に別 migration で削除 (先に消すとデプロイまで本番の検索が壊れる)
+- 旧 `search_posts` / `search_suggestions` / `search_vector` と title・excerpt の trigram 索引は、新コードのデプロイ後に削除済み (migration `20261101130000`。先に消すとデプロイまで本番の検索が壊れるため 2 段階にした)
 
 ### 画像の自前縮小 (Vercel 画像最適化の置き換え) — 2026-10-19
 **経緯**: トップのランダム枠の写真が表示されず、本番の `/_next/image` が `402 OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED` を返していた。Vercel Hobby の画像最適化は**月 5,000 変換** (画像 × 幅ごとに 1 回) で、ギャラリー (約 1,200 枚)・トップ刷新・ランダム枠で表示する画像の種類が増えて使い切った。超えると課金ではなく**未キャッシュの画像だけ**が壊れる (キャッシュ済みは見えるので「一部だけ出ない」症状になる)。ルール改定ではない。
