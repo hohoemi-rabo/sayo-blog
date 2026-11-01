@@ -76,10 +76,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // favicon-16x16.png / apple-touch-icon.png は public に無く全ページで 404 になっていたので外した。
+  // HOISA の favicon が届いたら (CLAUDE.md の Next) ここに足す
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
   },
 };
 
