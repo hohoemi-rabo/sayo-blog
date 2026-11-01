@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getPaginationRange } from '@/lib/pagination-utils'
 
@@ -11,8 +10,6 @@ interface PaginationProps {
   totalItems: number
   itemsPerPage?: number
 }
-
-const SCROLL_FLAG_KEY = 'pagination-should-scroll'
 
 export default function Pagination({
   currentPage,
@@ -24,33 +21,12 @@ export default function Pagination({
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // Scroll to FilterBar when pagination button was clicked
-  useEffect(() => {
-    const shouldScroll = sessionStorage.getItem(SCROLL_FLAG_KEY)
-
-    if (shouldScroll === 'true') {
-      // Clear flag
-      sessionStorage.removeItem(SCROLL_FLAG_KEY)
-
-      // Wait for content to load, then scroll to filter section
-      setTimeout(() => {
-        const filterBar = document.querySelector('[data-filter-bar]')
-        if (filterBar) {
-          filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    }
-  }, [currentPage])
-
   // Don't show pagination if only 1 page or no items
   if (totalPages <= 1) {
     return null
   }
 
   const handlePageChange = (page: number) => {
-    // Set flag in sessionStorage to trigger scroll after navigation
-    sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
-
     const params = new URLSearchParams(searchParams)
 
     if (page === 1) {
@@ -59,8 +35,10 @@ export default function Pagination({
       params.set('page', page.toString())
     }
 
-    // Navigate
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    // ページの先頭 (検索欄 + 結果の見出し) へ戻す。以前は scroll: false で FilterBar へ
+    // 飛ばしていたが、Pagination を使う検索ページには FilterBar が無く、画面が一番下に
+    // 残ったまま中身だけ入れ替わっていた (スマホでは押しても何も起きないように見えた)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const pages = getPaginationRange(currentPage, totalPages, 1)

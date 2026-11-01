@@ -57,7 +57,6 @@ export default function FilterBar({ categories, popularHashtags }: FilterBarProp
 
   return (
     <div
-      data-filter-bar
       className="bg-background-dark/5 backdrop-blur-sm rounded-xl p-4 md:p-6 mb-8 border border-border-decorative animate-fade-in"
     >
       <div className="flex flex-col lg:flex-row gap-4 lg:items-end">

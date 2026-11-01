@@ -1,7 +1,4 @@
-'use client'
-
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { hashtagPath } from '@/lib/seo-utils'
 
 interface HashtagLinkProps {
@@ -12,25 +9,15 @@ interface HashtagLinkProps {
   index: number
 }
 
-const SCROLL_FLAG_KEY = 'pagination-should-scroll'
-
+/**
+ * 人気タグのリンク。通常のページ移動 = 先頭 (絞り込みバー + 結果) へ戻る。
+ * 以前は scroll: false で移動していたが、タグの一覧は記事一覧より下にあるため、
+ * 押しても画面が下に残ったまま上の一覧だけ入れ替わり、絞り込めたことが分からなかった。
+ */
 export default function HashtagLink({ slug, name, count, fontSize, index }: HashtagLinkProps) {
-  const router = useRouter()
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-
-    // Set flag for scroll restoration
-    sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
-
-    // Navigate without scrolling to top
-    router.push(hashtagPath(slug), { scroll: false })
-  }
-
   return (
     <Link
       href={hashtagPath(slug)}
-      onClick={handleClick}
       className="
         inline-block px-4 py-2 rounded-full
         border-2 border-border-decorative bg-background

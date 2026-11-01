@@ -120,12 +120,11 @@ Avoid wrapping entire cards in `<Link>`. Link specific elements instead:
 - Add `scroll: false` to router.push: `router.push(\`/?\${queryString}\`, { scroll: false })`
 - Wrap PostGrid in Suspense with unique key for partial re-renders
 
-### Pagination Scroll Behavior
-Use sessionStorage to persist scroll flag across component remounts:
-```typescript
-const SCROLL_FLAG_KEY = 'pagination-should-scroll'
-sessionStorage.setItem(SCROLL_FLAG_KEY, 'true')
-```
+### Pagination / 人気タグの移動は「先頭へ戻す」
+検索のページ送り (`Pagination.tsx`) と人気タグ (`HashtagLink.tsx`) は**通常の移動 (先頭へスクロール)** にしている。
+以前は `scroll: false` + sessionStorage のフラグで FilterBar へ飛ばしていたが、検索ページには FilterBar が無く、
+人気タグは一覧より下にあるため、押しても画面が下に残ったまま上の中身だけ入れ替わっていた (2026-11-01 修正)。
+`scroll: false` を使うのは、押した場所の近くで結果が変わるとき (FilterBar の絞り込み等) だけにする
 
 ### View Counter Double Counting (StrictMode)
 Use module-level Set to track processed slugs:
