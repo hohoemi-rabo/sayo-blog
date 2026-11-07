@@ -54,6 +54,8 @@ Browser-side: `src/lib/supabase-browser.ts` (singleton, prevents multiple instan
 ### Related Posts (Ticket 45)
 16. **post_related_posts** - post_id FK posts (CASCADE), related_post_id FK posts (CASCADE), position smallint (0〜2, 表示順), created_at。PK (post_id, related_post_id) / UNIQUE (post_id, position) / CHECK 自分自身不可・position 0〜2 / idx related_post_id。RLS: anon SELECT 可 (非公開記事は posts 側の RLS で見えない) / authenticated ALL / 書き込みは service role。posts への FK が 2 本あるので埋め込みは `posts!post_related_posts_related_post_id_fkey(...)` と FK 名で指定する。migration `20261031120000`
 
+> ⚠️ **posts.updated_at は「中身を編集した日」** (2026-11-07〜)。posts のトリガーは専用関数 `update_posts_updated_at()` で、**閲覧数・★ (is_featured)・search_body だけが変わった UPDATE では据え置く**。以前は共通の `update_updated_at_column` で、閲覧数 +1 のたびに更新日 (= 記事の「更新日」表示 / dateModified / サイトマップの lastmod) が今になっていた。既存の値は公開日に戻した (控え `supabase/backups/20261107_posts_updated_at_backup.md`)。タグ・カテゴリ・関連記事は別テーブルなので、それだけ変えても更新日は変わらない。posts に「中身ではない」列を足したら関数の除外リストにも足すこと
+
 All Phase 3 / Phase 4 tables: RLS enabled, authenticated-only ALL policy (no anon access), `update_updated_at_column()` trigger applied.
 
 > **inquiries の書き込み方針**: 公開フォーム送信は Server Action 内で `createAdminClient()` (service role) を使い RLS をバイパスして INSERT する。匿名 INSERT ポリシーは付けない (Zod 検証 + Vercel BotID + レート制限を Server Action 側で実施予定)。
