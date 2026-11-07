@@ -89,6 +89,12 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - 使われなくなった旧タグ 49 種類 (重複・AI 下書きの残り等) は同日削除済み。残りは 71 種類 (すべて 1 記事以上で使用)
 - ⚠️ AI 記事生成の `linkHashtags` は自由にタグを作るので、一覧から選ぶ形にするのが次の課題
 
+### 説明文 + 更新日の修正 — 2026-11-07
+- **記事の「検索結果に出す説明文」**: `posts.meta_description` (migration `20261107120000`)。記事編集の抜粋の下に欄 (120 字目安)。記事ページの description / og:description は 説明文 → 抜粋 → タイトル
+- **サイトの説明文**: `SITE_CONFIG.description` を紗代さんの文に (トップ・共通 OG・構造化データ)
+- **更新日の不具合**: 閲覧数 +1 (`increment_post_view_count`) の UPDATE で共通トリガーが `updated_at` を今にしていた → 記事の「更新日」表示・dateModified・サイトマップの lastmod が「最後に読まれた日」だった。posts 専用の `update_posts_updated_at()` (閲覧数・★・search_body だけの更新は据え置き) + 全記事を公開日に戻した (migration `20261107130000`、控え `supabase/backups/20261107_posts_updated_at_backup.md`)
+- 季節ごとのリライト支援 (更新履歴など) は **Ticket 46 (相談中)** `docs/46_seasonal-updates.md`
+
 ### サイト内検索の作り直し — 2026-11-01
 旧検索は `to_tsvector('simple')` (スペース区切り前提 = 日本語の文が丸ごと 1 語) + タイトル・抜粋の trigram 類似度だけで、「飯田」7 件 (含む記事 97)・「下伊那」「子ども」「天竜峡」0 件だった。
 - **判定**: 「語を含むか」。DB 関数 `search_published_posts(text[])` (migration `20261101120000`)。対象はタイトル / タグ / カテゴリ / 抜粋 / 本文 (`posts.search_body` = HTML を除いた生成列)。複数語は AND、全角半角・大小文字はそろえる (NFKC + lower)。記事 ~100 件なので全件走査で十分 (索引なし)
