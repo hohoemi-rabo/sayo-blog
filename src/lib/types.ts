@@ -15,6 +15,8 @@ export interface Post {
   slug: string
   content: string
   excerpt?: string
+  /** 検索結果用の説明文。null なら抜粋を使う */
+  meta_description?: string | null
   thumbnail_url?: string
   view_count: number
   published_at?: string

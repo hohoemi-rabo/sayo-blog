@@ -22,6 +22,8 @@ export type PostFormData = {
   slug: string
   content: string
   excerpt: string
+  /** 検索結果用の説明文。null なら公開側は抜粋を使う */
+  meta_description: string | null
   thumbnail_url: string | null
   category_id: string | null
   hashtag_ids: string[]
@@ -196,6 +198,7 @@ export async function createPost(
       slug: data.slug,
       content: data.content,
       excerpt: data.excerpt,
+      meta_description: data.meta_description,
       thumbnail_url: data.thumbnail_url,
       published_at: data.published_at,
       is_published: data.is_published,
@@ -340,6 +343,7 @@ export async function updatePost(id: string, data: PostFormData) {
       slug: data.slug,
       content: data.content,
       excerpt: data.excerpt,
+      meta_description: data.meta_description,
       thumbnail_url: data.thumbnail_url,
       published_at: data.published_at,
       is_published: data.is_published,

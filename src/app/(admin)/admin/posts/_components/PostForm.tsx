@@ -51,6 +51,7 @@ interface PostFormProps {
     slug: string
     content: string
     excerpt: string | null
+    meta_description?: string | null
     thumbnail_url: string | null
     is_published: boolean
     event_ended?: boolean
@@ -111,6 +112,7 @@ export function PostForm({
   const [slug, setSlug] = useState(initialData?.slug || '')
   const [content, setContent] = useState(initialData?.content || '')
   const [excerpt, setExcerpt] = useState(initialData?.excerpt || '')
+  const [metaDescription, setMetaDescription] = useState(initialData?.meta_description || '')
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
     initialData?.thumbnail_url || null
   )
@@ -200,6 +202,7 @@ export function PostForm({
       slug: slug.trim(),
       content,
       excerpt: excerpt.trim(),
+      meta_description: metaDescription.trim() || null,
       thumbnail_url: thumbnailUrl,
       category_id: categoryId || null,
       hashtag_ids: selectedHashtags,
@@ -359,6 +362,29 @@ export function PostForm({
               />
               <p className="text-xs text-text-secondary">
                 {excerpt.length} / 150 文字
+              </p>
+            </div>
+          </Card>
+
+          {/* Meta description (検索結果用) */}
+          <Card className="p-6 bg-white">
+            <div className="space-y-2">
+              <Label htmlFor="meta-description">検索結果に出す説明文</Label>
+              <Textarea
+                id="meta-description"
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                placeholder={excerpt.trim() || '空のときは抜粋がそのまま使われます'}
+                rows={3}
+              />
+              <p className="text-xs text-text-secondary">
+                Google の検索結果や SNS で共有したときに、タイトルの下に出る文です。空のときは抜粋を使います。
+                スマホの検索結果では 120 文字前後で切れることが多いので、大事なことは前半に。
+              </p>
+              <p
+                className={`text-xs ${metaDescription.length > 120 ? 'text-amber-700' : 'text-text-secondary'}`}
+              >
+                {metaDescription.length} / 120 文字目安
               </p>
             </div>
           </Card>

@@ -131,7 +131,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     }
   }
 
-  const description = truncateDescription(post.excerpt || post.title)
+  // 検索結果用の説明文 → 抜粋 → タイトルの順
+  const description = truncateDescription(post.meta_description || post.excerpt || post.title)
   const imageUrl = post.thumbnail_url || `${SITE_CONFIG.url}${SITE_CONFIG.ogImage.path}`
   // サムネイルの実寸は DB に無いので書かない (決め打ちの 1200×630 だと小さい写真でも
   // 大きいと伝えてしまう)。サイト共通の OG 画像だけは実寸が決まっている
