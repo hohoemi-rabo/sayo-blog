@@ -94,6 +94,9 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - **サイトの説明文**: `SITE_CONFIG.description` を紗代さんの文に (トップ・共通 OG・構造化データ)
 - **更新日の不具合**: 閲覧数 +1 (`increment_post_view_count`) の UPDATE で共通トリガーが `updated_at` を今にしていた → 記事の「更新日」表示・dateModified・サイトマップの lastmod が「最後に読まれた日」だった。posts 専用の `update_posts_updated_at()` (閲覧数・★・search_body だけの更新は据え置き) + 全記事を公開日に戻した (migration `20261107130000`、控え `supabase/backups/20261107_posts_updated_at_backup.md`)
 - 季節ごとのリライト支援 (更新履歴など) は **Ticket 46 (相談中)** `docs/46_seasonal-updates.md`
+- **依存関係の更新** (同日, `d5ef4ec`): next 15.5.7 → **15.5.29** (緊急・重要の弱点多数。ミドルウェアのすり抜け = 管理画面の入口に関係)、react/react-dom 19.1.10、**sharp 0.35.5** (`/api/img` は全バケットの画像を受けるので、投稿フォームの添付も誰でも sharp に通せる = libvips の弱点に直結)、ほか `npm audit fix` の範囲内 (zod / nodemailer / tiptap / postcss 等)。
+  - 残した項目 (2026-11-07 時点の判断): nodemailer 10 (メジャー更新。残る弱点は `raw` オプションで、未使用) / next 同梱の postcss・tailwind 系の glob・minimatch・sucrase (ビルド時だけ) / Next 16 (メジャー更新)。**依存関係は定期的に `npm audit --omit=dev` を見る** (今回 15.5.7 のまま 1 年近く放置されていた)
+  - ⚠️ ビルドが Google Fonts の一時エラー (`Cannot read properties of null (reading '1')`) でまた 1 回落ちた (再実行で通る)。2 回目なので Noto もサブセットの local font 化を検討する価値あり
 
 ### サイト内検索の作り直し — 2026-11-01
 旧検索は `to_tsvector('simple')` (スペース区切り前提 = 日本語の文が丸ごと 1 語) + タイトル・抜粋の trigram 類似度だけで、「飯田」7 件 (含む記事 97)・「下伊那」「子ども」「天竜峡」0 件だった。
