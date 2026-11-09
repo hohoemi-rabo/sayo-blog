@@ -16,7 +16,8 @@
     "backfill:gallery": "tsx scripts/backfill-post-images.ts",
     "backfill:summaries": "tsx scripts/backfill-summaries.ts",
     "validate": "tsx scripts/validate-data.ts",
-    "fonts:subset": "node scripts/build-font-subsets.mjs"
+    "fonts:subset": "node scripts/build-font-subsets.mjs",
+    "gsc": "node --env-file=.env.local scripts/gsc.mjs"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.6",

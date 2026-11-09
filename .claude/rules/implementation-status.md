@@ -98,6 +98,13 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
   - 残した項目 (2026-11-07 時点の判断): nodemailer 10 (メジャー更新。残る弱点は `raw` オプションで、未使用) / next 同梱の postcss・tailwind 系の glob・minimatch・sucrase (ビルド時だけ) / Next 16 (メジャー更新)。**依存関係は定期的に `npm audit --omit=dev` を見る** (今回 15.5.7 のまま 1 年近く放置されていた)
   - ⚠️ ビルドが Google Fonts の一時エラー (`Cannot read properties of null (reading '1')`) でまた 1 回落ちた (再実行で通る)。2 回目なので Noto もサブセットの local font 化を検討する価値あり
 
+### Search Console API (Claude の分析用) — 2026-11-09
+手元から Search Console のデータを読むための読み取り専用ツール。**本番 (Vercel) には入れない** = サイトからは使わない (管理画面のダッシュボードを作るなら、そのとき Vercel に鍵を登録する)。
+- `scripts/gsc.mjs` (`npm run gsc -- <command>`): `sites` / `sitemaps` / `query` (検索パフォーマンス: `--days --dims page,query,date --limit --page --query --type web|discover`) / `inspect <url>` (URL 検査, 1 日 2,000 件)。依存なし (JWT 署名は Node の crypto、取得は fetch)。出力は JSON。データは 2〜3 日遅れなので終了日は 3 日前
+- 認証: Google Cloud プロジェクト `hoisa-514211` のサービスアカウント `hoisa-search-console@hoisa-514211.iam.gserviceaccount.com`。Search Console に「制限付き」で追加済み (`siteRestrictedUser`)。鍵は**リポジトリの外** `~/.config/hoisa/gsc-key.json` (600)。`.env.local` には `GSC_KEY_FILE` (場所) と `GSC_SITE_URL=sc-domain:sayo-kotoba.com` だけ
+- 鍵が漏れたら Google Cloud のサービスアカウント →「鍵」タブで削除すれば無効になる
+- ⚠️ `sitemaps` の `indexed` は常に 0 (Google が値を返さなくなった項目)。インデックス状況は `inspect` で見る
+
 ### サイト内検索の作り直し — 2026-11-01
 旧検索は `to_tsvector('simple')` (スペース区切り前提 = 日本語の文が丸ごと 1 語) + タイトル・抜粋の trigram 類似度だけで、「飯田」7 件 (含む記事 97)・「下伊那」「子ども」「天竜峡」0 件だった。
 - **判定**: 「語を含むか」。DB 関数 `search_published_posts(text[])` (migration `20261101120000`)。対象はタイトル / タグ / カテゴリ / 抜粋 / 本文 (`posts.search_body` = HTML を除いた生成列)。複数語は AND、全角半角・大小文字はそろえる (NFKC + lower)。記事 ~100 件なので全件走査で十分 (索引なし)
