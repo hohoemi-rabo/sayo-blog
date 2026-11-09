@@ -53,7 +53,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryUrls: MetadataRoute.Sitemap =
     categories?.map((category) => ({
-      url: `${SITE_CONFIG.url}/blog?category=${category.slug}`,
+      // /blog?category= は canonical が /blog なので載せない (Search Console で「代替ページ」になる)。
+      // カテゴリ一覧 /{slug} は自分自身が canonical
+      url: `${SITE_CONFIG.url}/${category.slug}`,
       lastModified: new Date(category.updated_at),
       changeFrequency: 'daily' as const,
       priority: 0.6,
