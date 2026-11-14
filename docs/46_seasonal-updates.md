@@ -77,7 +77,8 @@
 ### 実装 (2026-11-14)
 
 - ①: `RecentlyUpdatedArticles` に `variant="home"` を足してトップの Pick Up の上に置いた (選び方は記事ページ下部と同じ。見出しは Pick Up と同じ中央 + 飾り線)。**上の枠や Pick Up と同じ記事が出ても重複は除かない** (役割が別 + 更新した記事が少ないうちに消えてしまうため)
-- ②: `recentUpdateBadgeDate()` (`post-updates.ts`, テストあり) = 「最終更新」が日本時間の今日から 30 日以内 (`RECENT_UPDATE_BADGE_DAYS`) なら印。未来の日付は出さない。印は `UpdatedBadge.tsx` (マウスオーバーで最終更新日)。色は深い青緑 (teal-700) = サイトのピンク・カテゴリの色と重ならない色 (最初ピンクにしたら埋もれた)
+- ②: `recentUpdateBadgeDate()` (`post-updates.ts`, テストあり) = 「最終更新」が日本時間の今日から 30 日以内 (`RECENT_UPDATE_DAYS`) なら印。未来の日付は出さない。印は `UpdatedBadge.tsx` (マウスオーバーで最終更新日)。色は深い青緑 (teal-700) = サイトのピンク・カテゴリの色と重ならない色 (最初ピンクにしたら埋もれた)
   - 出る場所: `PostCard` (トップの Pick Up・/blog・カテゴリ一覧・検索・関連記事) と トップの特集 / みんなの投稿 / ランダム 3 件
   - 一覧のクエリを `post-queries.ts::POST_CARD_SELECT` (`post_updates(updated_on)` 入り) に一本化 (home-posts / 関連記事 / 検索で別々に書いていた同じ SELECT もまとめた)
   - ISR のページ (トップ・記事ページ) は 1 時間ごとに作り直すので、30 日を過ぎた印が消えるのも最大 1 時間遅れ
+- **「最近更新された記事」も更新から 30 日で消す** (2026-11-14 紗代さん決定。それまでは期間の区切りが無く、何か月も前の更新が残り続けた)。トップ・記事ページ下部の両方。0 件になったら見出しごと出ない。範囲は `recentUpdateRange()` (日本時間の今日から 30 日前〜今日) で、カードの印と同じ `RECENT_UPDATE_DAYS`
