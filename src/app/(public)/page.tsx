@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import HeroSection from '@/components/HeroSection'
 import PostCard from '@/components/PostCard'
 import HomeHighlights from '@/components/HomeHighlights'
+import RecentlyUpdatedArticles from '@/components/RecentlyUpdatedArticles'
 import { getHomePosts } from '@/lib/home-posts'
 import { SITE_CONFIG } from '@/lib/site-config'
 
@@ -26,6 +27,9 @@ export default async function HomePage() {
     <>
       <HeroSection />
       <HomeHighlights feature={feature} report={report} randomPosts={randomPosts} />
+
+      {/* 更新履歴を書いた記事 (Ticket 46)。0 件なら何も出ない。上の枠や Pick Up と同じ記事が出ることはある (役割が別のため重複は除かない) */}
+      <RecentlyUpdatedArticles variant="home" />
 
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* Section heading */}

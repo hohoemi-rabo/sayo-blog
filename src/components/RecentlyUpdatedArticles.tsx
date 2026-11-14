@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { articlePath } from '@/lib/seo-utils'
+import { cn } from '@/lib/utils'
+import UpdatedBadge from './UpdatedBadge'
 import {
   formatDateStringDot,
   pickRecentlyUpdatedPostIds,
@@ -30,17 +32,22 @@ interface Row {
 }
 
 interface RecentlyUpdatedArticlesProps {
-  /** いま見ている記事 (一覧に出さない) */
-  currentPostId: string
+  /** いま見ている記事 (一覧に出さない)。トップでは渡さない */
+  currentPostId?: string
+  /** article = 記事ページ下部 (関連記事と同じ見出し) / home = トップの Pick Up の上 (Pick Up と同じ見出し) */
+  variant?: 'article' | 'home'
 }
 
 /**
- * 記事ページ下部の「最近更新された記事」(Ticket 46)。更新履歴の新しい順に最大 3 件。
+ * 「最近更新された記事」(Ticket 46)。記事ページ下部とトップ (Pick Up の上) で共用。更新履歴の新しい順に最大 3 件。
  * 「最終更新」が出ている記事だけ (= 初回掲載日より後の履歴がある)。終了イベントは出さない (トップと同じ)。
  * 非公開の記事の履歴は anon の RLS で読めない。1 件も無ければ何も出さない。
  * 記事ページは ISR (1 時間) なので、ほかの記事を更新してからここに並ぶまで最大 1 時間かかる。
  */
-export default async function RecentlyUpdatedArticles({ currentPostId }: RecentlyUpdatedArticlesProps) {
+export default async function RecentlyUpdatedArticles({
+  currentPostId,
+  variant = 'article',
+}: RecentlyUpdatedArticlesProps) {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('post_updates')
@@ -63,17 +70,39 @@ export default async function RecentlyUpdatedArticles({ currentPostId }: Recentl
   const rows = ((data ?? []) as unknown as Row[]).filter(
     (r) => r.post && (!r.post.published_at || r.updated_on > toJstDateString(r.post.published_at))
   )
-  const ids = pickRecentlyUpdatedPostIds(rows, currentPostId, RECENTLY_UPDATED_COUNT)
+  const ids = pickRecentlyUpdatedPostIds(rows, currentPostId ?? null, RECENTLY_UPDATED_COUNT)
   if (ids.length === 0) return null
 
   // 各記事の最新の履歴 (rows は新しい順なので最初に出てきた行)
   const items = ids.map((id) => rows.find((r) => r.post_id === id)!)
 
+  const isHome = variant === 'home'
+
   return (
-    <section className="mt-16 pt-12 border-t border-border-decorative">
-      <h2 className="text-2xl lg:text-3xl font-playfair font-bold text-text-primary mb-8">
-        最近更新された記事
-      </h2>
+    <section
+      className={cn(
+        isHome
+          ? 'container mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16'
+          : 'mt-16 pt-12 border-t border-border-decorative'
+      )}
+    >
+      {isHome ? (
+        // トップは Pick Up と同じ見出しの形 (中央 + 飾り線)
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-playfair font-bold text-text-primary mb-3">
+            最近更新された記事
+          </h2>
+          <div aria-hidden="true" className="flex items-center justify-center">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="mx-3 w-1.5 h-1.5 rounded-full bg-primary" />
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary to-transparent" />
+          </div>
+        </div>
+      ) : (
+        <h2 className="text-2xl lg:text-3xl font-playfair font-bold text-text-primary mb-8">
+          最近更新された記事
+        </h2>
+      )}
       <ul className="grid gap-4 md:grid-cols-3">
         {items.map(({ post, updated_on }) => {
           const p = post!
@@ -104,9 +133,7 @@ export default async function RecentlyUpdatedArticles({ currentPostId }: Recentl
                     <span className="whitespace-nowrap">
                       最終更新 <time dateTime={updated_on}>{formatDateStringDot(updated_on)}</time>
                     </span>
-                    <span className="shrink-0 whitespace-nowrap rounded-full bg-primary/80 px-2 py-0.5 text-[10px] font-medium leading-normal text-white">
-                      更新
-                    </span>
+                    <UpdatedBadge />
                   </div>
                 </div>
               </Link>
