@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import { Hashtag, PostWithRelations } from '@/lib/types'
 import { hashtagPath } from '@/lib/seo-utils'
+import { POST_CARD_SELECT } from '@/lib/post-queries'
 import {
   buildSnippet,
   htmlToPlainText,
@@ -78,17 +79,7 @@ async function searchPosts(terms: string[], page: number): Promise<SearchResult>
   const postIds = rows.map((r) => r.id)
   const { data: posts, error: postsError } = await supabase
     .from('posts')
-    .select(
-      `
-      *,
-      post_categories!inner(
-        categories!inner(id, slug, name, parent_id)
-      ),
-      post_hashtags(
-        hashtags(id, name, slug, count)
-      )
-    `
-    )
+    .select(POST_CARD_SELECT)
     .in('id', postIds)
     .eq('is_published', true)
 

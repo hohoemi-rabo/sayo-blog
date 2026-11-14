@@ -3,9 +3,11 @@ import Link from 'next/link'
 import CategoryBadge from './CategoryBadge'
 import EventEndedOverlay from './EventEndedOverlay'
 import HashtagList from './HashtagList'
+import UpdatedBadge from './UpdatedBadge'
 import { PostWithRelations } from '@/lib/types'
 import { articlePath } from '@/lib/seo-utils'
 import type { SnippetSegment } from '@/lib/search-text'
+import { recentUpdateBadgeDate } from '@/lib/post-updates'
 
 interface PostCardProps {
   post: PostWithRelations
@@ -57,6 +59,8 @@ export default function PostCard({ post, snippet }: PostCardProps) {
       .filter((h): h is NonNullable<typeof h> => h !== null) || []
 
   const postUrl = articlePath(category?.slug, post.slug)
+  // 最終更新から 30 日以内なら「更新」の印 (post_updates はカード用のクエリでだけ付く)
+  const updatedOn = recentUpdateBadgeDate(post.post_updates, post.published_at)
 
   return (
     <article className="group bg-background rounded-xl overflow-hidden shadow-decorative hover:shadow-decorative-lg transition-all duration-300">
@@ -120,9 +124,12 @@ export default function PostCard({ post, snippet }: PostCardProps) {
 
         {/* Meta info */}
         <div className="flex items-center gap-4 text-xs text-text-secondary font-noto-sans-jp">
-          <time dateTime={post.published_at || post.created_at}>
-            {formatDate(post.published_at || post.created_at)}
-          </time>
+          <span className="flex items-center gap-2">
+            <time dateTime={post.published_at || post.created_at}>
+              {formatDate(post.published_at || post.created_at)}
+            </time>
+            {updatedOn && <UpdatedBadge date={updatedOn} />}
+          </span>
           <span className="flex items-center gap-1 text-sm">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

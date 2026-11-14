@@ -1,15 +1,20 @@
 import { createClient } from '@/lib/supabase'
 import { PostWithRelations } from '@/lib/types'
 
-// 一覧系 (blog / category / /api/posts) で共通の posts SELECT
-const POST_LIST_SELECT = `
+/**
+ * 記事カード (PostCard / トップの枠) に出す記事の posts SELECT。
+ * blog / category / /api/posts / トップ / 関連記事 / 検索で共用 (カテゴリ無しの記事は inner join で除く)。
+ * post_updates はカードの「更新」の印 (Ticket 46) の判定用に日付だけ
+ */
+export const POST_CARD_SELECT = `
   *,
   post_categories!inner(
     categories!inner(id, slug, name, parent_id)
   ),
   post_hashtags(
     hashtags(id, name, slug, count)
-  )
+  ),
+  post_updates(updated_on)
 `
 
 export interface PostListFilters {
@@ -63,7 +68,7 @@ export async function fetchPublishedPosts({
 
   let query = supabase
     .from('posts')
-    .select(POST_LIST_SELECT, { count: 'exact' })
+    .select(POST_CARD_SELECT, { count: 'exact' })
     .eq('is_published', true)
 
   if (matchingPostIds) {

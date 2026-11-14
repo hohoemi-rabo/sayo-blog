@@ -134,6 +134,31 @@ export function contentModifiedAt(
   return publishedAt || fallback
 }
 
+/** カードに「更新」の印を出す期間 (最終更新から何日。紗代さんの決定 2026-11-14) */
+export const RECENT_UPDATE_BADGE_DAYS = 30
+
+/** YYYY-MM-DD 同士の日数差 (to - from) */
+function daysBetween(from: string, to: string): number {
+  const ms = Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)
+  return Math.round(ms / 86_400_000)
+}
+
+/**
+ * 一覧のカードに「更新」の印を出すなら、その最終更新日 (YYYY-MM-DD)。出さないなら null。
+ * 最終更新 (= lastUpdatedOn) が日本時間の今日から RECENT_UPDATE_BADGE_DAYS 日以内のときだけ。
+ * 未来の日付 (書き間違い) は印を出さない
+ */
+export function recentUpdateBadgeDate(
+  updates: Pick<PostUpdateEntry, 'updated_on'>[] | null | undefined,
+  publishedAt: string | null | undefined,
+  now: Date = new Date()
+): string | null {
+  const last = lastUpdatedOn(updates ?? [], publishedAt)
+  if (!last) return null
+  const age = daysBetween(last, toJstDateString(now))
+  return age >= 0 && age <= RECENT_UPDATE_BADGE_DAYS ? last : null
+}
+
 export interface RecentlyUpdatedRow {
   post_id: string
   updated_on: string

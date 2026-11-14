@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase'
 import PostCard from './PostCard'
 import { PostWithRelations } from '@/lib/types'
+import { POST_CARD_SELECT } from '@/lib/post-queries'
 import {
   RELATED_POSTS_COUNT,
   selectRelatedPostIds,
@@ -13,12 +14,6 @@ interface RelatedArticlesProps {
   categoryIds: string[]
   hashtagSlugs: string[]
 }
-
-const CARD_SELECT = `
-  *,
-  post_categories!inner(categories!inner(id, name, slug, parent_id)),
-  post_hashtags(hashtags(id, name, slug, count))
-`
 
 /** 選定用は本文 (content) を取らない軽い列だけ。カードと同じくカテゴリ無しの記事は除く */
 const CANDIDATE_SELECT = `
@@ -123,7 +118,7 @@ export default async function RelatedArticles({
 
   const { data: posts, error } = await supabase
     .from('posts')
-    .select(CARD_SELECT)
+    .select(POST_CARD_SELECT)
     .in('id', ids)
     .eq('is_published', true)
   if (error) console.error('[RelatedArticles] cards query failed:', error)

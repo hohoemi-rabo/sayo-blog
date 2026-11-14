@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase'
 import { PostWithRelations } from '@/lib/types'
 import { PICKUP_COUNT } from '@/lib/home-slots'
+import { POST_CARD_SELECT } from '@/lib/post-queries'
 
 /**
  * トップページに並べる記事をまとめて決める (Ticket 44 / 2026-10-31 に枠の役割を変更)。
@@ -20,16 +21,6 @@ import { PICKUP_COUNT } from '@/lib/home-slots'
  * そのため 1 回目は並列 (ランダム候補は id だけ)、2 回目で当選した 3 件の本体を取る。
  */
 
-const SELECT = `
-  *,
-  post_categories!inner(
-    categories!inner(id, slug, name, parent_id)
-  ),
-  post_hashtags(
-    hashtags(id, name, slug, count)
-  )
-`
-
 const RANDOM_COUNT = 3
 /** ★の上限 (管理画面の toggleFeatured と同じ) = Pick Up の枠数 */
 const FEATURED_MAX = PICKUP_COUNT
@@ -46,7 +37,7 @@ export async function getHomePosts(): Promise<HomePosts> {
   const supabase = createClient()
   // 固定枠の候補 = 公開中 かつ 終了イベントではない記事
   const published = () =>
-    supabase.from('posts').select(SELECT).eq('is_published', true).eq('event_ended', false)
+    supabase.from('posts').select(POST_CARD_SELECT).eq('is_published', true).eq('event_ended', false)
 
   const [starredRes, latestRes, longRes, miniRes, candidateRes] = await Promise.all([
     published()
@@ -124,7 +115,7 @@ async function fetchPostsByIds(
   ids: string[]
 ): Promise<PostWithRelations[]> {
   if (ids.length === 0) return []
-  const { data, error } = await supabase.from('posts').select(SELECT).in('id', ids)
+  const { data, error } = await supabase.from('posts').select(POST_CARD_SELECT).in('id', ids)
   if (error) {
     console.error('Error fetching home random posts:', error)
     return []

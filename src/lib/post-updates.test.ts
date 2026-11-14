@@ -9,6 +9,7 @@ import {
   lastUpdatedOn,
   normalizeUpdateEntries,
   pickRecentlyUpdatedPostIds,
+  recentUpdateBadgeDate,
   toJstDateString,
 } from './post-updates.ts'
 
@@ -84,4 +85,27 @@ test('toJstDatetimeLocal / fromJstDatetimeLocal: 日本時間で往復しても�
   const iso = '2026-05-11T16:00:00.000Z' // = 2026-05-12 01:00 JST
   assert.equal(toJstDatetimeLocal(iso), '2026-05-12T01:00')
   assert.equal(fromJstDatetimeLocal(toJstDatetimeLocal(iso)), iso)
+})
+
+test('recentUpdateBadgeDate: 最終更新から 30 日 (日本時間) までだけ印を出す', () => {
+  const published = '2026-05-12T01:00:00+09:00'
+  const now = new Date('2026-11-14T10:00:00+09:00')
+  const updates = [{ updated_on: '2026-10-15' }]
+  assert.equal(recentUpdateBadgeDate(updates, published, now), '2026-10-15') // 30 日前
+  assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-10-14' }], published, now), null) // 31 日前
+  assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-11-14' }], published, now), '2026-11-14') // 当日
+  // UTC ではまだ 11-13 でも、日本時間で 11-14 なら当日扱い
+  assert.equal(
+    recentUpdateBadgeDate([{ updated_on: '2026-11-14' }], published, new Date('2026-11-13T16:00:00Z')),
+    '2026-11-14'
+  )
+})
+
+test('recentUpdateBadgeDate: 履歴なし・初回掲載以前・未来の日付は出さない', () => {
+  const now = new Date('2026-11-14T10:00:00+09:00')
+  assert.equal(recentUpdateBadgeDate([], '2026-05-12T01:00:00+09:00', now), null)
+  assert.equal(recentUpdateBadgeDate(null, '2026-05-12T01:00:00+09:00', now), null)
+  // 公開日と同じ日の履歴 = 最終更新が出ない記事
+  assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-11-10' }], '2026-11-10T09:00:00+09:00', now), null)
+  assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-11-20' }], '2026-05-12T01:00:00+09:00', now), null)
 })

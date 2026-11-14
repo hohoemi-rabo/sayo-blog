@@ -100,6 +100,8 @@ export interface PostWithRelations extends Post {
   post_hashtags: Array<{
     hashtags: Hashtag
   }>
+  /** 更新履歴の日付だけ (カードの「更新」の印用, Ticket 46)。一覧系のクエリ (POST_CARD_SELECT) でだけ付く */
+  post_updates?: Array<{ updated_on: string }> | null
 }
 
 // Component prop types

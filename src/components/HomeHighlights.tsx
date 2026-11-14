@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils'
 import { PostWithRelations } from '@/lib/types'
 import { SUMMARY_ANCHOR_ID, SUMMARY_LEVELS, type SummaryLevel } from '@/lib/summary-levels'
 import { formatDotDate, postHref } from '@/lib/home-posts'
+import { recentUpdateBadgeDate } from '@/lib/post-updates'
+import UpdatedBadge from './UpdatedBadge'
 
 /**
  * 注: globals.css が素の <a> をピンクにするため、カード内のリンクは文字色を明示している。
@@ -39,6 +41,12 @@ export default function HomeHighlights({
 
 function excerptOf(post: PostWithRelations): string {
   return post.excerpt?.trim() || post.summary_short?.trim() || ''
+}
+
+/** 最終更新から 30 日以内なら「更新」の印 (PostCard と同じ決まり) */
+function UpdatedMark({ post, className }: { post: PostWithRelations; className?: string }) {
+  const updatedOn = recentUpdateBadgeDate(post.post_updates, post.published_at)
+  return updatedOn ? <UpdatedBadge date={updatedOn} className={className} /> : null
 }
 
 function categoryOf(post: PostWithRelations) {
@@ -90,6 +98,7 @@ function FeatureCard({ post, className }: { post: PostWithRelations; className?:
         <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-3 font-noto-sans-jp text-sm text-white/85">
             <time dateTime={post.published_at}>{formatDotDate(post.published_at)}</time>
+            <UpdatedMark post={post} />
             {category && (
               <Link
                 href={`/${category.slug}`}
@@ -178,6 +187,7 @@ function ReportCard({ post, className }: { post: PostWithRelations; className?: 
         )}
         <div className="mt-auto flex items-center gap-3 pt-4 font-noto-sans-jp text-sm text-text-secondary">
           <time dateTime={post.published_at}>{formatDotDate(post.published_at)}</time>
+          <UpdatedMark post={post} />
           {category && (
             <Link
               href={`/${category.slug}`}
@@ -230,8 +240,9 @@ function RandomPostList({ posts, className }: { posts: PostWithRelations[]; clas
                 )}
               </div>
               <div className="min-w-0">
-                <p className="font-noto-sans-jp text-xs text-text-secondary">
+                <p className="flex items-center gap-2 font-noto-sans-jp text-xs text-text-secondary">
                   {formatDotDate(post.published_at)}
+                  <UpdatedMark post={post} />
                 </p>
                 <p className="mt-0.5 line-clamp-2 font-noto-sans-jp text-sm font-medium leading-snug text-text-primary group-hover:text-hoisa group-focus-visible:underline">
                   {post.title}
