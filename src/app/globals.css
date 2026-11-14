@@ -212,6 +212,52 @@
     outline: none;
   }
 
+  /* 記事エディタの「タグを表示」: 行ごとのタグ名を左の余白に出す (RichTextEditorClient の show-block-tags)。
+     ::before は Placeholder 拡張が空の段落で使うので ::after を使う。
+     箇条書きの中の p (li > p) は ul / ol と二重になるので出さない */
+  .show-block-tags .ProseMirror {
+    padding-left: 4.25rem;
+  }
+  .show-block-tags .ProseMirror :is(h1, h2, h3, p, ul, ol, blockquote, hr, figure, .editor-box) {
+    position: relative;
+  }
+  .show-block-tags .ProseMirror :is(h1, h2, h3, p, ul, ol, blockquote, hr, figure, .editor-box)::after {
+    position: absolute;
+    top: 0.15em;
+    left: -3.75rem;
+    width: 3.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 600;
+    font-style: normal;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-align: right;
+    color: #857a71;
+    pointer-events: none;
+    user-select: none;
+  }
+  .show-block-tags .ProseMirror h1::after { content: 'h1'; color: var(--color-primary); }
+  .show-block-tags .ProseMirror h2::after { content: 'h2'; color: var(--color-primary); }
+  .show-block-tags .ProseMirror h3::after { content: 'h3'; color: var(--color-primary); }
+  .show-block-tags .ProseMirror p::after { content: 'p'; }
+  .show-block-tags .ProseMirror ul::after { content: 'ul'; }
+  .show-block-tags .ProseMirror ol::after { content: 'ol'; }
+  .show-block-tags .ProseMirror blockquote::after { content: '引用'; }
+  .show-block-tags .ProseMirror hr::after { content: 'hr'; top: -0.6em; }
+  .show-block-tags .ProseMirror figure::after { content: '画像'; }
+  .show-block-tags .ProseMirror .editor-box::after { content: 'box'; }
+  .show-block-tags .ProseMirror li > p::after,
+  .show-block-tags .ProseMirror figure figcaption::after {
+    content: none;
+  }
+  /* 入れ子 (ボックス・引用の中) は外側の枠と重ならないよう、行頭の内側に寄せて小さく出す */
+  .show-block-tags .ProseMirror :is(.editor-box, blockquote) :is(h1, h2, h3, p)::after {
+    left: -2.6rem;
+    width: 2.2rem;
+    font-size: 11px;
+  }
+
   /* 選択されたfigureノードのハイライト */
   .editor-figure.ProseMirror-selectednode {
     outline: 2px solid var(--color-primary);

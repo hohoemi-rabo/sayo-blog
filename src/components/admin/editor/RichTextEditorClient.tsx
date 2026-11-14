@@ -25,12 +25,14 @@ import {
   Code,
   Minus,
   Square,
+  Tags,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditorImagePicker } from './EditorImagePicker'
 import { EditorLinkDialog } from './EditorLinkDialog'
 import { BoxExtension } from './extensions/BoxExtension'
 import { FigureExtension } from './extensions/FigureExtension'
+import { BlockTagBar } from './BlockTagBar'
 
 interface RichTextEditorClientProps {
   content: string
@@ -82,6 +84,8 @@ export function RichTextEditorClient({
 }: RichTextEditorClientProps) {
   const [showImagePicker, setShowImagePicker] = useState(false)
   const [showLinkDialog, setShowLinkDialog] = useState(false)
+  // 行ごとのタグ (h2 / p など) を左の余白に出す。普段は出さない (ボタンで切り替え)
+  const [showBlockTags, setShowBlockTags] = useState(false)
   const [linkDialogState, setLinkDialogState] = useState({
     initialUrl: '',
     selectedText: '',
@@ -179,7 +183,12 @@ export function RichTextEditorClient({
   }
 
   return (
-    <div className="border border-border-decorative rounded-lg overflow-hidden bg-white">
+    <div
+      className={cn(
+        'border border-border-decorative rounded-lg overflow-hidden bg-white',
+        showBlockTags && 'show-block-tags'
+      )}
+    >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border-decorative bg-gray-50">
         <ToolbarButton
@@ -290,6 +299,20 @@ export function RichTextEditorClient({
 
         <div className="flex-1" />
 
+        <button
+          type="button"
+          onClick={() => setShowBlockTags((v) => !v)}
+          aria-pressed={showBlockTags}
+          title="行ごとのタグ (見出し・本文など) を表示"
+          className={cn(
+            'mr-1 inline-flex items-center gap-1 rounded px-2 py-1.5 text-xs transition-colors hover:bg-gray-100',
+            showBlockTags && 'bg-primary/10 text-primary'
+          )}
+        >
+          <Tags className="h-4 w-4" />
+          {showBlockTags ? 'タグを隠す' : 'タグを表示'}
+        </button>
+
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
@@ -305,6 +328,8 @@ export function RichTextEditorClient({
           <Redo className="h-4 w-4" />
         </ToolbarButton>
       </div>
+
+      {showBlockTags && <BlockTagBar editor={editor} />}
 
       {/* Editor */}
       <EditorContent editor={editor} />
