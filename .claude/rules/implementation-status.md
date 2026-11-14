@@ -101,7 +101,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 ### 記事の更新履歴 + 最近更新された記事 (Ticket 46) — 2026-11-14
 仕様: `docs/46_seasonal-updates.md`。紗代さんのデザイン案 (s1.png) のうち ②更新履歴 / ⑥最近更新された記事 / タイトル位置 だけ。サイドバーは作らない。
 - DB `post_updates` (database.md 17)。ロジック `src/lib/post-updates.ts` + テスト
-- 公開: `ArticleHero` (タイトル・初回掲載 / 最終更新を写真の上に、日付は JST) / `ArticleUpdateNotice` (写真下の帯, Client = なめらかスクロール) / `ArticleUpdateHistory` (本文の外・タグの上, id `update-history`。全記事に出す = 履歴が無ければ「初回掲載」の行だけ。帯は更新した記事だけ) / `RecentlyUpdatedArticles` (関連記事の下, Suspense)。`ArticleMeta` の日付も同じ値
+- 公開: `ArticleHero` (タイトル・初回掲載 / 最終更新を写真の上に、日付は JST) / `ArticleUpdateNotice` (写真下の帯, Client = なめらかスクロール) / `ArticleUpdateHistory` (本文の外・タグの上, id `update-history`。全記事に出す = 履歴が無ければ「初回掲載」の行だけ。新しい 5 行まで (`PUBLIC_UPDATE_HISTORY_LIMIT`) + 初回掲載。帯は更新した記事だけ) / `RecentlyUpdatedArticles` (関連記事の下, Suspense)。`ArticleMeta` の日付も同じ値
 - 「最終更新」・dateModified・og:modified_time・サイトマップ lastmod = 履歴の最新日 → 無ければ公開日時 (`contentModifiedAt`)。誤字直しの保存では変わらない
 - 管理: `UpdateHistorySection` (記事編集・編集時のみ)。`PostFormData.update_entries` → `updatePost` が検証 (`normalizeUpdateEntries`) → delete → insert。編集画面で履歴を読めなかったときは保存で触らない (空で上書きして消さないため)
 - **同時に直した不具合**: 記事編集の「公開日時」欄が UTC で表示され、保存時にブラウザの時刻 (JST) として読み戻していた = **公開済みの記事を保存するたびに公開日時が 9 時間早まっていた**。`toJstDatetimeLocal` / `fromJstDatetimeLocal` で JST に固定。管理プレビューも公開ページと同じ表示 (種類バッジ・目次の切替幅 1440px) に
