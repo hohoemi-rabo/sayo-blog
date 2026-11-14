@@ -99,11 +99,12 @@ export default async function RecentlyUpdatedArticles({ currentPostId }: Recentl
                   <p className="line-clamp-2 font-noto-serif-jp text-sm font-bold leading-snug text-text-primary group-hover:text-primary">
                     {p.title}
                   </p>
-                  <div className="mt-auto flex items-center gap-2 pt-2 font-noto-sans-jp text-xs text-text-secondary">
-                    <span>
+                  {/* カードが狭いと「更新」が縦に 2 行へ折れていた → 日付・バッジは折り返さず、行ごと次の行へ回す */}
+                  <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 font-noto-sans-jp text-xs text-text-secondary">
+                    <span className="whitespace-nowrap">
                       最終更新 <time dateTime={updated_on}>{formatDateStringDot(updated_on)}</time>
                     </span>
-                    <span className="rounded-full bg-primary/80 px-2 py-0.5 text-[10px] font-medium text-white">
+                    <span className="shrink-0 whitespace-nowrap rounded-full bg-primary/80 px-2 py-0.5 text-[10px] font-medium leading-normal text-white">
                       更新
                     </span>
                   </div>
