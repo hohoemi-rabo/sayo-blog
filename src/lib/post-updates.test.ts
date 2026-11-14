@@ -10,6 +10,8 @@ import {
   normalizeUpdateEntries,
   pickRecentlyUpdatedPostIds,
   recentUpdateBadgeDate,
+  isRecentUpdateDate,
+  recentUpdateRange,
   toJstDateString,
 } from './post-updates.ts'
 
@@ -108,4 +110,16 @@ test('recentUpdateBadgeDate: 履歴なし・初回掲載以前・未来の日付
   // 公開日と同じ日の履歴 = 最終更新が出ない記事
   assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-11-10' }], '2026-11-10T09:00:00+09:00', now), null)
   assert.equal(recentUpdateBadgeDate([{ updated_on: '2026-11-20' }], '2026-05-12T01:00:00+09:00', now), null)
+})
+
+test('recentUpdateRange / isRecentUpdateDate: 日本時間の今日から 30 日前まで (両端を含む)', () => {
+  const now = new Date('2026-11-14T10:00:00+09:00')
+  assert.deepEqual(recentUpdateRange(now), { from: '2026-10-15', to: '2026-11-14' })
+  // UTC ではまだ 11-13 でも日本時間で 11-14
+  assert.deepEqual(recentUpdateRange(new Date('2026-11-13T16:00:00Z')), { from: '2026-10-15', to: '2026-11-14' })
+  // 月・年をまたぐ
+  assert.deepEqual(recentUpdateRange(new Date('2026-01-10T12:00:00+09:00')), { from: '2025-12-11', to: '2026-01-10' })
+  assert.equal(isRecentUpdateDate('2026-10-15', now), true)
+  assert.equal(isRecentUpdateDate('2026-10-14', now), false)
+  assert.equal(isRecentUpdateDate('2026-11-15', now), false)
 })

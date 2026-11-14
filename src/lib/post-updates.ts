@@ -134,8 +134,11 @@ export function contentModifiedAt(
   return publishedAt || fallback
 }
 
-/** カードに「更新」の印を出す期間 (最終更新から何日。紗代さんの決定 2026-11-14) */
-export const RECENT_UPDATE_BADGE_DAYS = 30
+/**
+ * 「最近の更新」として扱う期間 (最終更新から何日。紗代さんの決定 2026-11-14)。
+ * カードの「更新」の印と「最近更新された記事」(トップ・記事ページ下部) の両方がこの日数で消える
+ */
+export const RECENT_UPDATE_DAYS = 30
 
 /** YYYY-MM-DD 同士の日数差 (to - from) */
 function daysBetween(from: string, to: string): number {
@@ -144,8 +147,26 @@ function daysBetween(from: string, to: string): number {
 }
 
 /**
+ * 「最近の更新」に入る日付の範囲 (YYYY-MM-DD, 両端を含む)。日本時間の今日から RECENT_UPDATE_DAYS 日前 〜 今日。
+ * 未来の日付 (書き間違い) は入れない
+ */
+export function recentUpdateRange(now: Date = new Date()): { from: string; to: string } {
+  const to = toJstDateString(now)
+  const from = new Date(Date.parse(`${to}T00:00:00Z`) - RECENT_UPDATE_DAYS * 86_400_000)
+    .toISOString()
+    .slice(0, 10)
+  return { from, to }
+}
+
+/** その日付 (YYYY-MM-DD) が「最近の更新」の範囲に入るか */
+export function isRecentUpdateDate(date: string, now: Date = new Date()): boolean {
+  const age = daysBetween(date, toJstDateString(now))
+  return age >= 0 && age <= RECENT_UPDATE_DAYS
+}
+
+/**
  * 一覧のカードに「更新」の印を出すなら、その最終更新日 (YYYY-MM-DD)。出さないなら null。
- * 最終更新 (= lastUpdatedOn) が日本時間の今日から RECENT_UPDATE_BADGE_DAYS 日以内のときだけ。
+ * 最終更新 (= lastUpdatedOn) が日本時間の今日から RECENT_UPDATE_DAYS 日以内のときだけ。
  * 未来の日付 (書き間違い) は印を出さない
  */
 export function recentUpdateBadgeDate(
@@ -154,9 +175,7 @@ export function recentUpdateBadgeDate(
   now: Date = new Date()
 ): string | null {
   const last = lastUpdatedOn(updates ?? [], publishedAt)
-  if (!last) return null
-  const age = daysBetween(last, toJstDateString(now))
-  return age >= 0 && age <= RECENT_UPDATE_BADGE_DAYS ? last : null
+  return last && isRecentUpdateDate(last, now) ? last : null
 }
 
 export interface RecentlyUpdatedRow {
