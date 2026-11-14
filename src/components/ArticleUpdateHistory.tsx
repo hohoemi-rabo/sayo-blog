@@ -1,5 +1,10 @@
 import { History } from 'lucide-react'
-import { UPDATE_HISTORY_ANCHOR_ID, formatDateStringDot, type PostUpdateEntry } from '@/lib/post-updates'
+import {
+  PUBLIC_UPDATE_HISTORY_LIMIT,
+  UPDATE_HISTORY_ANCHOR_ID,
+  formatDateStringDot,
+  type PostUpdateEntry,
+} from '@/lib/post-updates'
 import { formatDotDate } from '@/lib/home-posts'
 
 interface ArticleUpdateHistoryProps {
@@ -12,6 +17,7 @@ interface ArticleUpdateHistoryProps {
  * 本文の後ろに出す更新履歴 (Ticket 46)。全記事に出す (履歴が無ければ「初回掲載」の 1 行だけ)。
  * 一番下の「初回掲載」の行は公開日から自動で作る (DB には持たない = 公開日を直せば表示もついてくる)。
  * 写真の下の帯 (ArticleUpdateNotice) は、実際に更新した記事だけ。
+ * 出すのは新しい 5 行まで (PUBLIC_UPDATE_HISTORY_LIMIT) + 「初回掲載」。「最終更新」の日付は全行から決める
  */
 export function ArticleUpdateHistory({ updates, publishedAt }: ArticleUpdateHistoryProps) {
   return (
@@ -28,7 +34,7 @@ export function ArticleUpdateHistory({ updates, publishedAt }: ArticleUpdateHist
         更新履歴
       </h2>
       <ol className="divide-y divide-border-decorative/50 px-5 font-noto-sans-jp text-sm">
-        {updates.map((u, i) => (
+        {updates.slice(0, PUBLIC_UPDATE_HISTORY_LIMIT).map((u, i) => (
           <li key={`${u.updated_on}-${i}`} className="flex gap-4 py-3">
             <time dateTime={u.updated_on} className="w-20 shrink-0 text-text-secondary">
               {formatDateStringDot(u.updated_on)}

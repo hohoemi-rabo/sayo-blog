@@ -11,6 +11,8 @@
 export const POST_UPDATE_NOTE_MAX = 100
 /** 1 記事に残せる履歴の上限 (画面が長くなりすぎないように) */
 export const POST_UPDATES_MAX = 50
+/** 公開ページの更新履歴に出す行数 (新しい順。古い行は管理画面にだけ残る。「初回掲載」の行は別に必ず出す) */
+export const PUBLIC_UPDATE_HISTORY_LIMIT = 5
 /** 公開ページの更新履歴の見出しの id (帯の「更新履歴を見る」の飛び先) */
 export const UPDATE_HISTORY_ANCHOR_ID = 'update-history'
 

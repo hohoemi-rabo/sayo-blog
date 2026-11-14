@@ -7,6 +7,7 @@ import { Plus, X } from 'lucide-react'
 import {
   POST_UPDATE_NOTE_MAX,
   POST_UPDATES_MAX,
+  PUBLIC_UPDATE_HISTORY_LIMIT,
   formatDateStringDot,
   toJstDateString,
 } from '@/lib/post-updates'
@@ -140,7 +141,7 @@ export function UpdateHistorySection({
           {showsLastUpdated
             ? `保存すると、記事に「最終更新 ${formatDateStringDot(latest!)}」と表示されます。`
             : '初回掲載日より後の日付の履歴があると、記事に「最終更新」が出ます。'}
-          履歴の一番下には「初回掲載」の行が自動で付きます。
+          記事に出るのは新しい {PUBLIC_UPDATE_HISTORY_LIMIT} 行までで、その下に「初回掲載」の行が自動で付きます。
         </p>
       )}
     </Card>
