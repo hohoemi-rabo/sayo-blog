@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase'
 import { SITE_CONFIG } from '@/lib/site-config'
 import { articlePath } from '@/lib/seo-utils'
+import { contentModifiedAt } from '@/lib/post-updates'
 
 // 何もしないとデプロイ時に 1 回作ったきりになり、公開した記事が次のデプロイまで載らない。
 // 記事の保存・削除時は posts/actions.ts が作り直すので、これは取りこぼしの保険。
@@ -17,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       `
       slug,
       updated_at,
+      published_at,
+      post_updates(updated_on),
       post_categories!inner(
         categories!inner(slug)
       )
@@ -27,6 +30,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   type PostData = {
     slug: string
     updated_at: string
+    published_at: string | null
+    post_updates: Array<{ updated_on: string }> | null
     post_categories: Array<{
       categories: { slug: string }
     }>
@@ -39,7 +44,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       return {
         url: `${SITE_CONFIG.url}${articlePath(categorySlug, post.slug)}`,
-        lastModified: new Date(post.updated_at),
+        // 記事ページの「最終更新」・dateModified と同じ (更新履歴の最新日 → 無ければ公開日時)。
+        // 誤字直しでも変わる updated_at を使うと、Google がサイトの lastmod を信用しなくなる
+        lastModified: new Date(
+          contentModifiedAt(post.post_updates ?? [], post.published_at, post.updated_at)
+        ),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
       }

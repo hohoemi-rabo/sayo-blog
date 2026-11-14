@@ -7,7 +7,12 @@ import type { Post } from '@/lib/types'
  */
 export function generateArticleSchema(
   post: Pick<Post, 'title' | 'excerpt' | 'thumbnail_url' | 'published_at' | 'updated_at' | 'slug'>,
-  categorySlug: string
+  categorySlug: string,
+  /**
+   * 中身を更新した日時 (更新履歴の最新日。`contentModifiedAt`)。画面の「最終更新」とそろえるため、
+   * 誤字直しでも変わる updated_at ではなくこちらを使う
+   */
+  modifiedAt: string
 ) {
   return {
     '@context': 'https://schema.org',
@@ -16,7 +21,7 @@ export function generateArticleSchema(
     description: post.excerpt || post.title,
     image: post.thumbnail_url || `${SITE_CONFIG.url}${SITE_CONFIG.ogImage.path}`,
     datePublished: post.published_at || post.updated_at,
-    dateModified: post.updated_at,
+    dateModified: modifiedAt,
     author: {
       '@type': 'Person',
       name: SITE_CONFIG.author.name,

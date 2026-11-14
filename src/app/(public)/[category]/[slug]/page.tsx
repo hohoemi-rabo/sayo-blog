@@ -28,6 +28,15 @@ import ReactionBar from '@/components/ReactionBar'
 import ScrollFadeIn from '@/components/ScrollFadeIn'
 import { ArticleTypeBadge } from '@/components/ArticleTypeBadge'
 import { SummarySlider } from '@/components/SummarySlider'
+import { ArticleUpdateNotice } from '@/components/ArticleUpdateNotice'
+import { ArticleUpdateHistory } from '@/components/ArticleUpdateHistory'
+import RecentlyUpdatedArticles from '@/components/RecentlyUpdatedArticles'
+import {
+  contentModifiedAt,
+  lastUpdatedOn,
+  sortUpdatesNewestFirst,
+  type PostUpdateEntry,
+} from '@/lib/post-updates'
 
 export const revalidate = 3600 // 1 hour ISR
 
@@ -64,7 +73,8 @@ const getPost = cache(async (rawSlug: string) => {
       ),
       post_hashtags(
         hashtags(id, name, slug, count)
-      )
+      ),
+      post_updates(updated_on, note, created_at)
     `
     )
     .eq('slug', slug)
@@ -74,6 +84,14 @@ const getPost = cache(async (rawSlug: string) => {
   if (error || !data) return null
   return data
 })
+
+/** 更新履歴 (Ticket 46) を新しい順に。同じ日は後から書いた行が先 */
+function getPostUpdates(post: { post_updates?: unknown }): PostUpdateEntry[] {
+  const rows = ((post.post_updates ?? []) as Array<PostUpdateEntry & { created_at: string }>)
+    .slice()
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+  return sortUpdatesNewestFirst(rows).map(({ updated_on, note }) => ({ updated_on, note }))
+}
 
 function getPostCategorySlug(post: { post_categories: unknown }): string | undefined {
   return (post.post_categories as Array<{ categories: { slug: string } }>)[0]?.categories.slug
@@ -157,7 +175,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       images: ogImages,
       type: 'article',
       publishedTime: post.published_at || undefined,
-      modifiedTime: post.updated_at,
+      // 画面の「最終更新」と同じ (更新履歴の最新日。無ければ公開日時)
+      modifiedTime: contentModifiedAt(getPostUpdates(post), post.published_at, post.updated_at),
       authors: [SITE_CONFIG.author.name],
     }),
     twitter: {
@@ -204,10 +223,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     permanentRedirect(`/${firstCategory.slug}/${encodeURIComponent(post.slug)}`)
   }
 
+  // 更新履歴 (Ticket 46)。「最終更新」は初回掲載日より後の履歴があるときだけ
+  const updates = getPostUpdates(post)
+  const lastUpdated = lastUpdatedOn(updates, post.published_at)
+
   // Build JSON-LD structured data
   const articleSchema = generateArticleSchema(
     post,
-    firstCategory?.slug || resolvedParams.category
+    firstCategory?.slug || resolvedParams.category,
+    contentModifiedAt(updates, post.published_at, post.updated_at)
   )
   const breadcrumbItems = [
     { name: 'ホーム', url: SITE_CONFIG.url },
@@ -242,9 +266,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           thumbnail={post.thumbnail_url}
           categories={categories as Category[]}
           publishedAt={post.published_at}
-          updatedAt={post.updated_at}
+          lastUpdatedOn={lastUpdated}
           viewCount={post.view_count}
           eventEnded={post.event_ended ?? false}
+          belowImage={updates.length > 0 ? <ArticleUpdateNotice latest={updates[0]} /> : undefined}
         />
       </div>
 
@@ -267,11 +292,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <ArticleBody content={processedHtml} />
         </ExpandableArticleBody>
 
+        {/* 更新履歴は折りたたみ本文の外 (帯の「更新履歴を見る」から本文を開かずに届くように) */}
+        {/* 履歴が無い記事も「初回掲載」の 1 行だけで出す (帯は更新した記事だけ) */}
+        {(updates.length > 0 || post.published_at) && (
+          <ArticleUpdateHistory updates={updates} publishedAt={post.published_at} />
+        )}
+
         <ArticleMeta
           categories={categories as Category[]}
           hashtags={hashtags as Hashtag[]}
           publishedAt={post.published_at}
-          updatedAt={post.updated_at}
+          lastUpdatedOn={lastUpdated}
           viewCount={post.view_count}
         />
 
@@ -297,6 +328,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               categoryIds={categories.map((c) => c.id)}
               hashtagSlugs={hashtags.map((h) => h.slug)}
             />
+          </ScrollFadeIn>
+        </Suspense>
+        <Suspense fallback={null}>
+          <ScrollFadeIn>
+            <RecentlyUpdatedArticles currentPostId={post.id} />
           </ScrollFadeIn>
         </Suspense>
       </div>

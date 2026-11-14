@@ -3,12 +3,15 @@ import { Calendar, Eye } from 'lucide-react'
 import { Category, Hashtag } from '@/lib/types'
 import CategoryBadge from './CategoryBadge'
 import { hashtagPath } from '@/lib/seo-utils'
+import { formatDotDate } from '@/lib/home-posts'
+import { formatDateStringDot } from '@/lib/post-updates'
 
 interface ArticleMetaProps {
   categories: Category[]
   hashtags: Hashtag[]
   publishedAt?: string | null
-  updatedAt: string
+  /** 更新履歴の最新日 (YYYY-MM-DD)。記事の頭の「最終更新」と同じ値 */
+  lastUpdatedOn: string | null
   viewCount: number
 }
 
@@ -16,19 +19,11 @@ export default function ArticleMeta({
   categories,
   hashtags,
   publishedAt,
-  updatedAt,
+  lastUpdatedOn,
   viewCount,
 }: ArticleMetaProps) {
-  // Format date: YYYY年MM月DD日
-  const formatDate = (dateString?: string | null) => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
-  }
-
-  const formattedPublishedAt = formatDate(publishedAt)
-  const formattedUpdatedAt = formatDate(updatedAt)
-  const showUpdatedAt = publishedAt && updatedAt && publishedAt !== updatedAt
+  // 日付は日本時間 (記事の頭と同じ書き方)
+  const formattedPublishedAt = formatDotDate(publishedAt)
 
   return (
     <footer className="mt-12 pt-8 border-t border-border-decorative">
@@ -74,16 +69,16 @@ export default function ArticleMeta({
         {formattedPublishedAt && (
           <div className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4" />
-            <span>公開:</span>
+            <span>初回掲載</span>
             <time dateTime={publishedAt || ''}>{formattedPublishedAt}</time>
           </div>
         )}
 
         {/* Updated Date */}
-        {showUpdatedAt && (
+        {lastUpdatedOn && (
           <div className="flex items-center gap-1.5">
-            <span>更新:</span>
-            <time dateTime={updatedAt}>{formattedUpdatedAt}</time>
+            <span>最終更新</span>
+            <time dateTime={lastUpdatedOn}>{formatDateStringDot(lastUpdatedOn)}</time>
           </div>
         )}
 

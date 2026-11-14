@@ -16,6 +16,7 @@ import type { ArticleType } from '@/lib/types'
 import { isArticleType, type ArticleTypeTab } from '@/lib/article-types'
 import { PICKUP_COUNT } from '@/lib/home-slots'
 import { RELATED_POSTS_COUNT, rankRelatedOptions } from '@/lib/related-posts'
+import { normalizeUpdateEntries, type PostUpdateEntry } from '@/lib/post-updates'
 
 export type PostFormData = {
   title: string
@@ -48,6 +49,8 @@ export type PostFormData = {
   summary_long?: string | null
   /** 手動で選んだ関連記事 (最大 3 件, 表示順)。空なら公開側が全部自動で選ぶ (Ticket 45) */
   related_post_ids?: string[]
+  /** 更新履歴 (Ticket 46)。undefined なら触らない (新規作成)。保存時に丸ごと置き換える */
+  update_entries?: PostUpdateEntry[]
 }
 
 /** 依頼の種類 = 紐付く記事の article_type (投稿記事 = mini / 取材記事 = long) */
@@ -112,6 +115,32 @@ async function saveRelatedPosts(
   const { error: insErr } = await supabase
     .from('post_related_posts')
     .insert(ids.map((rid, position) => ({ post_id: postId, related_post_id: rid, position })))
+  return insErr ? insErr.message : null
+}
+
+/**
+ * 更新履歴を保存する (delete → insert、関連記事と同じやり方)。
+ * entries は normalizeUpdateEntries を通したもの。undefined なら触らない
+ */
+async function savePostUpdates(
+  supabase: ReturnType<typeof createAdminClient>,
+  postId: string,
+  entries: PostUpdateEntry[] | undefined
+): Promise<string | null> {
+  if (entries === undefined) return null
+  const { error: delErr } = await supabase.from('post_updates').delete().eq('post_id', postId)
+  if (delErr) return delErr.message
+  if (entries.length === 0) return null
+  // 同じ日の行は画面の並び (上が新しい) を created_at で残す
+  const base = Date.now()
+  const { error: insErr } = await supabase.from('post_updates').insert(
+    entries.map((e, i) => ({
+      post_id: postId,
+      updated_on: e.updated_on,
+      note: e.note,
+      created_at: new Date(base - i).toISOString(),
+    }))
+  )
   return insErr ? insErr.message : null
 }
 
@@ -306,6 +335,14 @@ export async function updatePost(id: string, data: PostFormData) {
   await assertAdminAuth()
   const supabase = createAdminClient()
 
+  // 更新履歴は記事を保存する前に確かめる (半端な行のまま記事だけ保存されないように)
+  let updateEntries: PostUpdateEntry[] | undefined
+  if (data.update_entries !== undefined) {
+    const normalized = normalizeUpdateEntries(data.update_entries)
+    if (!normalized.ok) return { success: false, error: normalized.error }
+    updateEntries = normalized.entries
+  }
+
   // Capture the current is_published so we can detect a false -> true transition
   // and trigger IG auto-generation after the save succeeds.
   const { data: current } = await supabase
@@ -397,6 +434,10 @@ export async function updatePost(id: string, data: PostFormData) {
   if (relatedErr) {
     console.error('Related posts save error:', relatedErr)
   }
+  const updatesErr = await savePostUpdates(supabase, id, updateEntries)
+  if (updatesErr) {
+    console.error('Post updates save error:', updatesErr)
+  }
 
   // false → true で公開化したとき、紐づくロング依頼を 'published' に自動更新
   if (!wasPublished && data.is_published) {
@@ -429,13 +470,38 @@ export async function updatePost(id: string, data: PostFormData) {
     after(() => triggerIgAutoGenerate(id))
   }
 
-  if (relatedErr) {
+  if (relatedErr || updatesErr) {
+    const what = [relatedErr && '関連記事', updatesErr && '更新履歴'].filter(Boolean).join('・')
     return {
       success: false,
-      error: `記事は保存しましたが、関連記事の保存に失敗しました。もう一度保存してください (${relatedErr})`,
+      error: `記事は保存しましたが、${what}の保存に失敗しました。もう一度保存してください (${relatedErr || updatesErr})`,
     }
   }
   return { success: true }
+}
+
+export interface SavedPostUpdate extends PostUpdateEntry {
+  id: string
+}
+
+/**
+ * 編集画面を開いたときの更新履歴 (新しい順)。
+ * 読めなかったときは null (空配列にすると、そのまま保存したときに履歴を全部消してしまう)
+ */
+export async function getPostUpdates(postId: string): Promise<SavedPostUpdate[] | null> {
+  await assertAdminAuth()
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('post_updates')
+    .select('id, updated_on, note')
+    .eq('post_id', postId)
+    .order('updated_on', { ascending: false })
+    .order('created_at', { ascending: false })
+  if (error) {
+    console.error('Post updates fetch error:', error)
+    return null
+  }
+  return (data ?? []) as SavedPostUpdate[]
 }
 
 export async function deletePost(id: string) {

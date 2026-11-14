@@ -11,6 +11,10 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import ScrollProgress from '@/components/ScrollProgress'
 import TableOfContents from '@/components/TableOfContents'
 import ImageLightbox from '@/components/ImageLightbox'
+import { ArticleTypeBadge } from '@/components/ArticleTypeBadge'
+import { ArticleUpdateNotice } from '@/components/ArticleUpdateNotice'
+import { ArticleUpdateHistory } from '@/components/ArticleUpdateHistory'
+import { lastUpdatedOn, type PostUpdateEntry } from '@/lib/post-updates'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,10 +37,13 @@ export default async function PostPreviewPage({ params }: PageProps) {
       ),
       post_hashtags(
         hashtags(id, name, slug, count)
-      )
+      ),
+      post_updates(updated_on, note)
     `
     )
     .eq('id', id)
+    .order('updated_on', { referencedTable: 'post_updates', ascending: false })
+    .order('created_at', { referencedTable: 'post_updates', ascending: false })
     .maybeSingle()
 
   if (error || !post) {
@@ -65,6 +72,10 @@ export default async function PostPreviewPage({ params }: PageProps) {
     .filter((h): h is NonNullable<typeof h> => h !== null)
 
   const { processedHtml, headings } = processArticleContent(post.content ?? '')
+
+  // 更新履歴 (Ticket 46)。公開ページと同じ出し方
+  const updates = (post.post_updates ?? []) as PostUpdateEntry[]
+  const lastUpdated = lastUpdatedOn(updates, post.published_at)
 
   return (
     <article className="min-h-screen bg-background">
@@ -104,37 +115,49 @@ export default async function PostPreviewPage({ params }: PageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs categories={categories as Category[]} title={post.title} />
 
+        {post.article_type && post.article_type !== 'free' && (
+          <div className="mt-3">
+            <ArticleTypeBadge articleType={post.article_type} />
+          </div>
+        )}
+
         <ArticleHero
           title={post.title}
           thumbnail={post.thumbnail_url}
           categories={categories as Category[]}
           publishedAt={post.published_at}
-          updatedAt={post.updated_at}
+          lastUpdatedOn={lastUpdated}
           viewCount={post.view_count}
           eventEnded={post.event_ended ?? false}
+          belowImage={updates.length > 0 ? <ArticleUpdateNotice latest={updates[0]} /> : undefined}
         />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         {headings.length > 0 && (
-          <div className="xl:hidden">
+          <div className="min-[1440px]:hidden">
             <TableOfContents headings={headings} />
           </div>
         )}
 
         <ArticleBody content={processedHtml} />
 
+        {/* 履歴が無い記事も「初回掲載」の 1 行だけで出す (帯は更新した記事だけ) */}
+        {(updates.length > 0 || post.published_at) && (
+          <ArticleUpdateHistory updates={updates} publishedAt={post.published_at} />
+        )}
+
         <ArticleMeta
           categories={categories as Category[]}
           hashtags={hashtags as Hashtag[]}
           publishedAt={post.published_at}
-          updatedAt={post.updated_at}
+          lastUpdatedOn={lastUpdated}
           viewCount={post.view_count}
         />
       </div>
 
       {headings.length > 0 && (
-        <aside className="hidden xl:block fixed top-32 right-[max(1rem,calc((100vw-56rem)/2-16rem))] w-56 max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <aside className="hidden min-[1440px]:block fixed top-32 right-[max(1rem,calc((100vw-56rem)/2-16rem))] w-56 max-h-[calc(100vh-10rem)] overflow-y-auto">
           <TableOfContents headings={headings} />
         </aside>
       )}

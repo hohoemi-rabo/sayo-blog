@@ -27,6 +27,9 @@ import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import { SummarySection, type SummaryState } from './SummarySection'
 import { RelatedPostsSection } from './RelatedPostsSection'
+import { UpdateHistorySection, type UpdateHistoryRow } from './UpdateHistorySection'
+import type { SavedPostUpdate } from '../actions'
+import { fromJstDatetimeLocal, toJstDatetimeLocal } from '@/lib/post-updates'
 import type { IgPostWithRelations } from '@/lib/types'
 
 interface Category {
@@ -84,6 +87,11 @@ interface PostFormProps {
   inquiryLink?: InquiryLink
   /** 保存済みの関連記事の手動選択 (表示順)。新規作成では無し */
   initialRelatedPosts?: RelatedPostOption[]
+  /**
+   * 保存済みの更新履歴 (新しい順)。編集時のみ。
+   * null = 読み込みに失敗 (このときは保存で履歴に触れない)
+   */
+  initialUpdates?: SavedPostUpdate[] | null
 }
 
 function generateSlug(title: string): string {
@@ -102,6 +110,7 @@ export function PostForm({
   igSection,
   inquiryLink,
   initialRelatedPosts,
+  initialUpdates,
 }: PostFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -130,7 +139,9 @@ export function PostForm({
   )
   const [publishedAt, setPublishedAt] = useState(
     initialData?.published_at
-      ? new Date(initialData.published_at).toISOString().slice(0, 16)
+      ? // 日本時間で表示・保存する。以前は UTC で表示してブラウザの時刻 (日本時間) として読み戻していたため、
+        // 保存のたびに公開日時が 9 時間ずつ早まっていた
+        toJstDatetimeLocal(initialData.published_at)
       : ''
   )
   const [eventInfo, setEventInfo] = useState<EventInfoState>({
@@ -152,6 +163,11 @@ export function PostForm({
   const [relatedPosts, setRelatedPosts] = useState<RelatedPostOption[]>(
     initialRelatedPosts ?? []
   )
+  const [updateRows, setUpdateRows] = useState<UpdateHistoryRow[]>(
+    (initialUpdates ?? []).map((u) => ({ key: u.id, updated_on: u.updated_on, note: u.note }))
+  )
+  // 編集画面で、保存済みの履歴を読めたときだけ履歴を保存する (読めなかったのに空で保存すると全部消える)
+  const canSaveUpdates = mode === 'edit' && initialUpdates !== null && initialUpdates !== undefined
   const [summary, setSummary] = useState<SummaryState>({
     summary_short: initialData?.summary_short ?? null,
     summary_medium: initialData?.summary_medium ?? null,
@@ -206,7 +222,7 @@ export function PostForm({
       thumbnail_url: thumbnailUrl,
       category_id: categoryId || null,
       hashtag_ids: selectedHashtags,
-      published_at: publishedAt ? new Date(publishedAt).toISOString() : null,
+      published_at: publishedAt ? fromJstDatetimeLocal(publishedAt) : null,
       is_published: isPublished,
       event_ended: eventEnded,
       is_event: eventInfo.is_event,
@@ -223,6 +239,9 @@ export function PostForm({
       summary_long: summary.summary_long,
       article_type: articleType,
       related_post_ids: relatedPosts.map((p) => p.id),
+      update_entries: canSaveUpdates
+        ? updateRows.map((r) => ({ updated_on: r.updated_on, note: r.note }))
+        : undefined,
     }
 
     try {
@@ -348,6 +367,16 @@ export function PostForm({
               />
             </div>
           </Card>
+
+          {/* 更新履歴 (Ticket 46)。新規作成の記事にはまだ要らない */}
+          {mode === 'edit' && initialData && (
+            <UpdateHistorySection
+              value={updateRows}
+              onChange={setUpdateRows}
+              publishedOn={publishedAt ? publishedAt.slice(0, 10) : null}
+              loadFailed={initialUpdates === null}
+            />
+          )}
 
           {/* Excerpt */}
           <Card className="p-6 bg-white">
