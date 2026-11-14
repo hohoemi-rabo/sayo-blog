@@ -98,6 +98,14 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
   - 残した項目 (2026-11-07 時点の判断): nodemailer 10 (メジャー更新。残る弱点は `raw` オプションで、未使用) / next 同梱の postcss・tailwind 系の glob・minimatch・sucrase (ビルド時だけ) / Next 16 (メジャー更新)。**依存関係は定期的に `npm audit --omit=dev` を見る** (今回 15.5.7 のまま 1 年近く放置されていた)
   - ⚠️ ビルドが Google Fonts の一時エラー (`Cannot read properties of null (reading '1')`) でまた 1 回落ちた (再実行で通る)。2 回目なので Noto もサブセットの local font 化を検討する価値あり
 
+### 記事の更新履歴 + 最近更新された記事 (Ticket 46) — 2026-11-14
+仕様: `docs/46_seasonal-updates.md`。紗代さんのデザイン案 (s1.png) のうち ②更新履歴 / ⑥最近更新された記事 / タイトル位置 だけ。サイドバーは作らない。
+- DB `post_updates` (database.md 17)。ロジック `src/lib/post-updates.ts` + テスト
+- 公開: `ArticleHero` (タイトル・初回掲載 / 最終更新を写真の上に、日付は JST) / `ArticleUpdateNotice` (写真下の帯, Client = なめらかスクロール) / `ArticleUpdateHistory` (本文の外・タグの上, id `update-history`。全記事に出す = 履歴が無ければ「初回掲載」の行だけ。帯は更新した記事だけ) / `RecentlyUpdatedArticles` (関連記事の下, Suspense)。`ArticleMeta` の日付も同じ値
+- 「最終更新」・dateModified・og:modified_time・サイトマップ lastmod = 履歴の最新日 → 無ければ公開日時 (`contentModifiedAt`)。誤字直しの保存では変わらない
+- 管理: `UpdateHistorySection` (記事編集・編集時のみ)。`PostFormData.update_entries` → `updatePost` が検証 (`normalizeUpdateEntries`) → delete → insert。編集画面で履歴を読めなかったときは保存で触らない (空で上書きして消さないため)
+- **同時に直した不具合**: 記事編集の「公開日時」欄が UTC で表示され、保存時にブラウザの時刻 (JST) として読み戻していた = **公開済みの記事を保存するたびに公開日時が 9 時間早まっていた**。`toJstDatetimeLocal` / `fromJstDatetimeLocal` で JST に固定。管理プレビューも公開ページと同じ表示 (種類バッジ・目次の切替幅 1440px) に
+
 ### Search Console API (Claude の分析用) — 2026-11-09
 手元から Search Console のデータを読むための読み取り専用ツール。**本番 (Vercel) には入れない** = サイトからは使わない (管理画面のダッシュボードを作るなら、そのとき Vercel に鍵を登録する)。
 - `scripts/gsc.mjs` (`npm run gsc -- <command>`): `sites` / `sitemaps` / `query` (検索パフォーマンス: `--days --dims page,query,date --limit --page --query --type web|discover`) / `inspect <url>` (URL 検査, 1 日 2,000 件)。依存なし (JWT 署名は Node の crypto、取得は fetch)。出力は JSON。データは 2〜3 日遅れなので終了日は 3 日前
