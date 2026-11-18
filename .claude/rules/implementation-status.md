@@ -82,6 +82,7 @@ Cowork CSV 取り込み (旧 Phase 3B) を廃止し、一般の方が情報を�
 - 記事の og:image の幅・高さは決め打ち (1200×630) をやめ、サムネイルのときは書かない (実寸は DB に無い)
 - **Discover 用の画像の目安**: 記事編集のサムネイル欄に実寸を表示し、横 1200px 未満なら注意を出す (`ThumbnailSizeNotice.tsx`。止めはしない。既存記事は直さない = 紗代さんの方針)
 - 元からできていたもの: title / description / canonical / article:published_time・modified_time / 著者 / Article + BreadcrumbList の JSON-LD / `max-image-preview:large` (layout の robots)
+- **旧ドメインの転送** (2026-11-18, 紗代さんの指摘): `sayo-blog.vercel.app` は全ページ 200 で見えていて、Google にも旧ドメインの記事が残っていた → `next.config.ts` の redirects で host が旧ドメインならパス・クエリそのまま `https://www.sayo-kotoba.com` へ 308 (`/api/*` は Cron のため除外)。旧カテゴリの記事は新ドメインで記事ページがもう一度 308 (例 `/news/x` → `/people/x`、計 2 回)。本番で確認済み。⚠️ `sayo-kotoba.com` → `www` は Vercel のドメイン設定で 307 のまま (308 にするならダッシュボード)
 - 「Sayo’s Journal」の FAQ 残り (紗代さん指摘) はコード上は 10-28 に修正済み。Google の古い保存内容なので URL 検査 → インデックス登録をリクエストで更新
 
 ### 記事タグの付け直し — 2026-11-01
