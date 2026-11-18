@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import type { Transporter } from 'nodemailer'
+import { ARTICLE_TYPE_LABELS } from '@/lib/article-types'
 
 /**
  * Gmail SMTP (Nodemailer) で紗代さんへ依頼通知を送る。
@@ -58,7 +59,8 @@ export async function sendInquiryNotification(
     return
   }
 
-  const typeLabel = input.type === 'mini' ? 'ミニ記事' : 'ロング記事'
+  // 紗代さんが読むので公開名 (投稿記事 / 取材記事) で書く。mini / long は内部コード名
+  const typeLabel = ARTICLE_TYPE_LABELS[input.type]
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const adminUrl = `${siteUrl}/admin/inquiries?tab=${input.type}&open=${input.inquiryId}`
 
