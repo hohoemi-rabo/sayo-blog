@@ -29,6 +29,18 @@ const nextConfig: NextConfig = {
   // ※ DB/型/article_type などの内部コード名は mini / long のまま (ユーザー不可視)。
   async redirects() {
     return [
+      // 旧ドメイン (Vercel の既定ドメイン) → 独自ドメイン。2026-11 に Google 検索で旧ドメインの
+      // 記事がまだ出ていた (canonical は新ドメインを指していたが、旧ドメインでも 200 で全ページ見えていた)。
+      // パスとクエリはそのまま引き継ぐ。旧カテゴリの記事 (/news/xxx 等) は新ドメイン側で
+      // 記事ページが正しいカテゴリへもう一度 308 する (2 回の転送で着く)。
+      // /api/* は除外 = Vercel Cron などが既定ドメインを叩いても転送されないように。
+      // 転送先は環境変数にしない (未設定時の既定値が旧ドメインなので、転送がループしうる)。
+      {
+        source: '/:path((?!api(?:/|$)).*)',
+        has: [{ type: 'host', value: 'sayo-blog.vercel.app' }],
+        destination: 'https://www.sayo-kotoba.com/:path',
+        permanent: true,
+      },
       { source: '/request/mini', destination: '/request/post', permanent: true },
       {
         source: '/request/mini/thanks',
