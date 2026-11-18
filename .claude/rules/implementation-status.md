@@ -339,6 +339,7 @@ ChatGPT/Gemini/Claude 風の体感に揃えるため、以下の挙動を追加�
 ### Phase 4: ミニ記事フロー (Ticket 41)
 - `supabase/migrations/20260525090000_add_posts_source_urls.sql` - posts.source_urls text[] 追加 (ミニ記事の元 SNS URL 控え)
 - `src/lib/mailer.ts` - Gmail SMTP (Nodemailer) 通知 sendInquiryNotification (失敗してもフォーム送信を止めない)
+  - 送信元・通知先は Vercel の env (中身は Sensitive で見えない)。件名は公開名 (`ARTICLE_TYPE_LABELS`)。⚠️ 送信元 Gmail の Google パスワードを変えるとアプリパスワードが無効になり**通知だけ黙って止まる** → 再発行して `GMAIL_SMTP_APP_PASSWORD` を上書き + 再デプロイ (2026-11-18 に実施・本番で受信確認済み)
 - `src/lib/rate-limit.ts` - in-memory IP レート制限 checkRateLimit (5分3件 MVP)
 - `src/lib/inquiry-schema.ts` - Zod スキーマ miniInquirySchema + 画像制約定数
 - `src/lib/inquiry-images.ts` - uploadInquiryImages (service role で inquiry-images へ保存)
