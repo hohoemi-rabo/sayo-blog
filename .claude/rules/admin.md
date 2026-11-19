@@ -110,6 +110,13 @@ paths:
 - 同時に `BlockTagBar.tsx` (カーソル位置の帯) を出す: 「ボックス › 本文 (p)」のように入れ子も表示 + 本文 / h2 / h3 / h1 の切り替え + 「ボックス / 引用 / 箇条書きから出す」。上の行のタグを引き継いでしまったときに直すため
 - Tiptap v3 の `useEditor` は入力のたびに再描画しないので、カーソル位置は `useEditorState` で追う (ツールバーの既存ボタンの色が古いままになることがあるのはこのため。未修正)
 
+### 本文エディタの「HTML で編集」(2026-11-19, 紗代さんの要望)
+- ツールバー右の「HTML で編集」で、本文の HTML を直接書き換える欄 (`HtmlSourceEditor.tsx`) に切り替わる = WordPress のコードエディター。紗代さんはタグが分かるので、上の行のタグを引きずって直せないときに自分で直すため
+- 欄の文字は 1 ブロック 1 行に整形して出す (`src/lib/editor-html.ts::formatEditorHtml` + テスト)。書き換えは手が止まって 0.4 秒後 (と「画面表示に戻る」を押したとき) に `editor.commands.setContent(..., { emitUpdate: true })` で Tiptap に読ませ、**Tiptap がそろえた HTML を保存する** (欄の生の文字は保存しない)。欄の文字は書き換えないので、打っている途中で崩れない
+- 使えるタグは `EDITOR_ALLOWED_TAGS` (h1〜h3 / p / ul・ol・li / blockquote / hr / br / strong・b / em・i / s・del / u / a / code / pre / figure・img・figcaption / `div[data-type="box"]`)。それ以外を書くと欄の下に注意を出す (画面に戻すとタグが消えるか p になる。文字は残る)。拡張を足したらこの一覧も足す
+- HTML 欄の間は書式ボタン・「タグを表示」・元に戻すを隠す (隠れた画面表示に効いてしまうため)。画面表示 (`EditorContent`) は消さずに `hidden` で隠す
+- ついでに直した: `tailwind.config.ts` の `font-mono` が未定義の `var(--font-geist-mono)` を含んでいて宣言ごと無効 = 管理画面の `font-mono` (カテゴリ・ハッシュタグ一覧、IG 編集、AI Knowledge) が全部明朝になっていた
+
 ### 関連記事の手動選択 (Ticket 45)
 - 記事編集サイドバーの「関連記事」カード (`RelatedPostsSection.tsx`)。タイトル検索 → 最大 3 件 / ↑↓ で並べ替え / × で外す。何も選ばなければ全部自動
 - 検索候補の並び (`searchRelatedPostOptions` → `rankRelatedOptions`): 公開ページに出る記事 → **編集中のカテゴリと同じ** → 共通ハッシュタグが多い → 新しい、の順で 20 件。カテゴリ・ハッシュタグは**保存前の画面の値**を使う (変えると候補も並び直す)。文字を入れたらタイトルの部分一致で絞る (並びは同じ)

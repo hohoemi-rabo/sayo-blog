@@ -26,6 +26,7 @@ import {
   Minus,
   Square,
   Tags,
+  FileCode,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditorImagePicker } from './EditorImagePicker'
@@ -33,6 +34,7 @@ import { EditorLinkDialog } from './EditorLinkDialog'
 import { BoxExtension } from './extensions/BoxExtension'
 import { FigureExtension } from './extensions/FigureExtension'
 import { BlockTagBar } from './BlockTagBar'
+import { HtmlSourceEditor } from './HtmlSourceEditor'
 
 interface RichTextEditorClientProps {
   content: string
@@ -86,6 +88,8 @@ export function RichTextEditorClient({
   const [showLinkDialog, setShowLinkDialog] = useState(false)
   // 行ごとのタグ (h2 / p など) を左の余白に出す。普段は出さない (ボタンで切り替え)
   const [showBlockTags, setShowBlockTags] = useState(false)
+  // 本文の HTML を直接書き換える欄 (WordPress のコードエディター)。開いている間は画面表示を隠す
+  const [showHtml, setShowHtml] = useState(false)
   const [linkDialogState, setLinkDialogState] = useState({
     initialUrl: '',
     selectedText: '',
@@ -191,148 +195,175 @@ export function RichTextEditorClient({
     >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border-decorative bg-gray-50">
-        <ToolbarButton
-          isActive={editor.isActive('heading', { level: 1 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          title="見出し1"
-        >
-          <Heading1 className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('heading', { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          title="見出し2"
-        >
-          <Heading2 className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('heading', { level: 3 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          title="見出し3"
-        >
-          <Heading3 className="h-4 w-4" />
-        </ToolbarButton>
+        {/* HTML 欄を開いている間は書式ボタンを隠す (隠れている画面表示に効いてしまうため) */}
+        {!showHtml && (
+          <>
+            <ToolbarButton
+              isActive={editor.isActive('heading', { level: 1 })}
+              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+              title="見出し1"
+            >
+              <Heading1 className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('heading', { level: 2 })}
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              title="見出し2"
+            >
+              <Heading2 className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('heading', { level: 3 })}
+              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+              title="見出し3"
+            >
+              <Heading3 className="h-4 w-4" />
+            </ToolbarButton>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 mx-1" />
 
-        <ToolbarButton
-          isActive={editor.isActive('bold')}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          title="太字"
-        >
-          <Bold className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('italic')}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          title="斜体"
-        >
-          <Italic className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('strike')}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          title="取り消し線"
-        >
-          <Strikethrough className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('code')}
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          title="インラインコード"
-        >
-          <Code className="h-4 w-4" />
-        </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('bold')}
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              title="太字"
+            >
+              <Bold className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('italic')}
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              title="斜体"
+            >
+              <Italic className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('strike')}
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+              title="取り消し線"
+            >
+              <Strikethrough className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('code')}
+              onClick={() => editor.chain().focus().toggleCode().run()}
+              title="インラインコード"
+            >
+              <Code className="h-4 w-4" />
+            </ToolbarButton>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 mx-1" />
 
-        <ToolbarButton
-          isActive={editor.isActive('bulletList')}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          title="箇条書き"
-        >
-          <List className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('orderedList')}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          title="番号付きリスト"
-        >
-          <ListOrdered className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('blockquote')}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          title="引用"
-        >
-          <Quote className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          title="水平線"
-        >
-          <Minus className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          isActive={editor.isActive('box')}
-          onClick={() => editor.chain().focus().toggleBox().run()}
-          title="ボックス"
-        >
-          <Square className="h-4 w-4" />
-        </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('bulletList')}
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              title="箇条書き"
+            >
+              <List className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('orderedList')}
+              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              title="番号付きリスト"
+            >
+              <ListOrdered className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('blockquote')}
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              title="引用"
+            >
+              <Quote className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().setHorizontalRule().run()}
+              title="水平線"
+            >
+              <Minus className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('box')}
+              onClick={() => editor.chain().focus().toggleBox().run()}
+              title="ボックス"
+            >
+              <Square className="h-4 w-4" />
+            </ToolbarButton>
 
-        <div className="w-px h-6 bg-gray-300 mx-1" />
+            <div className="w-px h-6 bg-gray-300 mx-1" />
 
-        <ToolbarButton
-          isActive={editor.isActive('link')}
-          onClick={openLinkDialog}
-          title="リンク"
-        >
-          <LinkIcon className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => setShowImagePicker(true)}
-          title="画像"
-        >
-          <ImageIcon className="h-4 w-4" />
-        </ToolbarButton>
+            <ToolbarButton
+              isActive={editor.isActive('link')}
+              onClick={openLinkDialog}
+              title="リンク"
+            >
+              <LinkIcon className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => setShowImagePicker(true)}
+              title="画像"
+            >
+              <ImageIcon className="h-4 w-4" />
+            </ToolbarButton>
+          </>
+        )}
 
         <div className="flex-1" />
 
         <button
           type="button"
-          onClick={() => setShowBlockTags((v) => !v)}
-          aria-pressed={showBlockTags}
-          title="行ごとのタグ (見出し・本文など) を表示"
+          onClick={() => setShowHtml((v) => !v)}
+          aria-pressed={showHtml}
+          title="本文の HTML を直接書き換える"
           className={cn(
             'mr-1 inline-flex items-center gap-1 rounded px-2 py-1.5 text-xs transition-colors hover:bg-gray-100',
-            showBlockTags && 'bg-primary/10 text-primary'
+            showHtml && 'bg-primary/10 text-primary'
           )}
         >
-          <Tags className="h-4 w-4" />
-          {showBlockTags ? 'タグを隠す' : 'タグを表示'}
+          <FileCode className="h-4 w-4" />
+          {showHtml ? '画面表示に戻る' : 'HTML で編集'}
         </button>
 
-        <ToolbarButton
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-          title="元に戻す"
-        >
-          <Undo className="h-4 w-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-          title="やり直す"
-        >
-          <Redo className="h-4 w-4" />
-        </ToolbarButton>
+        {!showHtml && (
+          <>
+            <button
+              type="button"
+              onClick={() => setShowBlockTags((v) => !v)}
+              aria-pressed={showBlockTags}
+              title="行ごとのタグ (見出し・本文など) を表示"
+              className={cn(
+                'mr-1 inline-flex items-center gap-1 rounded px-2 py-1.5 text-xs transition-colors hover:bg-gray-100',
+                showBlockTags && 'bg-primary/10 text-primary'
+              )}
+            >
+              <Tags className="h-4 w-4" />
+              {showBlockTags ? 'タグを隠す' : 'タグを表示'}
+            </button>
+
+            <ToolbarButton
+              onClick={() => editor.chain().focus().undo().run()}
+              disabled={!editor.can().undo()}
+              title="元に戻す"
+            >
+              <Undo className="h-4 w-4" />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().redo().run()}
+              disabled={!editor.can().redo()}
+              title="やり直す"
+            >
+              <Redo className="h-4 w-4" />
+            </ToolbarButton>
+          </>
+        )}
       </div>
 
-      {showBlockTags && <BlockTagBar editor={editor} />}
+      {showHtml && <HtmlSourceEditor editor={editor} />}
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+      {!showHtml && showBlockTags && <BlockTagBar editor={editor} />}
+
+      {/* Editor (HTML 欄の間も消さずに隠すだけ = 元に戻す履歴などを保つ) */}
+      <div className={cn(showHtml && 'hidden')}>
+        <EditorContent editor={editor} />
+      </div>
 
       {/* Floating Menu - appears on empty lines or at start of block */}
       <CustomFloatingMenu editor={editor}>

@@ -70,8 +70,9 @@ const config: Config = {
 
         // Legacy fonts (will be replaced)
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        // --font-geist-mono はどこにも定義されていない。未定義の var() があると宣言ごと無効になり
+        // 本文の明朝が継承されてしまうので入れない
         mono: [
-          "var(--font-geist-mono)",
           "ui-monospace",
           "SFMono-Regular",
           "Menlo",
