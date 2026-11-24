@@ -27,8 +27,8 @@ import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import { SummarySection, type SummaryState } from './SummarySection'
 import { RelatedPostsSection } from './RelatedPostsSection'
-import { PlaceStatusSection, type PlaceStatusState } from './PlaceStatusSection'
-import { normalizePlaceStatus } from '@/lib/place-status'
+import { ArticleStatusSection, type ArticleStatusState } from './ArticleStatusSection'
+import { articleStatusColumns, articleStatusOf } from '@/lib/place-status'
 import { UpdateHistorySection, type UpdateHistoryRow } from './UpdateHistorySection'
 import type { SavedPostUpdate } from '../actions'
 import { fromJstDatetimeLocal, toJstDatetimeLocal } from '@/lib/post-updates'
@@ -139,11 +139,12 @@ export function PostForm({
   const [isPublished, setIsPublished] = useState(
     initialData?.is_published || false
   )
-  const [eventEnded, setEventEnded] = useState(
-    initialData?.event_ended || false
-  )
-  const [placeStatus, setPlaceStatus] = useState<PlaceStatusState>({
-    place_status: normalizePlaceStatus(initialData?.place_status),
+  // イベント終了 / 閉店 / 移転 は画面ではプルダウン 1 つ。保存時に event_ended と place_status へ振り分ける
+  const [articleStatus, setArticleStatus] = useState<ArticleStatusState>({
+    status: articleStatusOf({
+      event_ended: initialData?.event_ended,
+      place_status: initialData?.place_status,
+    }),
     relocation_note: initialData?.relocation_note ?? '',
     relocation_url: initialData?.relocation_url ?? '',
   })
@@ -234,10 +235,9 @@ export function PostForm({
       hashtag_ids: selectedHashtags,
       published_at: publishedAt ? fromJstDatetimeLocal(publishedAt) : null,
       is_published: isPublished,
-      event_ended: eventEnded,
-      place_status: placeStatus.place_status,
-      relocation_note: placeStatus.relocation_note.trim() || null,
-      relocation_url: placeStatus.relocation_url.trim() || null,
+      ...articleStatusColumns(articleStatus.status),
+      relocation_note: articleStatus.relocation_note.trim() || null,
+      relocation_url: articleStatus.relocation_url.trim() || null,
       is_event: eventInfo.is_event,
       event_date_start: eventInfo.event_date_start,
       event_date_end: eventInfo.event_date_end,
@@ -458,27 +458,11 @@ export function PostForm({
                   onChange={(e) => setPublishedAt(e.target.value)}
                 />
               </div>
-
-              <div className="border-t border-border-decorative pt-4">
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id="event_ended"
-                    checked={eventEnded}
-                    onCheckedChange={(checked) => setEventEnded(checked)}
-                  />
-                  <Label htmlFor="event_ended" className="cursor-pointer">
-                    イベント終了
-                  </Label>
-                </div>
-                <p className="mt-2 pl-7 text-xs text-text-secondary">
-                  ON にするとサムネイルが白黒になり、終了案内が表示されます。
-                  イベント記事の開催回が過ぎた場合に使用してください。
-                </p>
-              </div>
-
-              <PlaceStatusSection value={placeStatus} onChange={setPlaceStatus} />
             </div>
           </Card>
+
+          {/* 記事の状態 (イベント終了 / 閉店 / 移転) */}
+          <ArticleStatusSection value={articleStatus} onChange={setArticleStatus} />
 
           {/* 記事の種類 (記事一覧のタブ・公開ページのバッジに使う) */}
           <Card className="p-6 bg-white">

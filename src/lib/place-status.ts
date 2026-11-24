@@ -10,12 +10,6 @@
 
 export type PlaceStatus = 'open' | 'closed' | 'relocated'
 
-export const PLACE_STATUS_OPTIONS: ReadonlyArray<{ value: PlaceStatus; label: string }> = [
-  { value: 'open', label: '通常' },
-  { value: 'closed', label: '閉店' },
-  { value: 'relocated', label: '移転' },
-]
-
 export const RELOCATION_NOTE_MAX = 100
 
 export function normalizePlaceStatus(value: unknown): PlaceStatus {
@@ -57,4 +51,54 @@ export function photoNoticeOf(post: {
 /** 写真を白黒にする案内か (閉店・イベント終了。移転は今も行けるのでカラーのまま) */
 export function isGrayscaleNotice(notice: PhotoNotice | null): boolean {
   return notice === 'closed' || notice === 'event_ended'
+}
+
+/**
+ * 記事編集画面の「記事の今の状態」(プルダウン 1 つ)。DB は event_ended と place_status の 2 欄のまま、
+ * 保存時に振り分ける (2026-11-24 紗代さん: 「イベント終了」のチェックと「お店の状態」が別々で分かりにくい)。
+ * 写真に出る案内は 1 つだけなので、画面も 1 つ選ぶ形にした。
+ * 「イベント終了 + 移転」のような組み合わせは選べない (写真は元々「終了」だけで、移転先の案内が出なくなるだけ)。
+ */
+export type ArticleStatus = 'open' | 'event_ended' | 'closed' | 'relocated'
+
+export const ARTICLE_STATUS_OPTIONS: ReadonlyArray<{ value: ArticleStatus; label: string; hint: string }> = [
+  { value: 'open', label: '通常', hint: 'ふだんどおり表示します。' },
+  {
+    value: 'event_ended',
+    label: 'イベント終了',
+    hint: 'サムネイルが白黒になり「このイベントは終了しています」と表示されます。トップページ・関連記事には出なくなります (記事は残ります)。イベントの開催回が過ぎたときに。',
+  },
+  {
+    value: 'closed',
+    label: '閉店',
+    hint: 'サムネイルが白黒になり「閉店されています」と表示されます。トップページ・関連記事には出なくなります (記事は残ります)。',
+  },
+  {
+    value: 'relocated',
+    label: '移転',
+    hint: '写真はカラーのまま「移転されています」の印が付きます。記事ページには下の移転先が表示されます。トップページなどにもこれまでどおり出ます。',
+  },
+]
+
+export function normalizeArticleStatus(value: unknown): ArticleStatus {
+  return value === 'event_ended' || value === 'closed' || value === 'relocated' ? value : 'open'
+}
+
+/** 保存済みの 2 欄 → 画面の選択。写真の案内と同じ優先順 (閉店 > イベント終了 > 移転) */
+export function articleStatusOf(post: {
+  event_ended?: boolean | null
+  place_status?: string | null
+}): ArticleStatus {
+  return photoNoticeOf(post) ?? 'open'
+}
+
+/** 画面の選択 → 保存する 2 欄 */
+export function articleStatusColumns(status: ArticleStatus): {
+  event_ended: boolean
+  place_status: PlaceStatus
+} {
+  return {
+    event_ended: status === 'event_ended',
+    place_status: status === 'closed' || status === 'relocated' ? status : 'open',
+  }
 }
