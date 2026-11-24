@@ -24,6 +24,7 @@ const SEARCH_DEBOUNCE_MS = 300
 function hiddenReason(p: RelatedPostOption): string | null {
   if (!p.is_published) return '下書き'
   if (p.event_ended) return '終了'
+  if (p.place_status === 'closed') return '閉店'
   return null
 }
 
@@ -157,7 +158,7 @@ export function RelatedPostsSection({
 
       {hasHidden && (
         <p className="mt-2 text-xs text-amber-700">
-          「下書き」「終了」の記事は公開ページには出ません (公開・開催中になれば出ます)。
+          「下書き」「終了」「閉店」の記事は公開ページの関連記事には出ません (自動で別の記事が入ります)。
           その枠は自動で選ばれた記事で埋まります。
         </p>
       )}

@@ -17,6 +17,12 @@ import { isArticleType, type ArticleTypeTab } from '@/lib/article-types'
 import { PICKUP_COUNT } from '@/lib/home-slots'
 import { RELATED_POSTS_COUNT, rankRelatedOptions } from '@/lib/related-posts'
 import { normalizeUpdateEntries, type PostUpdateEntry } from '@/lib/post-updates'
+import {
+  normalizePlaceStatus,
+  normalizeRelocationNote,
+  normalizeRelocationUrl,
+  type PlaceStatus,
+} from '@/lib/place-status'
 
 export type PostFormData = {
   title: string
@@ -31,6 +37,10 @@ export type PostFormData = {
   published_at: string | null
   is_published: boolean
   event_ended: boolean
+  /** 紹介したお店・場所の状態 (閉店 / 移転)。移転先は移転のときだけ保存する */
+  place_status: PlaceStatus
+  relocation_note: string | null
+  relocation_url: string | null
   // Event metadata (Ticket 37)
   is_event: boolean
   event_date_start: string | null
@@ -51,6 +61,20 @@ export type PostFormData = {
   related_post_ids?: string[]
   /** 更新履歴 (Ticket 46)。undefined なら触らない (新規作成)。保存時に丸ごと置き換える */
   update_entries?: PostUpdateEntry[]
+}
+
+/**
+ * お店の状態の列。画面から来た値をそろえる (不正な状態は「通常」、リンクは http/https だけ)。
+ * 移転先は移転のときだけ残す (閉店・通常に戻したら消す = 古い移転先が後で出てこないように)
+ */
+function placeStatusColumns(data: PostFormData) {
+  const placeStatus = normalizePlaceStatus(data.place_status)
+  const relocated = placeStatus === 'relocated'
+  return {
+    place_status: placeStatus,
+    relocation_note: relocated ? normalizeRelocationNote(data.relocation_note) : null,
+    relocation_url: relocated ? normalizeRelocationUrl(data.relocation_url) : null,
+  }
 }
 
 /** 依頼の種類 = 紐付く記事の article_type (投稿記事 = mini / 取材記事 = long) */
@@ -232,6 +256,7 @@ export async function createPost(
       published_at: data.published_at,
       is_published: data.is_published,
       event_ended: data.event_ended,
+      ...placeStatusColumns(data),
       is_event: data.is_event,
       event_date_start: data.event_date_start,
       event_date_end: data.event_date_end,
@@ -385,6 +410,7 @@ export async function updatePost(id: string, data: PostFormData) {
       published_at: data.published_at,
       is_published: data.is_published,
       event_ended: data.event_ended,
+      ...placeStatusColumns(data),
       is_event: data.is_event,
       event_date_start: data.event_date_start,
       event_date_end: data.event_date_end,
@@ -598,6 +624,7 @@ export async function getPosts(filter?: {
       is_published,
       is_featured,
       event_ended,
+      place_status,
       article_type,
       published_at,
       view_count,
@@ -879,10 +906,11 @@ export interface RelatedPostOption {
   title: string
   is_published: boolean
   event_ended: boolean
+  place_status: string
   published_at: string | null
 }
 
-const RELATED_OPTION_COLUMNS = 'id, title, is_published, event_ended, published_at'
+const RELATED_OPTION_COLUMNS = 'id, title, is_published, event_ended, place_status, published_at'
 
 /** 編集画面を開いたときの、保存済みの関連記事 (表示順) */
 export async function getRelatedPostSelection(postId: string): Promise<RelatedPostOption[]> {
@@ -907,7 +935,7 @@ const RELATED_OPTIONS_LIMIT = 20
 
 /**
  * 関連記事に選ぶ記事を探す。並びは 公開ページに出る記事 → 同じカテゴリ → 共通ハッシュタグが多い → 新しい
- * (`rankRelatedOptions`)。query があればタイトルの部分一致で絞る。下書き・終了イベントも返す (画面でバッジを付ける)。
+ * (`rankRelatedOptions`)。query があればタイトルの部分一致で絞る。下書き・終了イベント・閉店も返す (画面でバッジを付ける)。
  * current = 編集中の記事のカテゴリ・ハッシュタグ (保存前の値)。excludeId = 編集中の記事 (自分自身は選べない)
  */
 export async function searchRelatedPostOptions(
@@ -943,6 +971,7 @@ export async function searchRelatedPostOptions(
       publishedAt: row.published_at,
       isPublished: row.is_published,
       eventEnded: row.event_ended,
+      closed: row.place_status === 'closed',
       categoryIds: (row.post_categories ?? []).map((pc) => pc.category_id),
       hashtagIds: (row.post_hashtags ?? []).map((ph) => ph.hashtag_id),
     })),
@@ -953,6 +982,7 @@ export async function searchRelatedPostOptions(
     title: row.title,
     is_published: row.is_published,
     event_ended: row.event_ended,
+    place_status: row.place_status,
     published_at: row.published_at,
   }))
 }

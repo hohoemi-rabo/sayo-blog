@@ -49,6 +49,24 @@ function UpdatedMark({ post, className }: { post: PostWithRelations; className?:
   return updatedOn ? <UpdatedBadge date={updatedOn} className={className} /> : null
 }
 
+/**
+ * 移転したお店の印。トップの枠は写真の上に見出し札があるので、写真には重ねず日付の横に出す
+ * (閉店・終了イベントはトップに出ない)
+ */
+function RelocatedMark({ post, className }: { post: PostWithRelations; className?: string }) {
+  if (post.place_status !== 'relocated') return null
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-0.5 rounded-full bg-white/90 px-2 py-0.5 font-noto-sans-jp text-[11px] font-semibold text-text-primary ring-1 ring-hoisa/20',
+        className
+      )}
+    >
+      <span aria-hidden>📍</span>移転
+    </span>
+  )
+}
+
 function categoryOf(post: PostWithRelations) {
   return post.post_categories?.[0]?.categories
 }
@@ -99,6 +117,7 @@ function FeatureCard({ post, className }: { post: PostWithRelations; className?:
           <div className="flex items-center gap-3 font-noto-sans-jp text-sm text-white/85">
             <time dateTime={post.published_at}>{formatDotDate(post.published_at)}</time>
             <UpdatedMark post={post} />
+            <RelocatedMark post={post} />
             {category && (
               <Link
                 href={`/${category.slug}`}
@@ -188,6 +207,7 @@ function ReportCard({ post, className }: { post: PostWithRelations; className?: 
         <div className="mt-auto flex items-center gap-3 pt-4 font-noto-sans-jp text-sm text-text-secondary">
           <time dateTime={post.published_at}>{formatDotDate(post.published_at)}</time>
           <UpdatedMark post={post} />
+          <RelocatedMark post={post} />
           {category && (
             <Link
               href={`/${category.slug}`}
@@ -243,6 +263,7 @@ function RandomPostList({ posts, className }: { posts: PostWithRelations[]; clas
                 <p className="flex items-center gap-2 font-noto-sans-jp text-xs text-text-secondary">
                   {formatDotDate(post.published_at)}
                   <UpdatedMark post={post} />
+                  <RelocatedMark post={post} />
                 </p>
                 <p className="mt-0.5 line-clamp-2 font-noto-sans-jp text-sm font-medium leading-snug text-text-primary group-hover:text-hoisa group-focus-visible:underline">
                   {post.title}

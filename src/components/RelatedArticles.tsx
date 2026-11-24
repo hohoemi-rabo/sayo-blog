@@ -17,7 +17,7 @@ interface RelatedArticlesProps {
 
 /** 選定用は本文 (content) を取らない軽い列だけ。カードと同じくカテゴリ無しの記事は除く */
 const CANDIDATE_SELECT = `
-  id, published_at, is_published, event_ended,
+  id, published_at, is_published, event_ended, place_status,
   post_categories!inner(category_id),
   post_hashtags(hashtags(slug))
 `
@@ -33,6 +33,7 @@ interface CandidateRow {
   published_at: string | null
   is_published: boolean
   event_ended: boolean
+  place_status: string
   post_hashtags: Array<{ hashtags: { slug: string } | null }> | null
 }
 
@@ -42,6 +43,7 @@ function toCandidate(row: CandidateRow): RelatedCandidate {
     publishedAt: row.published_at,
     isPublished: row.is_published,
     eventEnded: row.event_ended,
+    closed: row.place_status === 'closed',
     hashtagSlugs: (row.post_hashtags ?? []).flatMap((ph) =>
       ph.hashtags ? [ph.hashtags.slug] : []
     ),
@@ -65,6 +67,7 @@ export default async function RelatedArticles({
       .select(CANDIDATE_SELECT)
       .eq('is_published', true)
       .eq('event_ended', false)
+      .neq('place_status', 'closed')
       .neq('id', postId)
 
   const [manualRes, sameRes, fallbackRes] = await Promise.all([
@@ -72,7 +75,7 @@ export default async function RelatedArticles({
     supabase
       .from('post_related_posts')
       .select(
-        'position, related:posts!post_related_posts_related_post_id_fkey(id, is_published, event_ended)'
+        'position, related:posts!post_related_posts_related_post_id_fkey(id, is_published, event_ended, place_status)'
       )
       .eq('post_id', postId)
       .order('position'),
@@ -92,7 +95,12 @@ export default async function RelatedArticles({
 
   const manual: ManualRelatedPick[] = (
     (manualRes.data ?? []) as unknown as Array<{
-      related: { id: string; is_published: boolean; event_ended: boolean } | null
+      related: {
+        id: string
+        is_published: boolean
+        event_ended: boolean
+        place_status: string
+      } | null
     }>
   ).flatMap((row) =>
     row.related
@@ -101,6 +109,7 @@ export default async function RelatedArticles({
             id: row.related.id,
             isPublished: row.related.is_published,
             eventEnded: row.related.event_ended,
+            closed: row.related.place_status === 'closed',
           },
         ]
       : []

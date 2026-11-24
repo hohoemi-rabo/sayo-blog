@@ -41,7 +41,7 @@ interface RecentlyUpdatedArticlesProps {
 
 /**
  * 「最近更新された記事」(Ticket 46)。記事ページ下部とトップ (Pick Up の上) で共用。更新履歴の新しい順に最大 3 件。
- * 「最終更新」が出ている記事だけ (= 初回掲載日より後の履歴がある)。終了イベントは出さない (トップと同じ)。
+ * 「最終更新」が出ている記事だけ (= 初回掲載日より後の履歴がある)。終了イベント・閉店は出さない (トップと同じ)。
  * 更新から 30 日 (RECENT_UPDATE_DAYS, カードの「更新」の印と同じ) を過ぎた記事は出さない。
  * 非公開の記事の履歴は anon の RLS で読めない。1 件も無ければ見出しごと何も出さない。
  * トップ・記事ページは ISR (1 時間) なので、並ぶのも 30 日で消えるのも最大 1 時間遅れる。
@@ -62,6 +62,7 @@ export default async function RecentlyUpdatedArticles({
     )
     .eq('post.is_published', true)
     .eq('post.event_ended', false)
+    .neq('post.place_status', 'closed')
     .gte('updated_on', from)
     .lte('updated_on', to)
     .order('updated_on', { ascending: false })

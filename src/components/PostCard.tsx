@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import CategoryBadge from './CategoryBadge'
-import EventEndedOverlay from './EventEndedOverlay'
+import PhotoNoticeOverlay from './PhotoNoticeOverlay'
+import { isGrayscaleNotice, photoNoticeOf } from '@/lib/place-status'
 import HashtagList from './HashtagList'
 import UpdatedBadge from './UpdatedBadge'
 import { PostWithRelations } from '@/lib/types'
@@ -61,6 +62,7 @@ export default function PostCard({ post, snippet }: PostCardProps) {
   const postUrl = articlePath(category?.slug, post.slug)
   // 最終更新から 30 日以内なら「更新」の印 (post_updates はカード用のクエリでだけ付く)
   const updatedOn = recentUpdateBadgeDate(post.post_updates, post.published_at)
+  const notice = photoNoticeOf(post)
 
   return (
     <article className="group bg-background rounded-xl overflow-hidden shadow-decorative hover:shadow-decorative-lg transition-all duration-300">
@@ -73,7 +75,7 @@ export default function PostCard({ post, snippet }: PostCardProps) {
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
-              post.event_ended ? 'grayscale' : ''
+              isGrayscaleNotice(notice) ? 'grayscale' : ''
             }`}
             loading="lazy"
           />
@@ -88,8 +90,8 @@ export default function PostCard({ post, snippet }: PostCardProps) {
             <CategoryBadge category={category} />
           </div>
         )}
-        {/* Event Ended Overlay */}
-        {post.event_ended && <EventEndedOverlay mode="card" />}
+        {/* イベント終了 / 閉店 / 移転 */}
+        {notice && <PhotoNoticeOverlay notice={notice} mode="card" />}
       </Link>
 
       {/* Content */}

@@ -3,7 +3,9 @@ import Image from 'next/image'
 import { CalendarDays, CalendarClock, Eye } from 'lucide-react'
 import { Category } from '@/lib/types'
 import CategoryBadge from './CategoryBadge'
-import EventEndedOverlay from './EventEndedOverlay'
+import PhotoNoticeOverlay from './PhotoNoticeOverlay'
+import RelocationNotice from './RelocationNotice'
+import { isGrayscaleNotice, photoNoticeOf } from '@/lib/place-status'
 import { formatDotDate } from '@/lib/home-posts'
 import { formatDateStringDot } from '@/lib/post-updates'
 
@@ -16,6 +18,10 @@ interface ArticleHeroProps {
   lastUpdatedOn: string | null
   viewCount: number
   eventEnded?: boolean
+  /** お店の状態 (閉店 / 移転)。移転なら写真の下に移転先を出す */
+  placeStatus?: string | null
+  relocationNote?: string | null
+  relocationUrl?: string | null
   /** 写真のすぐ下に出すもの (更新のお知らせの帯) */
   belowImage?: ReactNode
 }
@@ -32,8 +38,14 @@ export default function ArticleHero({
   lastUpdatedOn,
   viewCount,
   eventEnded = false,
+  placeStatus = 'open',
+  relocationNote = null,
+  relocationUrl = null,
   belowImage,
 }: ArticleHeroProps) {
+  const notice = photoNoticeOf({ event_ended: eventEnded, place_status: placeStatus })
+  const dimmed = isGrayscaleNotice(notice)
+  const relocated = placeStatus === 'relocated'
   return (
     <header className="mb-8 lg:mb-12">
       <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-playfair font-bold text-text-primary leading-tight">
@@ -84,14 +96,20 @@ export default function ArticleHero({
             src={thumbnail}
             alt={title}
             fill
-            className={`object-cover ${eventEnded ? 'grayscale' : ''}`}
+            className={`object-cover ${dimmed ? 'grayscale' : ''}`}
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 80vw, 70vw"
           />
-          {!eventEnded && (
+          {!dimmed && (
             <div className="absolute inset-0 bg-gradient-to-t from-background-dark/60 via-transparent to-transparent" />
           )}
-          {eventEnded && <EventEndedOverlay mode="hero" />}
+          {notice && <PhotoNoticeOverlay notice={notice} mode="hero" />}
+        </div>
+      )}
+
+      {relocated && (
+        <div className="mt-6">
+          <RelocationNotice note={relocationNote} url={relocationUrl} />
         </div>
       )}
 

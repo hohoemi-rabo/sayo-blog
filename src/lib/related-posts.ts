@@ -1,13 +1,13 @@
 /**
  * 記事ページ下部の「関連記事」の選び方 (Ticket 45)。DB に触れない純粋関数 = node --test でテストする。
  *
- * 1. 紗代さんが手動で選んだ記事 (最大 3 件, 選んだ順)。ただし非公開・終了イベントになったものは外す
+ * 1. 紗代さんが手動で選んだ記事 (最大 3 件, 選んだ順)。ただし非公開・終了イベント・閉店になったものは外す
  *    (選択は DB に残したまま、表示のときだけ外す。公開に戻れば また出る)
  * 2. 空いた枠は同じカテゴリの公開記事から自動で選ぶ。共通ハッシュタグが多い順 → 同点は新しい順
  *    (ハッシュタグは 1 記事平均 1 個ほどで同点が多いので、同点の並びを DB 任せにしない)
  * 3. それでも足りなければ、ほかのカテゴリも含めた新しい記事で埋める
  *
- * どの段階でも 自分自身・終了イベント・非公開 は出さない。
+ * どの段階でも 自分自身・終了イベント・閉店・非公開 は出さない。
  */
 
 export const RELATED_POSTS_COUNT = 3
@@ -17,6 +17,8 @@ export interface ManualRelatedPick {
   id: string
   isPublished: boolean
   eventEnded: boolean
+  /** 紹介したお店が閉店 (place_status='closed') */
+  closed?: boolean
 }
 
 export interface RelatedCandidate {
@@ -25,6 +27,7 @@ export interface RelatedCandidate {
   hashtagSlugs: string[]
   isPublished: boolean
   eventEnded: boolean
+  closed?: boolean
 }
 
 export interface SelectRelatedInput {
@@ -39,8 +42,8 @@ export interface SelectRelatedInput {
   limit?: number
 }
 
-function isShowable(p: { isPublished: boolean; eventEnded: boolean }): boolean {
-  return p.isPublished && !p.eventEnded
+function isShowable(p: { isPublished: boolean; eventEnded: boolean; closed?: boolean }): boolean {
+  return p.isPublished && !p.eventEnded && !p.closed
 }
 
 function time(publishedAt: string | null): number {
@@ -102,12 +105,13 @@ export interface RelatedOptionRankInput {
   hashtagIds: string[]
   isPublished: boolean
   eventEnded: boolean
+  closed?: boolean
 }
 
 /**
  * 記事編集画面で関連記事を選ぶときの候補の並び (公開側の自動選定と同じ考え方)。
  * 公開ページに出る記事 → 同じカテゴリ → 共通ハッシュタグが多い → 新しい の順。
- * 下書き・終了イベントは選んでも表示されないので最後に回す (選べはする)。
+ * 下書き・終了イベント・閉店は選んでも表示されないので最後に回す (選べはする)。
  * categoryId / hashtagIds は保存前の編集中の値を渡す。
  */
 export function rankRelatedOptions<T extends RelatedOptionRankInput>(

@@ -4,6 +4,7 @@
  * Run: npx supabase gen types typescript --project-id nkvohswifpmarobyrnbe > src/lib/database.types.ts
  */
 import type { ArticleAngleKey } from '@/lib/article-angles'
+import type { PlaceStatus } from '@/lib/place-status'
 
 // Post types
 /** 記事の種類 — free=自由記事 / mini=投稿記事 / long=取材記事。表示名は article-types.ts */
@@ -23,6 +24,10 @@ export interface Post {
   updated_at: string
   is_published: boolean
   event_ended: boolean
+  /** 紹介したお店・場所の状態 (閉店 / 移転)。表示の決まりは place-status.ts */
+  place_status: PlaceStatus
+  relocation_note: string | null
+  relocation_url: string | null
   // Event metadata (Ticket 37) — populated by AI extraction or manual edit
   is_event: boolean
   event_date_start: string | null

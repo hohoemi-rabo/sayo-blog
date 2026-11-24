@@ -43,6 +43,7 @@ type Post = {
   is_published: boolean
   is_featured: boolean
   event_ended: boolean
+  place_status: string
   article_type: string
   published_at: string | null
   view_count: number
@@ -299,7 +300,7 @@ export function PostList({
                             src={post.thumbnail_url}
                             alt={post.title}
                             fill
-                            className={`object-cover ${post.event_ended ? 'grayscale' : ''}`}
+                            className={`object-cover ${post.event_ended || post.place_status === 'closed' ? 'grayscale' : ''}`}
                           />
                         </div>
                       ) : (
@@ -328,6 +329,22 @@ export function PostList({
                           title="このイベントは終了済みとしてマークされています"
                         >
                           📅 終了
+                        </span>
+                      )}
+                      {post.place_status === 'closed' && (
+                        <span
+                          className="ml-2 inline-flex items-center gap-0.5 rounded bg-gray-200 px-1.5 py-0.5 align-middle text-[10px] font-medium text-gray-600"
+                          title="閉店としてマークされています (トップ・関連記事には出ません)"
+                        >
+                          🏪 閉店
+                        </span>
+                      )}
+                      {post.place_status === 'relocated' && (
+                        <span
+                          className="ml-2 inline-flex items-center gap-0.5 rounded bg-sky-100 px-1.5 py-0.5 align-middle text-[10px] font-medium text-sky-700"
+                          title="移転としてマークされています"
+                        >
+                          📍 移転
                         </span>
                       )}
                       <p className="text-xs text-text-secondary mt-1 truncate max-w-md">

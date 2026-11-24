@@ -27,6 +27,8 @@ import { IgPostsSection } from '@/components/admin/posts/IgPostsSection'
 import { EventInfoSection, type EventInfoState } from './EventInfoSection'
 import { SummarySection, type SummaryState } from './SummarySection'
 import { RelatedPostsSection } from './RelatedPostsSection'
+import { PlaceStatusSection, type PlaceStatusState } from './PlaceStatusSection'
+import { normalizePlaceStatus } from '@/lib/place-status'
 import { UpdateHistorySection, type UpdateHistoryRow } from './UpdateHistorySection'
 import type { SavedPostUpdate } from '../actions'
 import { fromJstDatetimeLocal, toJstDatetimeLocal } from '@/lib/post-updates'
@@ -58,6 +60,9 @@ interface PostFormProps {
     thumbnail_url: string | null
     is_published: boolean
     event_ended?: boolean
+    place_status?: string | null
+    relocation_note?: string | null
+    relocation_url?: string | null
     published_at: string | null
     is_event?: boolean
     event_date_start?: string | null
@@ -137,6 +142,11 @@ export function PostForm({
   const [eventEnded, setEventEnded] = useState(
     initialData?.event_ended || false
   )
+  const [placeStatus, setPlaceStatus] = useState<PlaceStatusState>({
+    place_status: normalizePlaceStatus(initialData?.place_status),
+    relocation_note: initialData?.relocation_note ?? '',
+    relocation_url: initialData?.relocation_url ?? '',
+  })
   const [publishedAt, setPublishedAt] = useState(
     initialData?.published_at
       ? // 日本時間で表示・保存する。以前は UTC で表示してブラウザの時刻 (日本時間) として読み戻していたため、
@@ -225,6 +235,9 @@ export function PostForm({
       published_at: publishedAt ? fromJstDatetimeLocal(publishedAt) : null,
       is_published: isPublished,
       event_ended: eventEnded,
+      place_status: placeStatus.place_status,
+      relocation_note: placeStatus.relocation_note.trim() || null,
+      relocation_url: placeStatus.relocation_url.trim() || null,
       is_event: eventInfo.is_event,
       event_date_start: eventInfo.event_date_start,
       event_date_end: eventInfo.event_date_end,
@@ -462,6 +475,8 @@ export function PostForm({
                   イベント記事の開催回が過ぎた場合に使用してください。
                 </p>
               </div>
+
+              <PlaceStatusSection value={placeStatus} onChange={setPlaceStatus} />
             </div>
           </Card>
 

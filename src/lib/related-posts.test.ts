@@ -60,6 +60,18 @@ test('manual picks that became drafts or ended events are dropped and refilled',
   )
 })
 
+test('manual picks and candidates for closed places are dropped', () => {
+  assert.deepEqual(
+    selectRelatedPostIds({
+      ...base,
+      manual: [{ ...pick('gone'), closed: true }, pick('ok')],
+      sameCategory: [{ ...post('shut', '2026-10-20'), closed: true }, post('a', '2026-10-01')],
+      fallback: [],
+    }),
+    ['ok', 'a']
+  )
+})
+
 test('auto ranks by common hashtags, then newest first', () => {
   assert.deepEqual(
     selectRelatedPostIds({

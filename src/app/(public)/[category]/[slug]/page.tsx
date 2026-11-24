@@ -269,6 +269,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           lastUpdatedOn={lastUpdated}
           viewCount={post.view_count}
           eventEnded={post.event_ended ?? false}
+          placeStatus={post.place_status}
+          relocationNote={post.relocation_note}
+          relocationUrl={post.relocation_url}
           belowImage={updates.length > 0 ? <ArticleUpdateNotice latest={updates[0]} /> : undefined}
         />
       </div>
