@@ -151,10 +151,19 @@ Vercel Hobby の画像最適化は **月 5,000 変換**まで。超えると未�
 - **幅を増やすと縮小版がその分 Storage に増える** (Supabase 無料枠 1GB。2026-10 時点で元画像 353MB)。縮小版は表示されたものだけ作る = 事前の一括生成はしていない
 - 記事本文の写真は従来どおり HTML の `<img>` で Supabase の元画像を直接読む (この仕組みの対象外)
 
-## Event Ended Posts
+## Event Ended / 閉店 / 移転 (写真に重ねる案内)
+
+2026-11-24 に「閉店」「移転」を追加 (`posts.place_status` = open / closed / relocated)。判定は `src/lib/place-status.ts` (テストあり)。
+- 写真に重ねる案内は 1 つだけ: **閉店 > イベント終了 > 移転** (`photoNoticeOf`)。部品は `PhotoNoticeOverlay.tsx` (旧 `EventEndedOverlay`)
+- **閉店**: 終了イベントと同じ扱い = 白黒 + 暗い重ね + 「閉店されています」。**トップ・関連記事 (手動選択も表示時に外す)・最近更新された記事に出さない** (`.neq('place_status', 'closed')`)
+- **移転**: 今も行けるので**写真はカラー**、小さな白い札「移転されています」だけ。どこにでも出す。記事ページは写真の下に `RelocationNotice` (移転先の一言 `relocation_note` + リンク `relocation_url`)。トップの 3 枠は写真に見出し札があるので日付の横に「📍移転」(`HomeHighlights::RelocatedMark`)
+- 管理: 記事編集「公開設定」の「お店・場所の状態」(`PlaceStatusSection.tsx`)。移転先は移転のときだけ保存 (閉店・通常に戻すと消す)、リンクは http/https だけ (`placeStatusColumns`)。一覧に「🏪 閉店」「📍 移転」バッジ
+- ギャラリー (`/gallery`) は閉店の記事の写真もそのまま出る (未対応・要望が出たら)
+
+以下はイベント終了の元の記録。
 
 `posts.event_ended === true` の記事はサムネイル/ヒーロー画像を `grayscale` 化し、
-`<EventEndedOverlay mode="card" | "hero" />` を重ねて「終了済み」を伝える。
+`<EventEndedOverlay mode="card" | "hero" />` (現 `PhotoNoticeOverlay`) を重ねて「終了済み」を伝える。
 - `mode="card"` — `PostCard.tsx` のサムネ用。中央に「📅 このイベントは終了しています」ピル
 - `mode="hero"` — 記事詳細 `ArticleHero.tsx` 用。下部の半透明バーに紗代さん指定の全文案内
 - 通常時のヒーローのグラデーションは `eventEnded` 時は描画しない（オーバーレイと二重になるため）
