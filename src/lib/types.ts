@@ -28,6 +28,8 @@ export interface Post {
   place_status: PlaceStatus
   relocation_note: string | null
   relocation_url: string | null
+  /** 閉店のお知らせ文 (閉店のときだけ)。空なら決まり文 */
+  closure_note: string | null
   // Event metadata (Ticket 37) — populated by AI extraction or manual edit
   is_event: boolean
   event_date_start: string | null

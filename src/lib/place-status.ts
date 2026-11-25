@@ -1,7 +1,8 @@
 /**
  * 記事で紹介したお店・場所の今の状態 (閉店 / 移転)。Server / Client 両用・DB に触れない (テストあり)。
  *
- * - 閉店: 写真を白黒 + 「閉店されています」。トップ・関連記事・最近更新された記事には出さない (終了イベントと同じ)
+ * - 閉店: 写真を白黒 + 「閉店されています」。トップ・関連記事・最近更新された記事には出さない (終了イベントと同じ)。
+ *   記事ページの帯は紗代さんが書いた閉店のお知らせ文 (closure_note) を優先し、空なら決まり文
  * - 移転: 写真はカラーのまま小さな「移転されています」の札。記事ページには移転先の案内。どこにでも出す (今も行けるため)
  *
  * イベント終了 (event_ended) とは別の欄なので両方付くことがある。カードに重ねる案内は 1 つだけ
@@ -11,6 +12,11 @@
 export type PlaceStatus = 'open' | 'closed' | 'relocated'
 
 export const RELOCATION_NOTE_MAX = 100
+/** 閉店のお知らせ文。写真の上の帯に出すので長くしすぎない */
+export const CLOSURE_NOTE_MAX = 120
+
+/** 閉店のお知らせ文が空のときに記事ページの帯に出す決まり文 */
+export const DEFAULT_CLOSURE_NOTICE = 'こちらは閉店されています。記事は掲載当時の内容です。'
 
 export function normalizePlaceStatus(value: unknown): PlaceStatus {
   return value === 'closed' || value === 'relocated' ? value : 'open'
@@ -29,10 +35,18 @@ export function normalizeRelocationUrl(value: unknown): string | null {
   }
 }
 
-export function normalizeRelocationNote(value: unknown): string | null {
+function normalizeNote(value: unknown, max: number): string | null {
   if (typeof value !== 'string') return null
-  const trimmed = value.trim().slice(0, RELOCATION_NOTE_MAX)
+  const trimmed = value.trim().slice(0, max)
   return trimmed || null
+}
+
+export function normalizeRelocationNote(value: unknown): string | null {
+  return normalizeNote(value, RELOCATION_NOTE_MAX)
+}
+
+export function normalizeClosureNote(value: unknown): string | null {
+  return normalizeNote(value, CLOSURE_NOTE_MAX)
 }
 
 /** カードや記事の写真に重ねる案内 */

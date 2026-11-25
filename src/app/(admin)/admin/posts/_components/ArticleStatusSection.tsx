@@ -4,8 +4,11 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Select } from '@/components/ui/Select'
+import { Textarea } from '@/components/ui/Textarea'
 import {
   ARTICLE_STATUS_OPTIONS,
+  CLOSURE_NOTE_MAX,
+  DEFAULT_CLOSURE_NOTICE,
   RELOCATION_NOTE_MAX,
   normalizeArticleStatus,
   type ArticleStatus,
@@ -15,6 +18,7 @@ export interface ArticleStatusState {
   status: ArticleStatus
   relocation_note: string
   relocation_url: string
+  closure_note: string
 }
 
 /**
@@ -49,6 +53,23 @@ export function ArticleStatusSection({
           </Select>
           {hint && <p className="text-xs text-text-secondary">{hint}</p>}
         </div>
+
+        {value.status === 'closed' && (
+          <div className="space-y-1 rounded-md bg-background-dark/5 p-3">
+            <Label htmlFor="closure_note">閉店のお知らせ文 (任意)</Label>
+            <Textarea
+              id="closure_note"
+              value={value.closure_note}
+              maxLength={CLOSURE_NOTE_MAX}
+              rows={3}
+              onChange={(e) => onChange({ ...value, closure_note: e.target.value })}
+            />
+            <p className="text-xs text-text-secondary">
+              記事ページの写真の下部の帯に出ます (一覧のカードは「閉店されています」のまま)。空欄なら「{DEFAULT_CLOSURE_NOTICE}」と出ます。
+              ({value.closure_note.trim().length} / {CLOSURE_NOTE_MAX} 字)
+            </p>
+          </div>
+        )}
 
         {value.status === 'relocated' && (
           <div className="space-y-3 rounded-md bg-background-dark/5 p-3">

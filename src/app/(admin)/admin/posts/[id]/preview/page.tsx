@@ -132,6 +132,7 @@ export default async function PostPreviewPage({ params }: PageProps) {
           placeStatus={post.place_status}
           relocationNote={post.relocation_note}
           relocationUrl={post.relocation_url}
+          closureNote={post.closure_note}
           belowImage={updates.length > 0 ? <ArticleUpdateNotice latest={updates[0]} /> : undefined}
         />
       </div>

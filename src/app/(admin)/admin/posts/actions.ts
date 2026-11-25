@@ -18,6 +18,7 @@ import { PICKUP_COUNT } from '@/lib/home-slots'
 import { RELATED_POSTS_COUNT, rankRelatedOptions } from '@/lib/related-posts'
 import { normalizeUpdateEntries, type PostUpdateEntry } from '@/lib/post-updates'
 import {
+  normalizeClosureNote,
   normalizePlaceStatus,
   normalizeRelocationNote,
   normalizeRelocationUrl,
@@ -41,6 +42,7 @@ export type PostFormData = {
   place_status: PlaceStatus
   relocation_note: string | null
   relocation_url: string | null
+  closure_note: string | null
   // Event metadata (Ticket 37)
   is_event: boolean
   event_date_start: string | null
@@ -65,7 +67,7 @@ export type PostFormData = {
 
 /**
  * お店の状態の列。画面から来た値をそろえる (不正な状態は「通常」、リンクは http/https だけ)。
- * 移転先は移転のときだけ残す (閉店・通常に戻したら消す = 古い移転先が後で出てこないように)
+ * 移転先は移転のときだけ、閉店のお知らせ文は閉店のときだけ残す (状態を戻したら消す = 古い文が後で出てこないように)
  */
 function placeStatusColumns(data: PostFormData) {
   const placeStatus = normalizePlaceStatus(data.place_status)
@@ -74,6 +76,7 @@ function placeStatusColumns(data: PostFormData) {
     place_status: placeStatus,
     relocation_note: relocated ? normalizeRelocationNote(data.relocation_note) : null,
     relocation_url: relocated ? normalizeRelocationUrl(data.relocation_url) : null,
+    closure_note: placeStatus === 'closed' ? normalizeClosureNote(data.closure_note) : null,
   }
 }
 

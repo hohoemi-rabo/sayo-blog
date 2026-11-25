@@ -5,6 +5,7 @@ import {
   articleStatusOf,
   isGrayscaleNotice,
   normalizeArticleStatus,
+  normalizeClosureNote,
   normalizePlaceStatus,
   normalizeRelocationNote,
   normalizeRelocationUrl,
@@ -61,4 +62,13 @@ test('edit screen status is saved back into the two columns', () => {
   assert.deepEqual(articleStatusColumns('closed'), { event_ended: false, place_status: 'closed' })
   assert.deepEqual(articleStatusColumns('relocated'), { event_ended: false, place_status: 'relocated' })
   assert.equal(normalizeArticleStatus('bogus'), 'open')
+})
+
+test('closure note is trimmed, capped at 120 and empty becomes null', () => {
+  assert.equal(
+    normalizeClosureNote('  飯田駅で営業していた店舗は閉店しました。現在も駒ヶ根市で営業を続けています。 '),
+    '飯田駅で営業していた店舗は閉店しました。現在も駒ヶ根市で営業を続けています。'
+  )
+  assert.equal(normalizeClosureNote(''), null)
+  assert.equal(normalizeClosureNote('あ'.repeat(200))?.length, 120)
 })

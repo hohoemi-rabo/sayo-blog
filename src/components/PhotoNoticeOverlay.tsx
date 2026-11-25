@@ -1,8 +1,10 @@
-import type { PhotoNotice } from '@/lib/place-status'
+import { DEFAULT_CLOSURE_NOTICE, type PhotoNotice } from '@/lib/place-status'
 
 interface PhotoNoticeOverlayProps {
   notice: PhotoNotice
   mode: 'card' | 'hero'
+  /** 記事ページの帯に出す文を差し替える (閉店のお知らせ文)。空なら決まり文 */
+  fullText?: string | null
 }
 
 /** カードでは短い一言、記事ページの写真では下部の帯に全文 */
@@ -15,7 +17,7 @@ const NOTICES: Record<PhotoNotice, { icon: string; short: string; full: string }
   closed: {
     icon: '🏪',
     short: '閉店されています',
-    full: 'こちらは閉店されています。記事は掲載当時の内容です。',
+    full: DEFAULT_CLOSURE_NOTICE,
   },
   relocated: {
     icon: '📍',
@@ -29,8 +31,9 @@ const NOTICES: Record<PhotoNotice, { icon: string; short: string; full: string }
  * 終了・閉店は写真を暗くして中央 (記事ページは下部の帯)、移転は今も行けるので写真を隠さない小さな札だけ
  * (移転先は記事ページの写真の下に `RelocationNotice` で出す)。写真の白黒化は呼び出し側 (`isGrayscaleNotice`)。
  */
-export default function PhotoNoticeOverlay({ notice, mode }: PhotoNoticeOverlayProps) {
-  const { icon, short, full } = NOTICES[notice]
+export default function PhotoNoticeOverlay({ notice, mode, fullText }: PhotoNoticeOverlayProps) {
+  const { icon, short } = NOTICES[notice]
+  const full = fullText?.trim() || NOTICES[notice].full
 
   if (notice === 'relocated') {
     return (

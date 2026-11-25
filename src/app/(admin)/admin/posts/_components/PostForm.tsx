@@ -63,6 +63,7 @@ interface PostFormProps {
     place_status?: string | null
     relocation_note?: string | null
     relocation_url?: string | null
+    closure_note?: string | null
     published_at: string | null
     is_event?: boolean
     event_date_start?: string | null
@@ -147,6 +148,7 @@ export function PostForm({
     }),
     relocation_note: initialData?.relocation_note ?? '',
     relocation_url: initialData?.relocation_url ?? '',
+    closure_note: initialData?.closure_note ?? '',
   })
   const [publishedAt, setPublishedAt] = useState(
     initialData?.published_at
@@ -238,6 +240,7 @@ export function PostForm({
       ...articleStatusColumns(articleStatus.status),
       relocation_note: articleStatus.relocation_note.trim() || null,
       relocation_url: articleStatus.relocation_url.trim() || null,
+      closure_note: articleStatus.closure_note.trim() || null,
       is_event: eventInfo.is_event,
       event_date_start: eventInfo.event_date_start,
       event_date_end: eventInfo.event_date_end,

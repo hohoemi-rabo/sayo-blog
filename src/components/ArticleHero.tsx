@@ -22,6 +22,8 @@ interface ArticleHeroProps {
   placeStatus?: string | null
   relocationNote?: string | null
   relocationUrl?: string | null
+  /** 閉店のお知らせ文。閉店のときだけ写真の帯に出す (空なら決まり文) */
+  closureNote?: string | null
   /** 写真のすぐ下に出すもの (更新のお知らせの帯) */
   belowImage?: ReactNode
 }
@@ -41,6 +43,7 @@ export default function ArticleHero({
   placeStatus = 'open',
   relocationNote = null,
   relocationUrl = null,
+  closureNote = null,
   belowImage,
 }: ArticleHeroProps) {
   const notice = photoNoticeOf({ event_ended: eventEnded, place_status: placeStatus })
@@ -103,7 +106,13 @@ export default function ArticleHero({
           {!dimmed && (
             <div className="absolute inset-0 bg-gradient-to-t from-background-dark/60 via-transparent to-transparent" />
           )}
-          {notice && <PhotoNoticeOverlay notice={notice} mode="hero" />}
+          {notice && (
+            <PhotoNoticeOverlay
+              notice={notice}
+              mode="hero"
+              fullText={notice === 'closed' ? closureNote : null}
+            />
+          )}
         </div>
       )}
 
